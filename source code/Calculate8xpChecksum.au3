@@ -13,19 +13,19 @@
 Func Calculate8xpChecksum($binaryData)
 
    ; Extract bytes 56 to the end (minus 2 for checksum)
-   $data = BinaryMid($data, 56, BinaryLen($data) - 55)
+   $binaryData = BinaryMid($binaryData, 56, BinaryLen($binaryData) - 55)
 
    ; Get the numerical value of each byte and sum them together
    $sum = 0
-   For $i = 1 to BinaryLen($data)
-	  $sum += Number(BinaryMid($data, $i, 1))
+   For $i = 1 to BinaryLen($binaryData)
+	  $sum += Number(BinaryMid($binaryData, $i, 1))
    Next
 
    ; Get 2 bytes in little endian format
    $checksum = BinaryMid($sum, 1, 2)
 
    ; Display result, for debugging
-   MsgBox(0, "Checksum", $sum & @CRLF & Binary($sum) & @CRLF & $checksum)
+;~    MsgBox(0, "Checksum", $sum & @CRLF & Binary($sum) & @CRLF & $checksum)
 
    Return $checksum
 

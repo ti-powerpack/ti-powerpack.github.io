@@ -1,10 +1,14 @@
+; This script is meant to run standalone, NOT included.
+; It will watch a specific folder, as passed in via command line parameters
+; And it will put the filename of any new/edited/removed file into the default console output (StdOut) on its own line
+; This output is designed to be handled by the parent script WatchFolderForChanges.au3
+
 #include <WinAPIFiles.au3>
-;#include <Array.au3>
 
 $monitorSubfolders = false
 $path = $CmdLine[1]
 
-;~ ConsoleWrite("Folder monitoring started." & @CRLF)
+; ConsoleWrite("Folder monitoring started." & @CRLF)
 
 ; Get a handle to a specific folder
 Local $hDirectory = _WinAPI_CreateFileEx($path, $OPEN_EXISTING, $FILE_LIST_DIRECTORY, BitOR($FILE_SHARE_READ, $FILE_SHARE_WRITE), $FILE_FLAG_BACKUP_SEMANTICS)

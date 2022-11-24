@@ -1,6 +1,15 @@
-; This script can be used in other scripts to monitor file changes.
+; This script can be used in other scripts to monitor new/changed files in a specific folder.
 ; Simply include it like this and provide a function to be called:
 ;
+;		#include "WatchFolderForChanges.au3"
+;
+;		WatchFolderForChanges("C:\MyFolder", MyCallback, "txt,zip")
+;		Func MyCallback($filename)
+;			; Do something with $filename
+;		EndFunc
+
+
+; TODO: Would be good to filter out duplicate events for the same file here. But I'm not sure of the best way to do that.
 
 #include <AutoItConstants.au3>
 #include <StringConstants.au3>
@@ -21,7 +30,7 @@ Func WatchFolderForChanges($folder, $callback, $fileExtensionList = "")
    ; Read data from child, while it exists
    ; Increase the sleep time to use less CPU, or decrease it to make it more responsive
    While 1
-	  Sleep(100)
+	  Sleep(200)
 	  $data = StdoutRead($childProcessID)
 	  If @error Then
 		 ConsoleWrite("Child has exited." & @CRLF)
@@ -32,10 +41,12 @@ Func WatchFolderForChanges($folder, $callback, $fileExtensionList = "")
 		 $data = StringStripWS($data, $STR_STRIPLEADING + $STR_STRIPTRAILING)
 		 $data = StringSplit($data, @CRLF, $STR_ENTIRESPLIT + $STR_NOCOUNT)
 		 For $item In $data
-			ConsoleWrite("Child returned: " & $item & @CRLF)
-			ConsoleWrite("Extension: " & FileExtension($item) & @CRLF)
-			If Not UBound($fileExtensionList) Or _ArraySearch($fileExtensionList, FileExtension($item)) > -1 Then
+			; If a list of file extensions was provided, check if the file matches one in the list
+			If $fileExtensionList[0] = "" Or _ArraySearch($fileExtensionList, FileExtension($item)) > -1 Then
+			   ConsoleWrite("File change registered: " & $item & ", with file extension: " & FileExtension($item) & @CRLF)
 			   $callback($item)
+			Else
+			   ConsoleWrite("File change ignored: " & $item & ", with file extension: " & FileExtension($item) & @CRLF)
 			EndIf
 		 Next
 	  EndIf

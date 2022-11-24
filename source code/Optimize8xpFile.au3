@@ -9,6 +9,11 @@ Func Optimize8xpFile($filename)
    $file = FileOpen($filename, $FO_BINARY)
    $data = FileRead($file)
 
+   If @error Then
+	  ConsoleWriteError("Compilation failed. Could not read " & $filename & @CRLF)
+	  Return
+   EndIf
+
    ; Extract sections of file
    $header = BinaryMid($data, 1, 55) ; first 55 bytes
    $meta = BinaryMid($data, 56, 19)  ; next 19 bytes
@@ -44,6 +49,7 @@ Func Optimize8xpFile($filename)
    ; Write to new file
    $file2 = FileOpen(StringReplace($filename, ".8xp", ".optimized.8xp"), $FO_OVERWRITE + $FO_BINARY)
    FileWrite($file2, $data)
+   FileClose($file2)
 
 EndFunc
 
