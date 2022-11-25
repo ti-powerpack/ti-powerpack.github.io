@@ -1,10 +1,12 @@
-#include "WatchFolderForChanges.au3"
-#include "Optimize8xpFile.au3"
+#include "Includes\WatchFolderForChanges.au3"
+#include "Includes\Process8xpppFile.au3"
 
-WatchFolderForChanges(@ScriptDir, OptimizeScriptWhenSaved, "8xp")
+$folderToWatch = @ScriptDir & "\Test Watch Folder"
+
+WatchFolderForChanges($folderToWatch, OptimizeScriptWhenSaved, "8xppp")
 
 Func OptimizeScriptWhenSaved($filename)
-   If StringInStr($filename, ".optimized.8xp") Then Return
+   ;; If StringInStr($filename, ".optimized.8xp") Then Return
    ConsoleWrite("Now compiling: " & $filename & @CRLF)
-   Optimize8xpFile($filename)
+   Process8xpppFile($folderToWatch & "\" & $filename, $folderToWatch & "\" & StringReplace($filename, ".8xppp", ".8xp"))
 EndFunc

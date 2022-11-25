@@ -19,8 +19,8 @@ Func WatchFolderForChanges($folder, $callback, $fileExtensionList = "")
    ; Start child process
    ; The important flag here is to use $STDOUT_CHILD which allows us to receive data
    ; We cannot use ShellExecute() here because of the need to set this flag.
-   ConsoleWrite("Starting child process..." & @CRLF)
-   Global $childProcessID = Run(@AutoItExe & " " & "WatchFolderForChangesChild.au3" & " """ & $folder & """", "", @SW_HIDE, $STDOUT_CHILD)
+   ConsoleWrite("Starting child process. Watching folder: " & $folder & @CRLF)
+   Global $childProcessID = Run(@AutoItExe & " " & "Includes\WatchFolderForChangesChild.au3" & " """ & $folder & """", "", @SW_HIDE, $STDOUT_CHILD)
 
    ; Close child process when parent exits
    OnAutoItExitRegister("OnAutoItExit")

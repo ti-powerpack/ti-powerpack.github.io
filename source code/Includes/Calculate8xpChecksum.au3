@@ -10,6 +10,7 @@
 
 
 ; Pass in binary data, from start of file to end of body (EXCLUDING checksum)
+; Returns the two byte checksum for the given data
 Func Calculate8xpChecksum($binaryData)
 
    ; Extract bytes 56 to the end (minus 2 for checksum)
