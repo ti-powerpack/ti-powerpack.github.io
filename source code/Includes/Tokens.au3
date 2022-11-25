@@ -3,22 +3,22 @@
 ; ---------------------------------------------------------------------------
 ; Some tokens have multiple text representations
 ; The first one listed is used when decompiling from binary, and should match
-; the character(s) used in TI Connect CE. Other alternatives may be used
-; when compiling from text to binary form.
+; the character(s) used in TI Connect CE, for best compatibility.
+; Other alternatives may be used when compiling *from* text to binary form.
 
 Global $8xpTokens[][] = [ _
     [0x00, 0x00], _
     [0x01, "DMS", "►DMS"], _
     [0x02, "Dec", "►Dec"], _
     [0x03, "Frac", "►Frac"], _
-    [0x04, "→"], _
+    [0x04, "→"], _   ; assignment
     [0x05, "Boxplot"], _
     [0x06, "["], _
     [0x07, "]"], _
     [0x08, "{"], _
     [0x09, "}"], _
     [0x0A, "ʳ"], _
-    [0x0B, "°"], _
+    [0x0B, "°"], _   ; degree symbol
     [0x0C, "ˉ¹"], _
     [0x0D, "²"], _
     [0x0E, "ᵀ"], _
@@ -36,8 +36,8 @@ Global $8xpTokens[][] = [ _
     [0x1A, "min("], _
     [0x1B, "RPr", "R►Pr("], _
     [0x1C, "RPθ", "R►Pθ("], _
-    [0x1D, "RRx(", "P►Rx("], _
-    [0x1E, "RRy(", "P►Ry("], _
+    [0x1D, "PRx(", "P►Rx("], _
+    [0x1E, "PRy(", "P►Ry("], _
     [0x1F, "median("], _
     [0x20, "randM("], _
     [0x21, "mean("], _
@@ -146,8 +146,8 @@ Global $8xpTokens[][] = [ _
     [0x91, "PrintScreen"], _
     [0x92, "ZoomSto"], _
     [0x93, "Text("], _
-    [0x94, " nPr"], _
-    [0x95, " nCr"], _
+    [0x94, " nPr"], _   ; check spaces
+    [0x95, " nCr"], _   ; check spaces
     [0x96, "FnOn"], _
     [0x97, "FnOff"], _
     [0x98, "StorePic"], _
@@ -173,7 +173,7 @@ Global $8xpTokens[][] = [ _
     [0xAD, "getKey"], _
     [0xAE, "'"], _
     [0xAF, "?"], _
-    [0xB0, "­", "⁻"], _
+    [0xB0, "­", "⁻"], _ ; invisible negative sign
     [0xB1, "int("], _
     [0xB2, "abs("], _
     [0xB3, "det("], _
@@ -219,7 +219,7 @@ Global $8xpTokens[][] = [ _
     [0xDC, "Input "], _
     [0xDD, "Prompt "], _
     [0xDE, "Disp "], _
-    [0xDF, "DispGraph"], _
+    [0xDF, "DispGraph"], _    ; space after?
     [0xE0, "Output("], _
     [0xE1, "ClrHome"], _
     [0xE2, "Fill("], _
@@ -239,7 +239,7 @@ Global $8xpTokens[][] = [ _
     [0xF1, "ˣ√"], _
     [0xF2, "1-Var Stats"], _
     [0xF3, "2-Var Stats"], _
-    [0xF4, "LinReg(a+bx)"], _
+    [0xF4, "LinReg(a+bx)"], _    ; space after?
     [0xF5, "ExpReg"], _
     [0xF6, "LnReg"], _
     [0xF7, "PwrReg"], _
@@ -250,7 +250,7 @@ Global $8xpTokens[][] = [ _
     [0xFC, "Histogram"], _
     [0xFD, "xyLine"], _
     [0xFE, "Scatter"], _
-    [0xFF, "LinReg(ax+b)"], _
+    [0xFF, "LinReg(ax+b)"], _    ; space after?
     [0x5C00, "[A]"], _ ; these might need checking
     [0x5C01, "[B]"], _
     [0x5C02, "[C]"], _
@@ -295,9 +295,9 @@ Global $8xpTokens[][] = [ _
     [0x5E43, "r₄"], _
     [0x5E44, "r₅"], _
     [0x5E45, "r₆"], _
-    [0x5E80, "u"], _
-    [0x5E81, "v"], _
-    [0x5E82, "w"], _
+    [0x5E80, "u"], _    ; duplicated later? To check these
+    [0x5E81, "v"], _    ; duplicated later? To check these
+    [0x5E82, "w"], _    ; duplicated later? To check these
     [0x6000, "Pic1"], _
     [0x6001, "Pic2"], _
     [0x6002, "Pic3"], _
@@ -319,7 +319,7 @@ Global $8xpTokens[][] = [ _
     [0x6108, "GDB9"], _
     [0x6109, "GDB0"], _
     [0x6201, "RegEQ"], _
-    [0x6202, "n"], _
+    [0x6202, "n"], _    ; duplicated later? To check these
     [0x6203, "ẋ"], _
     [0x6204, "Σx"], _
     [0x6205, "Σx²"], _
@@ -335,29 +335,29 @@ Global $8xpTokens[][] = [ _
     [0x620F, "Sy"], _
     [0x6210, "σy"], _
     [0x6211, "Σxy"], _
-    [0x6212, "r"], _
+    [0x6212, "r"], _    ; duplicated later? To check these
     [0x6213, "Med"], _
     [0x6214, "Q1"], _
     [0x6215, "Q3"], _
-    [0x6216, "a"], _
-    [0x6217, "b"], _
-    [0x6218, "c"], _
-    [0x6219, "d"], _
-    [0x621A, "e"], _
+    [0x6216, "a"], _    ; duplicated later? To check these
+    [0x6217, "b"], _    ; duplicated later? To check these
+    [0x6218, "c"], _    ; duplicated later? To check these
+    [0x6219, "d"], _    ; duplicated later? To check these
+    [0x621A, "e"], _    ; duplicated later? To check these
     [0x621B, "x₁"], _
     [0x621C, "x₂"], _
     [0x621D, "x₃"], _
     [0x621E, "y₁"], _
     [0x621F, "y₂"], _
     [0x6220, "y₃"], _
-    [0x6221, "[recursiven]"], _
-    [0x6222, "p"], _
-    [0x6223, "z"], _
-    [0x6224, "t"], _
+    [0x6221, "[recursiven]"], _   ; may need updating as per TI Connect CE
+    [0x6222, "p"], _    ; duplicated later? To check these
+    [0x6223, "z"], _    ; duplicated later? To check these
+    [0x6224, "t"], _    ; duplicated later? To check these
     [0x6225, "χ²"], _
-    [0x6226, "[|F]"], _
-    [0x6227, "[df]"], _
-    [0x6228, "[ṗ]"], _
+    [0x6226, "[|F]"], _   ; may need updating as per TI Connect CE
+    [0x6227, "[df]"], _   ; may need updating as per TI Connect CE
+    [0x6228, "[ṗ]"], _    ; may need updating as per TI Connect CE
     [0x6229, "ṗ₁"], _
     [0x622A, "ṗ₂"], _
     [0x622B, "ẋ₁"], _
@@ -366,18 +366,18 @@ Global $8xpTokens[][] = [ _
     [0x622E, "ẋ₂"], _
     [0x622F, "Sx₂"], _
     [0x6230, "n₂"], _
-    [0x6231, "[Sxp]"], _
+    [0x6231, "[Sxp]"], _   ; may need updating as per TI Connect CE
     [0x6232, "lower"], _
     [0x6233, "upper"], _
-    [0x6234, "s"], _
+    [0x6234, "s"], _    ; duplicated later? To check these
     [0x6235, "r²"], _
     [0x6236, "R²"], _
-    [0x6237, "[factordf]"], _
-    [0x6238, "[factorSS]"], _
-    [0x6239, "[factorMS]"], _
-    [0x623A, "[errordf]"], _
-    [0x623B, "[errorSS]"], _
-    [0x623C, "[errorMS]"], _
+    [0x6237, "[factordf]"], _    ; may need updating as per TI Connect CE
+    [0x6238, "[factorSS]"], _    ; may need updating as per TI Connect CE
+    [0x6239, "[factorMS]"], _    ; may need updating as per TI Connect CE
+    [0x623A, "[errordf]"], _    ; may need updating as per TI Connect CE
+    [0x623B, "[errorSS]"], _    ; may need updating as per TI Connect CE
+    [0x623C, "[errorMS]"], _    ; may need updating as per TI Connect CE
     [0x6300, "ZXscl"], _
     [0x6301, "ZYscl"], _
     [0x6302, "Xscl"], _
@@ -421,13 +421,13 @@ Global $8xpTokens[][] = [ _
     [0x6328, "XFact"], _
     [0x6329, "YFact"], _
     [0x632A, "TblInput"], _
-    [0x632B, "N"], _
+    [0x632B, "N"], _       ; may need updating as per TI Connect CE
     [0x632C, "I%"], _
     [0x632D, "PV"], _
     [0x632E, "PMT"], _
     [0x632F, "FV"], _
-    [0x6330, "|P/Y"], _
-    [0x6331, "|C/Y"], _
+    [0x6330, "|P/Y"], _    ; may need updating as per TI Connect CE
+    [0x6331, "|C/Y"], _    ; may need updating as per TI Connect CE
     [0x6332, "w(nMin)"], _
     [0x6333, "Zw(nMin)"], _
     [0x6334, "PlotStep"], _
@@ -468,8 +468,8 @@ Global $8xpTokens[][] = [ _
     [0xBB02, "bal("], _
     [0xBB03, "ΣPrn("], _
     [0xBB04, "ΣInt("], _
-    [0xBB05, "►Nom("], _
-    [0xBB06, "►Eff("], _
+    [0xBB05, "►Nom("], _    ; may need updating as per TI Connect CE
+    [0xBB06, "►Eff("], _    ; may need updating as per TI Connect CE
     [0xBB07, "dbd("], _
     [0xBB08, "lcm("], _
     [0xBB09, "gcd("], _
@@ -547,7 +547,7 @@ Global $8xpTokens[][] = [ _
     [0xBB51, "ExprOff"], _
     [0xBB52, "ClrAllLists"], _
     [0xBB53, "GetCalc("], _
-    [0xBB54, "DelVar"], _
+    [0xBB54, "DelVar"], _      ; space after?
     [0xBB55, "EquString(", "Equ►String("], _
     [0xBB56, "StringEqu(", "String►Equ("], _
     [0xBB57, "Clear Entries"], _
@@ -559,8 +559,8 @@ Global $8xpTokens[][] = [ _
     [0xBB65, "ZoomFit"], _
     [0xBB66, "DiagnosticOn"], _
     [0xBB67, "DiagnosticOff"], _
-    [0xBB68, "Archive"], _
-    [0xBB69, "UnArchive"], _
+    [0xBB68, "Archive"], _     ; space after?
+    [0xBB69, "UnArchive"], _   ; space after?
     [0xBB6A, "Asm("], _
     [0xBB6B, "AsmComp("], _
     [0xBB6C, "AsmPrgm"], _
@@ -608,7 +608,7 @@ Global $8xpTokens[][] = [ _
     [0xBB98, "Ñ"], _
     [0xBB99, "ñ"], _
     [0xBB9A, "´"], _
-    [0xBB9B, "|`"], _
+    [0xBB9B, "|`"], _     ; may need updating as per TI Connect CE
     [0xBB9C, "¨"], _
     [0xBB9D, "¿"], _
     [0xBB9E, "¡"], _
@@ -620,14 +620,14 @@ Global $8xpTokens[][] = [ _
     [0xBBA4, "ε"], _
     [0xBBA5, "λ"], _
     [0xBBA6, "μ"], _
-    [0xBBA7, "|π"], _
+    [0xBBA7, "|π"], _     ; may need updating as per TI Connect CE
     [0xBBA8, "ρ"], _
     [0xBBA9, "Σ"], _
     [0xBBAB, "Φ"], _
     [0xBBAC, "Ω"], _
     [0xBBAD, "ṗ"], _
     [0xBBAE, "χ"], _
-    [0xBBAF, "|F"], _
+    [0xBBAF, "|F"], _    ; may need updating as per TI Connect CE
     [0xBBB0, "a"], _
     [0xBBB1, "b"], _
     [0xBBB2, "c"], _
@@ -685,7 +685,7 @@ Global $8xpTokens[][] = [ _
     [0xBBE8, "₈"], _
     [0xBBE9, "₉"], _
     [0xBBEA, "₁₀"], _
-    [0xBBEB, "◄"], _
+    [0xBBEB, "◄"], _       ; may need updating as per TI Connect CE
     [0xBBEC, "", "►"], _
     [0xBBED, "↑"], _
     [0xBBEE, "↓"], _
@@ -728,8 +728,8 @@ Global $8xpTokens[][] = [ _
     [0xEF1E, "mathprintbox"], _
     [0xEF2E, "⁄"], _
     [0xEF2F, "ᵤ"], _
-    [0xEF30, "►n⁄d◄►Un⁄d"], _
-    [0xEF31, "►F◄►D"], _
+    [0xEF30, "►n⁄d◄►Un⁄d"], _   ; may need updating as per TI Connect CE
+    [0xEF31, "►F◄►D"], _        ; may need updating as per TI Connect CE
     [0xEF32, "remainder("], _
     [0xEF33, "Σ("], _
     [0xEF34, "logBASE("], _
@@ -738,9 +738,9 @@ Global $8xpTokens[][] = [ _
     [0xEF38, "CLASSIC"], _
     [0xEF39, "n⁄d"], _
     [0xEF3A, "Un⁄d"], _
-    [0xEF3B, "[AUTO]"], _
-    [0xEF3C, "[DEC]"], _
-    [0xEF3D, "[FRAC]"], _
+    [0xEF3B, "[AUTO]"], _       ; may need updating as per TI Connect CE
+    [0xEF3C, "[DEC]"], _        ; may need updating as per TI Connect CE
+    [0xEF3D, "[FRAC]"], _       ; may need updating as per TI Connect CE
     [0xEF41, "BLUE"], _
     [0xEF42, "RED"], _
     [0xEF43, "BLACK"], _
