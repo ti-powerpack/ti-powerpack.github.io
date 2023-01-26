@@ -1,0 +1,91 @@
+:
+::
+:::
+::::"Here are some colons, and string comment
+:::
+::
+:
+1
+:2
+:::3
+
+"TODO: Convert all colons NOT inside a string into line returns. That way the following
+"       optimizations will apply to those cases too. Currently they do not.
+
+"And now blank lines
+
+
+4
+  "And spaces at start of a line
+   "
+    :
+     :
+     :::
+     :
+    :
+ 5
+  6
+   7
+
+"The next two strings should NOT be treated as comments
+"8"→Str0
+"9→Str1
+
+"These are also NOT comments
+Menu("Here is a string
+sub("Another string
+
+"Hmm... what if we want to put a string into Ans?
+"Well, we can force it manually, like this:
+"(this is not valid TI-BASIC, normally)
+"Here is my string→Ans
+"Here is my string"→Ans
+
+"Remove closing double quotes when storing a string 
+"Test"→Str0
+"Test another:"→Str0
+
+"RARE CASE: trying to store an empty string with one set of quotes)
+"→Str0
+""→Str0
+
+"Remove closing } when storing an array
+{1,2,3}→X
+
+"EXCEPT when it's inside a string
+"{1,2,3}→Str0
+"{1,2,3}"→Str0
+
+"Remove closing ) when storing a number
+2(3)→X
+(3+45)→Y
+
+"Remove trailing brackets
+1(2)
+3(45+56)
+(1(2))
+Menu("Abc",A)
+sub("123",2,3)
+StringEqu("String here",Y1)
+inString("Str 1","Str 2")
+inString("Str 1","Str 2",3)
+inString("a","b")→X
+{1,2,3}
+sub("123",2,3)→Str0
+
+"EXCEPT when For is start of line, or there's quotes (string) in the line
+For(I,1,2)
+
+"If bracket is deliberately left off a For() it should be left as is
+For(I,2,3
+
+Disp "Here is an (example)
+Prompt "Or (another)
+Input A,"Or {another}
+
+
+"Here are some trailing blank lines, at end of file these should be removed.
+
+
+
+

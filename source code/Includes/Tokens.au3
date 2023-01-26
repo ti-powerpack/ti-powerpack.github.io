@@ -17,12 +17,12 @@ Global $8xpTokens[][] = [ _
     [0x07, "]"], _
     [0x08, "{"], _
     [0x09, "}"], _
-    [0x0A, "ʳ"], _
+    [0x0A, "", "ʳ"], _
     [0x0B, "°"], _   ; degree symbol
-    [0x0C, "ˉ¹"], _
+    [0x0C, "", "ˉ¹"], _
     [0x0D, "²"], _
-    [0x0E, "ᵀ"], _
-    [0x0F, "³"], _
+    [0x0E, "", "ᵀ"], _
+    [0x0F, "", "³"], _
     [0x10, "("], _
     [0x11, ")"], _
     [0x12, "round("], _
@@ -34,8 +34,8 @@ Global $8xpTokens[][] = [ _
     [0x18, "*row+("], _
     [0x19, "max("], _
     [0x1A, "min("], _
-    [0x1B, "RPr", "R►Pr("], _
-    [0x1C, "RPθ", "R►Pθ("], _
+    [0x1B, "RPr(", "R►Pr("], _
+    [0x1C, "RPθ(", "R►Pθ("], _
     [0x1D, "PRx(", "P►Rx("], _
     [0x1E, "PRy(", "P►Ry("], _
     [0x1F, "median("], _
@@ -50,10 +50,10 @@ Global $8xpTokens[][] = [ _
     [0x29, " "], _
     [0x2A, """"], _
     [0x2B, ","], _
-    [0x2C, "[i]"], _
+    [0x2C, "", "[i]"], _
     [0x2D, "!"], _
-    [0x2E, "CubicReg"], _
-    [0x2F, "QuartReg"], _
+    [0x2E, "CubicReg "], _
+    [0x2F, "QuartReg "], _
     [0x30, "0"], _
     [0x31, "1"], _
     [0x32, "2"], _
@@ -65,7 +65,7 @@ Global $8xpTokens[][] = [ _
     [0x38, "8"], _
     [0x39, "9"], _
     [0x3A, "."], _
-    [0x3B, "ᴇ"], _
+    [0x3B, "", "ᴇ"], _
     [0x3C, " or "], _
     [0x3D, " xor "], _
     [0x3E, ":"], _
@@ -114,7 +114,7 @@ Global $8xpTokens[][] = [ _
     [0x70, "+"], _
     [0x71, "-"], _
     [0x72, "Ans"], _
-    [0x73, "Fix"], _
+    [0x73, "Fix "], _
     [0x74, "Horiz"], _
     [0x75, "Full"], _
     [0x76, "Func"], _
@@ -125,8 +125,8 @@ Global $8xpTokens[][] = [ _
     [0x7B, "IndpntAsk"], _
     [0x7C, "DependAuto"], _
     [0x7D, "DependAsk"], _
-    [0x7F, "plotsquare"], _
-    [0x80, "﹢"], _
+    [0x7F, "▫", "plotsquare"], _
+    [0x80, "⁺", "﹢"], _
     [0x81, "·"], _
     [0x82, "*"], _
     [0x83, "/"], _
@@ -146,16 +146,16 @@ Global $8xpTokens[][] = [ _
     [0x91, "PrintScreen"], _
     [0x92, "ZoomSto"], _
     [0x93, "Text("], _
-    [0x94, " nPr"], _   ; check spaces
-    [0x95, " nCr"], _   ; check spaces
-    [0x96, "FnOn"], _
-    [0x97, "FnOff"], _
-    [0x98, "StorePic"], _
-    [0x99, "RecallPic"], _
-    [0x9A, "StoreGDB"], _
-    [0x9B, "RecallGDB"], _
+    [0x94, " nPr "], _  
+    [0x95, " nCr "], _  
+    [0x96, "FnOn "], _
+    [0x97, "FnOff "], _
+    [0x98, "StorePic "], _
+    [0x99, "RecallPic "], _
+    [0x9A, "StoreGDB "], _
+    [0x9B, "RecallGDB "], _
     [0x9C, "Line("], _
-    [0x9D, "Vertical"], _
+    [0x9D, "Vertical "], _
     [0x9E, "Pt-On("], _
     [0x9F, "Pt-Off("], _
     [0xA0, "Pt-Change("], _
@@ -164,10 +164,10 @@ Global $8xpTokens[][] = [ _
     [0xA3, "Pxl-Change("], _
     [0xA4, "Shade("], _
     [0xA5, "Circle("], _
-    [0xA6, "Horizontal"], _
+    [0xA6, "Horizontal "], _
     [0xA7, "Tangent("], _
-    [0xA8, "DrawInv"], _
-    [0xA9, "DrawF"], _
+    [0xA8, "DrawInv "], _
+    [0xA9, "DrawF "], _
     [0xAB, "rand"], _
     [0xAC, "π"], _
     [0xAD, "getKey"], _
@@ -185,23 +185,23 @@ Global $8xpTokens[][] = [ _
     [0xB9, "iPart("], _
     [0xBA, "fPart("], _
     [0xBC, "√("], _
-    [0xBD, "³√("], _
+    [0xBD, "√(", "³√("], _
     [0xBE, "ln("], _
-    [0xBF, "e^("], _
+    [0xBF, "^(", "e^("], _
     [0xC0, "log("], _
-    [0xC1, "₁₀^("], _
+    [0xC1, "^(", "₁₀^("], _
     [0xC2, "sin("], _
-    [0xC3, "sin⁻¹("], _
+    [0xC3, "sin(", "sin⁻¹("], _
     [0xC4, "cos("], _
-    [0xC5, "cos⁻¹("], _
+    [0xC5, "cos(", "cos⁻¹("], _
     [0xC6, "tan("], _
-    [0xC7, "tan⁻¹("], _
+    [0xC7, "tan(", "tan⁻¹("], _
     [0xC8, "sinh("], _
-    [0xC9, "sinh⁻¹("], _
+    [0xC9, "sinh(", "sinh⁻¹("], _
     [0xCA, "cosh("], _
-    [0xCB, "soch⁻¹("], _
+    [0xCB, "cosh(", "cosh⁻¹("], _
     [0xCC, "tanh("], _
-    [0xCD, "tanh⁻¹("], _
+    [0xCD, "tanh(", "tanh⁻¹("], _
     [0xCE, "If "], _
     [0xCF, "Then"], _
     [0xD0, "Else"], _
@@ -229,29 +229,29 @@ Global $8xpTokens[][] = [ _
     [0xE6, "Menu("], _
     [0xE7, "Send("], _
     [0xE8, "Get("], _
-    [0xE9, "PlotsOn"], _
-    [0xEA, "PlotsOff"], _
+    [0xE9, "PlotsOn "], _
+    [0xEA, "PlotsOff "], _
     [0xEB, "⌊", "ʟ"], _
     [0xEC, "Plot1("], _
     [0xED, "Plot2("], _
     [0xEE, "Plot3("], _
     [0xF0, "^"], _
-    [0xF1, "ˣ√"], _
-    [0xF2, "1-Var Stats"], _
-    [0xF3, "2-Var Stats"], _
-    [0xF4, "LinReg(a+bx)"], _    ; space after?
-    [0xF5, "ExpReg"], _
-    [0xF6, "LnReg"], _
-    [0xF7, "PwrReg"], _
-    [0xF8, "Med-Med"], _
-    [0xF9, "QuadReg"], _
-    [0xFA, "ClrList"], _
+    [0xF1, "√", "ˣ√"], _
+    [0xF2, "1-Var Stats "], _
+    [0xF3, "2-Var Stats "], _
+    [0xF4, "LinReg(a+bx) "], _  
+    [0xF5, "ExpReg "], _
+    [0xF6, "LnReg "], _
+    [0xF7, "PwrReg "], _
+    [0xF8, "Med-Med "], _
+    [0xF9, "QuadReg "], _
+    [0xFA, "ClrList "], _
     [0xFB, "ClrTable"], _
     [0xFC, "Histogram"], _
     [0xFD, "xyLine"], _
     [0xFE, "Scatter"], _
-    [0xFF, "LinReg(ax+b)"], _    ; space after?
-    [0x5C00, "[A]"], _ ; these might need checking
+    [0xFF, "LinReg(ax+b) "], _  
+    [0x5C00, "[A]"], _ 
     [0x5C01, "[B]"], _
     [0x5C02, "[C]"], _
     [0x5C03, "[D]"], _
@@ -277,18 +277,18 @@ Global $8xpTokens[][] = [ _
     [0x5E17, "Y₈"], _
     [0x5E18, "Y₉"], _
     [0x5E19, "Y₀"], _
-    [0x5E20, "X₁ᴛ"], _
-    [0x5E21, "Y₁ᴛ"], _
-    [0x5E22, "X₂ᴛ"], _
-    [0x5E23, "Y₂ᴛ"], _
-    [0x5E24, "X₃ᴛ"], _
-    [0x5E25, "Y₃ᴛ"], _
-    [0x5E26, "X₄ᴛ"], _
-    [0x5E27, "Y₄ᴛ"], _
-    [0x5E28, "X₅ᴛ"], _
-    [0x5E29, "Y₅ᴛ"], _
-    [0x5E2A, "X₆ᴛ"], _
-    [0x5E2B, "Y₆ᴛ"], _
+    [0x5E20, "X₁", "X₁ᴛ"], _
+    [0x5E21, "Y₁", "Y₁ᴛ"], _
+    [0x5E22, "X₂", "X₂ᴛ"], _
+    [0x5E23, "Y₂", "Y₂ᴛ"], _
+    [0x5E24, "X₃", "X₃ᴛ"], _
+    [0x5E25, "Y₃", "Y₃ᴛ"], _
+    [0x5E26, "X₄", "X₄ᴛ"], _
+    [0x5E27, "Y₄", "Y₄ᴛ"], _
+    [0x5E28, "X₅", "X₅ᴛ"], _
+    [0x5E29, "Y₅", "Y₅ᴛ"], _
+    [0x5E2A, "X₆", "X₆ᴛ"], _
+    [0x5E2B, "Y₆", "Y₆ᴛ"], _
     [0x5E40, "r₁"], _
     [0x5E41, "r₂"], _
     [0x5E42, "r₃"], _
@@ -320,7 +320,7 @@ Global $8xpTokens[][] = [ _
     [0x6109, "GDB0"], _
     [0x6201, "RegEQ"], _
     [0x6202, "n"], _    ; duplicated later? To check these
-    [0x6203, "ẋ"], _
+    [0x6203, "", "ẋ"], _
     [0x6204, "Σx"], _
     [0x6205, "Σx²"], _
     [0x6206, "Sx"], _
@@ -329,7 +329,7 @@ Global $8xpTokens[][] = [ _
     [0x6209, "maxX"], _
     [0x620A, "minY"], _
     [0x620B, "maxY"], _
-    [0x620C, "ȳ"], _
+    [0x620C, "", "ȳ"], _
     [0x620D, "Σy"], _
     [0x620E, "Σy²"], _
     [0x620F, "Sy"], _
@@ -337,8 +337,8 @@ Global $8xpTokens[][] = [ _
     [0x6211, "Σxy"], _
     [0x6212, "r"], _    ; duplicated later? To check these
     [0x6213, "Med"], _
-    [0x6214, "Q1"], _
-    [0x6215, "Q3"], _
+    [0x6214, "Q₁", "Q1"], _
+    [0x6215, "Q₃", "Q3"], _
     [0x6216, "a"], _    ; duplicated later? To check these
     [0x6217, "b"], _    ; duplicated later? To check these
     [0x6218, "c"], _    ; duplicated later? To check these
@@ -350,23 +350,23 @@ Global $8xpTokens[][] = [ _
     [0x621E, "y₁"], _
     [0x621F, "y₂"], _
     [0x6220, "y₃"], _
-    [0x6221, "[recursiven]"], _   ; may need updating as per TI Connect CE
+    [0x6221, "", "[recursiven]"], _
     [0x6222, "p"], _    ; duplicated later? To check these
     [0x6223, "z"], _    ; duplicated later? To check these
     [0x6224, "t"], _    ; duplicated later? To check these
     [0x6225, "χ²"], _
-    [0x6226, "[|F]"], _   ; may need updating as per TI Connect CE
-    [0x6227, "[df]"], _   ; may need updating as per TI Connect CE
-    [0x6228, "[ṗ]"], _    ; may need updating as per TI Connect CE
-    [0x6229, "ṗ₁"], _
-    [0x622A, "ṗ₂"], _
-    [0x622B, "ẋ₁"], _
+    [0x6226, "", "[|F]"], _
+    [0x6227, "df", "[df]"], _
+    [0x6228, "", "[ṗ]"], _
+    [0x6229, "₁", "ṗ₁"], _
+    [0x622A, "₂", "ṗ₂"], _
+    [0x622B, "₁", "ẋ₁"], _
     [0x622C, "Sx₁"], _
     [0x622D, "n₁"], _
-    [0x622E, "ẋ₂"], _
+    [0x622E, "₂", "ẋ₂"], _
     [0x622F, "Sx₂"], _
     [0x6230, "n₂"], _
-    [0x6231, "[Sxp]"], _   ; may need updating as per TI Connect CE
+    [0x6231, "Sxp", "[Sxp]"], _
     [0x6232, "lower"], _
     [0x6233, "upper"], _
     [0x6234, "s"], _    ; duplicated later? To check these
@@ -382,20 +382,20 @@ Global $8xpTokens[][] = [ _
     [0x6301, "ZYscl"], _
     [0x6302, "Xscl"], _
     [0x6303, "Yscl"], _
-    [0x6304, "u(nMin)"], _
-    [0x6305, "v(nMin)"], _
+    [0x6304, "u(Min)", "u(nMin)"], _
+    [0x6305, "v(Min)", "v(nMin)"], _
     [0x6306, "Un-₁"], _
     [0x6307, "Vn-₁"], _
-    [0x6308, "Zu(nmin)"], _
-    [0x6309, "Zv(nmin)"], _
+    [0x6308, "Zu(Min)", "Zu(nmin)"], _
+    [0x6309, "Zv(Min)", "Zv(nmin)"], _
     [0x630A, "Xmin"], _
     [0x630B, "Xmax"], _
     [0x630C, "Ymin"], _
     [0x630D, "Ymax"], _
     [0x630E, "Tmin"], _
     [0x630F, "Tmax"], _
-    [0x6310, "θMin"], _
-    [0x6311, "θMax"], _
+    [0x6310, "θmin"], _
+    [0x6311, "θmax"], _
     [0x6312, "ZXmin"], _
     [0x6313, "ZXmax"], _
     [0x6314, "ZYmin"], _
@@ -407,29 +407,29 @@ Global $8xpTokens[][] = [ _
     [0x631A, "TblStart"], _
     [0x631B, "PlotStart"], _
     [0x631C, "ZPlotStart"], _
-    [0x631D, "nMax"], _
-    [0x631E, "ZnMax"], _
-    [0x631F, "nMin"], _
-    [0x6320, "ZnMin"], _
-    [0x6321, "∆Tbl"], _
+    [0x631D, "Max", "nMax"], _
+    [0x631E, "ZMax", "ZnMax"], _
+    [0x631F, "Min", "nMin"], _
+    [0x6320, "ZMin", "ZnMin"], _
+    [0x6321, "Tbl", "∆Tbl"], _
     [0x6322, "Tstep"], _
     [0x6323, "θstep"], _
     [0x6324, "ZTstep"], _
     [0x6325, "Zθstep"], _
-    [0x6326, "∆X"], _
-    [0x6327, "∆Y"], _
+    [0x6326, "X", "∆X"], _
+    [0x6327, "Y", "∆Y"], _
     [0x6328, "XFact"], _
     [0x6329, "YFact"], _
     [0x632A, "TblInput"], _
-    [0x632B, "N"], _       ; may need updating as per TI Connect CE
+    [0x632B, "Ś", "N"], _
     [0x632C, "I%"], _
     [0x632D, "PV"], _
     [0x632E, "PMT"], _
     [0x632F, "FV"], _
-    [0x6330, "|P/Y"], _    ; may need updating as per TI Connect CE
-    [0x6331, "|C/Y"], _    ; may need updating as per TI Connect CE
-    [0x6332, "w(nMin)"], _
-    [0x6333, "Zw(nMin)"], _
+    [0x6330, "P/Y", "|P/Y"], _
+    [0x6331, "C/Y", "|C/Y"], _
+    [0x6332, "w(Min)", "w(nMin)"], _
+    [0x6333, "Zw(Min)", "Zw(nMin)"], _
     [0x6334, "PlotStep"], _
     [0x6335, "ZPlotStep"], _
     [0x6336, "Xres"], _
@@ -440,11 +440,11 @@ Global $8xpTokens[][] = [ _
     [0x7E03, "RectGC"], _
     [0x7E04, "CoordOn"], _
     [0x7E05, "CoordOff"], _
-    [0x7E06, "Thick"], _
-    [0x7E07, "Dot-Thick"], _
-    [0x7E08, "AxesOn"], _
+    [0x7E06, "Connected"], _ ; was "Thick", not sure why
+    [0x7E07, "Dot", "Dot-Thick"], _
+    [0x7E08, "AxesOn "], _
     [0x7E09, "AxesOff"], _
-    [0x7E0A, "GridDot"], _
+    [0x7E0A, "GridOn"], _
     [0x7E0B, "GridOff"], _
     [0x7E0C, "LabelOn"], _
     [0x7E0D, "LabelOff"], _
@@ -468,8 +468,8 @@ Global $8xpTokens[][] = [ _
     [0xBB02, "bal("], _
     [0xBB03, "ΣPrn("], _
     [0xBB04, "ΣInt("], _
-    [0xBB05, "►Nom("], _    ; may need updating as per TI Connect CE
-    [0xBB06, "►Eff("], _    ; may need updating as per TI Connect CE
+    [0xBB05, "Nom(", "►Nom("], _
+    [0xBB06, "Eff(", "►Eff("], _
     [0xBB07, "dbd("], _
     [0xBB08, "lcm("], _
     [0xBB09, "gcd("], _
@@ -483,7 +483,7 @@ Global $8xpTokens[][] = [ _
     [0xBB11, "invNorm("], _
     [0xBB12, "tcdf("], _
     [0xBB13, "χ²cdf("], _
-    [0xBB14, "Fcdf("], _
+    [0xBB14, "cdf(", "Fcdf("], _
     [0xBB15, "binompdf("], _
     [0xBB16, "binomcdf("], _
     [0xBB17, "poissonpdf("], _
@@ -493,12 +493,12 @@ Global $8xpTokens[][] = [ _
     [0xBB1B, "normalpdf("], _
     [0xBB1C, "tpdf("], _
     [0xBB1D, "χ²pdf("], _
-    [0xBB1E, "Fpdf("], _
+    [0xBB1E, "pdf(", "Fpdf("], _
     [0xBB1F, "randNorm("], _
     [0xBB20, "tvm_Pmt"], _
     [0xBB21, "tvm_I%"], _
     [0xBB22, "tvm_PV"], _
-    [0xBB23, "tvm_N"], _
+    [0xBB23, "tvm_Ś", "tvm_N"], _
     [0xBB24, "tvm_FV"], _
     [0xBB25, "conj("], _
     [0xBB26, "real("], _
@@ -507,60 +507,60 @@ Global $8xpTokens[][] = [ _
     [0xBB29, "cumSum("], _
     [0xBB2A, "expr("], _
     [0xBB2B, "length("], _
-    [0xBB2C, "DeltaList("], _
+    [0xBB2C, "List(", "DeltaList("], _
     [0xBB2D, "ref("], _
     [0xBB2E, "rref("], _
     [0xBB2F, "Rect", "►Rect"], _
     [0xBB30, "Polar", "►Polar"], _
-    [0xBB31, "e"], _
-    [0xBB32, "SinReg"], _
-    [0xBB33, "Logistic"], _
-    [0xBB34, "LinRegTTest"], _
+    [0xBB31, "", "e"], _
+    [0xBB32, "SinReg "], _
+    [0xBB33, "Logistic "], _
+    [0xBB34, "LinRegTTest "], _
     [0xBB35, "ShadeNorm("], _
     [0xBB36, "Shade_t("], _
     [0xBB37, "Shadeχ²("], _
-    [0xBB38, "ShadeF("], _
+    [0xBB38, "Shade(", "ShadeF("], _
     [0xBB39, "Matrlist(", "Matr►list("], _
     [0xBB3A, "Listmatr(", "List►matr("], _
     [0xBB3B, "Z-Test("], _
-    [0xBB3C, "T-Test"], _
+    [0xBB3C, "T-Test "], _
     [0xBB3D, "2-SampZTest("], _
     [0xBB3E, "1-PropZTest("], _
     [0xBB3F, "2-PropZTest("], _
     [0xBB40, "χ²-Test("], _
-    [0xBB41, "ZInterval"], _
+    [0xBB41, "ZInterval "], _ 
     [0xBB42, "2-SampZInt("], _
     [0xBB43, "1-PropZInt("], _
     [0xBB44, "2-PropZInt("], _
     [0xBB45, "GraphStyle("], _
-    [0xBB46, "2-SampTTest"], _
-    [0xBB47, "2-SampFTest"], _
-    [0xBB48, "TInterval"], _
-    [0xBB49, "2-SampTInt"], _
-    [0xBB4A, "SetUpEditor"], _
+    [0xBB46, "2-SampTTest "], _
+    [0xBB47, "2-SampTest ", "2-SampFTest"], _
+    [0xBB48, "TInterval "], _
+    [0xBB49, "2-SampTInt "], _
+    [0xBB4A, "SetUpEditor "], _
     [0xBB4B, "Pmt_End"], _
     [0xBB4C, "Pmt_Bgn"], _
     [0xBB4D, "Real"], _
-    [0xBB4E, "re^θi"], _
-    [0xBB4F, "a+bi"], _
+    [0xBB4E, "r^θ", "re^θi"], _
+    [0xBB4F, "a+b", "a+bi"], _
     [0xBB50, "ExprOn"], _
     [0xBB51, "ExprOff"], _
     [0xBB52, "ClrAllLists"], _
     [0xBB53, "GetCalc("], _
-    [0xBB54, "DelVar"], _      ; space after?
+    [0xBB54, "DelVar "], _ 
     [0xBB55, "EquString(", "Equ►String("], _
     [0xBB56, "StringEqu(", "String►Equ("], _
     [0xBB57, "Clear Entries"], _
     [0xBB58, "Select("], _
     [0xBB59, "ANOVA("], _
-    [0xBB5A, "ModBoxPlot"], _
+    [0xBB5A, "ModBoxplot"], _
     [0xBB5B, "NormProbPlot"], _
-    [0xBB64, "G-T"], _
+    [0xBB64, "G—T", "G-T"], _
     [0xBB65, "ZoomFit"], _
     [0xBB66, "DiagnosticOn"], _
     [0xBB67, "DiagnosticOff"], _
-    [0xBB68, "Archive"], _     ; space after?
-    [0xBB69, "UnArchive"], _   ; space after?
+    [0xBB68, "Archive "], _ 
+    [0xBB69, "UnArchive "], _ 
     [0xBB6A, "Asm("], _
     [0xBB6B, "AsmComp("], _
     [0xBB6C, "AsmPrgm"], _
@@ -615,15 +615,15 @@ Global $8xpTokens[][] = [ _
     [0xBB9F, "α"], _
     [0xBBA0, "β"], _
     [0xBBA1, "γ"], _
-    [0xBBA2, "Δ"], _
+    [0xBBA2, "", "Δ"], _
     [0xBBA3, "δ"], _
     [0xBBA4, "ε"], _
     [0xBBA5, "λ"], _
-    [0xBBA6, "μ"], _
+    [0xBBA6, "µ", "μ"], _
     [0xBBA7, "|π"], _     ; may need updating as per TI Connect CE
     [0xBBA8, "ρ"], _
     [0xBBA9, "Σ"], _
-    [0xBBAB, "Φ"], _
+    [0xBBAB, "φ", "Φ"], _
     [0xBBAC, "Ω"], _
     [0xBBAD, "ṗ"], _
     [0xBBAE, "χ"], _
@@ -658,22 +658,22 @@ Global $8xpTokens[][] = [ _
     [0xBBCC, "τ"], _
     [0xBBCD, "Í"], _
     [0xBBCE, "GarbageCollect"], _
-    [0xBBCF, "|~"], _
+    [0xBBCF, "~", "|~"], _
     [0xBBD1, "@"], _
     [0xBBD2, "#"], _
     [0xBBD3, "$"], _
     [0xBBD4, "&"], _
     [0xBBD5, "`"], _
     [0xBBD6, ";"], _
-    [0xBBD7, "\\"], _
+    [0xBBD7, "\"], _
     [0xBBD8, "|"], _
     [0xBBD9, "_"], _
     [0xBBDA, "%"], _
     [0xBBDB, "…"], _
     [0xBBDC, "∠"], _
     [0xBBDD, "ß"], _
-    [0xBBDE, "ˣ"], _
-    [0xBBDF, "ᴛ"], _
+    [0xBBDE, "", "ˣ"], _
+    [0xBBDF, "", "ᴛ"], _
     [0xBBE0, "₀"], _
     [0xBBE1, "₁"], _
     [0xBBE2, "₂"], _
@@ -684,17 +684,17 @@ Global $8xpTokens[][] = [ _
     [0xBBE7, "₇"], _
     [0xBBE8, "₈"], _
     [0xBBE9, "₉"], _
-    [0xBBEA, "₁₀"], _
-    [0xBBEB, "◄"], _       ; may need updating as per TI Connect CE
+    [0xBBEA, "", "₁₀"], _
+    [0xBBEB, "", "◄"], _
     [0xBBEC, "", "►"], _
     [0xBBED, "↑"], _
     [0xBBEE, "↓"], _
     [0xBBF0, "×"], _
     [0xBBF1, "∫"], _
-    [0xBBF2, "bolduparrow"], _
-    [0xBBF3, "bolddownarrow"], _
+    [0xBBF2, "", "bolduparrow"], _
+    [0xBBF3, "", "bolddownarrow"], _
     [0xBBF4, "√"], _
-    [0xBBF5, "invertedequal"], _
+    [0xBBF5, "Ŝ", "invertedequal"], _
     [0xEF00, "setDate("], _
     [0xEF01, "setTime("], _
     [0xEF02, "checkTmr("], _
@@ -702,7 +702,7 @@ Global $8xpTokens[][] = [ _
     [0xEF04, "setTmFmt("], _
     [0xEF05, "timeCnv("], _
     [0xEF06, "dayOfWk("], _
-    [0xEF07, "getDtStr"], _
+    [0xEF07, "getDtStr("], _
     [0xEF08, "getTmStr("], _
     [0xEF09, "getDate"], _
     [0xEF0A, "getTime"], _
@@ -716,31 +716,33 @@ Global $8xpTokens[][] = [ _
     [0xEF12, "ExecLib"], _
     [0xEF13, "invT("], _
     [0xEF14, "χ²GOF-Test("], _
-    [0xEF15, "LinRegTInt"], _
-    [0xEF16, "Manual-Fit"], _
+    [0xEF15, "LinRegTInt "], _
+    [0xEF16, "Manual-Fit "], _
     [0xEF17, "ZQuadrant1"], _
-    [0xEF18, "ZFrac1/2"], _
-    [0xEF19, "ZFrac1/3"], _
-    [0xEF1A, "ZFrac1/4"], _
-    [0xEF1B, "ZFrac1/5"], _
-    [0xEF1C, "ZFrac1/8"], _
-    [0xEF1D, "ZFrac1/10"], _
+    [0xEF18, "ZFrac12", "ZFrac1/2"], _
+    [0xEF19, "ZFrac13", "ZFrac1/3"], _
+    [0xEF1A, "ZFrac14", "ZFrac1/4"], _
+    [0xEF1B, "ZFrac15", "ZFrac1/5"], _
+    [0xEF1C, "ZFrac18", "ZFrac1/8"], _
+    [0xEF1D, "ZFrac110", "ZFrac1/10"], _
     [0xEF1E, "mathprintbox"], _
-    [0xEF2E, "⁄"], _
-    [0xEF2F, "ᵤ"], _
-    [0xEF30, "►n⁄d◄►Un⁄d"], _   ; may need updating as per TI Connect CE
-    [0xEF31, "►F◄►D"], _        ; may need updating as per TI Connect CE
+    [0xEF2E, "", "⁄"], _
+    [0xEF2F, "␣", "ᵤ"], _
+    [0xEF30, "ndUnd", "►n⁄d◄►Un⁄d"], _
+    [0xEF31, "FD", "►F◄►D"], _
     [0xEF32, "remainder("], _
     [0xEF33, "Σ("], _
     [0xEF34, "logBASE("], _
     [0xEF35, "randIntNoRep("], _
     [0xEF37, "MATHPRINT"], _
     [0xEF38, "CLASSIC"], _
-    [0xEF39, "n⁄d"], _
-    [0xEF3A, "Un⁄d"], _
-    [0xEF3B, "[AUTO]"], _       ; may need updating as per TI Connect CE
-    [0xEF3C, "[DEC]"], _        ; may need updating as per TI Connect CE
-    [0xEF3D, "[FRAC]"], _       ; may need updating as per TI Connect CE
+    [0xEF39, "nd", "n⁄d"], _
+    [0xEF3A, "Und", "Un⁄d"], _
+    [0xEF3B, "AUTO", "[AUTO]"], _
+    [0xEF3C, "DEC", "[DEC]"], _
+    [0xEF3D, "FRAC", "[FRAC]"], _
+	[0xEF3F, "STATWIZARD ON"], _
+    [0xEF40, "STATWIZARD OFF"], _
     [0xEF41, "BLUE"], _
     [0xEF42, "RED"], _
     [0xEF43, "BLACK"], _
@@ -765,7 +767,7 @@ Global $8xpTokens[][] = [ _
     [0xEF67, "TextColor("], _
     [0xEF68, "Asm84CPrgm"], _
     [0xEF6C, "BorderColor"], _
-    [0xEF73, "tinydotplot"], _
+    [0xEF73, "·", "tinydotplot"], _
     [0xEF74, "Thin"], _
     [0xEF75, "Dot-Thin"] _
 ]

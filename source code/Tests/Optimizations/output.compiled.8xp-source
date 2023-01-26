@@ -1,0 +1,38 @@
+1
+2
+3
+4
+5
+6
+7
+"8→Str0
+"9→Str1
+Menu("Here is a string
+sub("Another string
+"Here is my string
+"Here is my string
+"Test→Str0
+"Test another:→Str0
+"→Str0
+"→Str0
+{1,2,3→X
+"{1,2,3}→Str0
+"{1,2,3}→Str0
+2(3→X
+(3+45→Y
+1(2
+3(45+56
+(1(2
+Menu("Abc",A
+sub("123",2,3)
+StringEqu("String here",Y1
+inString("Str 1","Str 2
+inString("Str 1","Str 2",3)
+inString("a","b→X
+{1,2,3
+sub("123",2,3→Str0
+For(I,1,2)
+For(I,2,3
+Disp "Here is an (example)
+Prompt "Or (another)
+Input A,"Or {another}

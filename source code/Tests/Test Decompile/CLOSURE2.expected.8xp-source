@@ -1,0 +1,323 @@
+"CLOSURE PROGRAM
+"Vars set/overwritten in this app: θ,Y,R,Str1,B,T,C,X,Z (N & Str1 used by CLOSUREI)
+
+ClrHome
+
+"INITIAL SETUP OF LISTS, VARS AND SETTINGS
+"-----------------------------------------
+100.01→θ
+prgmSVTOOLS
+
+"---- Main Menu ----
+Lbl A
+Menu("Closure Calc","Start new",N,"Redo last",R,"Save last rslt",SL,"Arbtrary datum",AD,"Help",H,"Quit",X
+
+"---- Redo last ----
+Lbl R
+ClrHome
+"Print existing values
+100.05→θ
+prgmSVTOOLS
+ClrHome
+Goto NN
+
+"--------- Closure Input ---------
+Lbl N
+0→θ
+prgmCLOSUREI
+
+"--------- Closure Calculation ----------
+Lbl NN
+100.1→θ
+{1}→⌊PARAM
+prgmSVTOOLS
+0→θ
+
+ClrHome
+Disp "Survey Closure"
+Disp "--------------"
+Disp "B, B+180, D:"
+Disp BDMS
+Disp B+(B<180)180-(B≥180)180DMS
+Disp round(D,3),D
+
+"------- Closure Rotation -------------
+"Provide a hidden option to rotate the answer by
+"pressing +,-, or -
+"OVERWRITES: Y,R,Str1,B
+0
+Repeat Ans
+getKey→Y
+End
+If Y=95 or Y=85 or Y=104:Then
+::"Var for remembering the rotation
+::1→dim(⌊ROTAT
+::⌊ROTAT(1)→R
+::"Ask for rotation amount
+::"     ----------------
+::Disp "Rotate answer by
+::Disp "how much? D.MMSS
+::Disp ". to reuse prev:
+::Disp RDMS
+::Input "> ",Str1
+::If Str1≠".":Then
+::::expr(Str1)→R
+::::"Parse DMS format to decimal
+::::iPart(R)+iPart(fPart(R)*100)/60+fPart(R*100)*100/3600→R
+::::R→⌊ROTAT(1)
+::End
+::B+R→B
+::B+360(B<0)-360(B>360)→B
+::Disp "Rotated closure:
+::Disp "B, B+180, D:"
+::Disp BDMS
+::Disp B+(B<180)180-(B≥180)180DMS
+::Disp round(D,3)
+::If D≠round(D,3):Disp D
+::Pause 
+End
+
+"TODO: Test if this section works OK with the rotation above. Does it need to?
+If T=2:Then
+::ClrHome
+::Disp "Missing dists:","(X,Z)"
+::Disp L₃(dim(L₃)-1)DMS
+::Disp round(X,3)
+::Disp L₃(dim(L₃))DMS
+::Disp round(Z,3)
+::Pause 
+End
+
+Goto X
+
+"----------- Save closure ---------
+"READS FROM: B,D,X,Z
+"OVERWRITES: T,C
+"AVOID USING: F,I,L
+Lbl SL
+"Save last closure to L1 and L2
+dim(L₁)-dim(L₂)→T
+If T=0:Then
+
+::"Convert bearing from dec to short DMS format
+::iPart(B)+iPart(fPart(B)*60)/100+fPart(B*60)/60*3600/10000→C
+::C→L₁(dim(L₁)+1)
+::D→L₂(dim(L₂)+1)
+
+::"Display result
+::Disp "Saving to list:",BDMS,C,D
+
+End
+
+"Saving double missing dists
+If T=2:Then
+::Disp "Saving dists:",X,Z
+::X→L₂(dim(L₂)+1)
+::Z→L₂(dim(L₂)+1)
+End
+
+Return
+
+
+
+"--------- Arb Datum Calc ---------
+Lbl AD
+"     ----------------
+Disp "You're at point
+Disp "A.
+Disp "
+Disp "On next screen
+Disp "enter known
+Disp "traverse(s) from
+Disp "B to C.
+Pause 
+
+"POPULATE L2 and L3 TO SUPPORT RECALLING OF PREV ENTRIES USING .
+"TODO: Support recalling multiple traverses here! Does not currently.
+2→dim(⌊KNOWN)
+{⌊KNOWN(1)}→L₃
+{⌊KNOWN(2)}→L₂
+
+0→θ
+prgmCLOSUREI
+
+"N=1 signifies that we're reusing prev values. Do nothing if so.
+
+"If only a single bear+dist, save to lKNOWN
+If N=2:Then
+::"If a negative dist, we'll flip the bearing
+::{fPart((L₃(1)+180(L₂(1)<0))/360)*360,abs(L₂(1))}→⌊KNOWN
+End
+
+"Otherwise if multiple traverses, calc the closure:
+If N>2:Then
+::Disp "","Calculating...
+:"Calc closure of B-C
+::100.1→θ
+::{1}→⌊PARAM
+::prgmSVTOOLS
+::0→θ
+::{B+(B≤180)180-(B>180)180,D}→⌊KNOWN
+::ClrHome
+::Disp "B-C bear+dist:
+::Disp ⌊KNOWN(1)DMS,BDMS,round(D,3)
+::If round(D,3)≠D:Disp D
+::Pause 
+End
+
+ClrHome
+"     ----------------
+Disp "Now measure
+Disp "A-B and A-C
+Disp "using any
+Disp "starting
+Disp "bearing.
+
+"Recall entries in case user wants to reuse them
+2→dim(⌊ARB1
+2→dim(⌊ARB2
+⌊ARB1→L₁
+⌊ARB2→L₂
+
+"Reset L3
+100.01→θ
+prgmSVTOOLS
+
+"Note: This section doesn't support multiple hops.
+"      Only used for sighting from instrument to 2 points.
+"      Hmmm... except what if you need to place TWO+ unknown
+"      points between 2 unknown points. Then maybe you do?
+
+"If 1:Then
+::"--- New method with better labels! ---
+::Disp ". to reuse last
+::Disp "
+::Input "A-B Bear: ",Str1
+::If Str1=".":Then
+::::"Display prev values
+::::100.05→θ
+::::prgmSVTOOLS
+::Else
+::::{expr(Str1)}→L₁
+::::Input "A-B Dist: ",C
+::::{C}→L₂
+::::Input "A-C Bear: ",C
+::::C→L₁(2)
+::::Input "A-C Dist: ",C
+::::C→L₂(2)
+::End
+"Else
+::"--- Old working method ---
+::"2->θ
+::"prgmCLOSUREI
+"End
+
+Disp "","Calculating...
+
+"Remember A-B and A-C entries for later reuse
+L₁→⌊ARB1
+L₂→⌊ARB2
+
+"Find B-C (via closure C-A-B)
+"First swap the two and 
+"reverse the distance to C
+{L₁(2),L₁(1)}→L₁
+{­L₂(2),L₂(1)}→L₂
+
+"Calculate the closure
+100.1→θ
+{1}→⌊PARAM
+prgmSVTOOLS
+
+"Display the closure result
+ClrHome
+Disp "Arbitrary
+Disp "closure B-C:
+Disp BDMS
+Disp round(D,3),D
+Pause 
+
+"Calc necessary rotation
+⌊KNOWN(1)-B→X
+"Calc distance diff (including a mod(360), keeping a result from -180 to 180)
+fPart(X/360)*360-(X>180)360+(X<­180)360→X
+
+"ClrHome
+Disp "Diff:
+Disp XDMS
+Disp ⌊KNOWN(2)-D
+
+"Warn when distance is high
+If abs(⌊KNOWN(2)-D)>0.006:Then
+::Disp "","Dist is high.","Continue?
+::Pause "
+::ClrHome
+End
+
+Disp "Corrected A-B:
+Disp fPart((L₃(2)+X+360)/360)*360DMS
+Disp fPart((L₃(2)+X+360+180)/360)*360DMS
+Disp round(L₂(2),3)
+"Disp L₂(2)
+
+Pause 
+
+Disp "Corrected A-C:
+Disp fPart((L₃(1)+X+360)/360)*360DMS
+Disp fPart((L₃(1)+X+360+180)/360)*360DMS
+Disp round(­L₂(1),3)
+"Disp ­L₂(1)
+
+Pause 
+Return
+
+
+
+"------- HELP ------------
+"Note: Uses lots of space. 
+"      Consider reducing if space is an issue.
+Lbl H
+ClrHome
+"     ----------------
+Disp "CLOSURE CALC:
+Disp "Provide bearings
+Disp "and distances of
+Disp "known sides, and
+Disp "it will find the
+Disp "bear+dist for 
+Disp "the final side.
+Pause 
+ClrHome
+Disp "Can also calc
+Disp "double missing
+Disp "distance: where
+Disp "you know the
+Disp "bearings of last
+Disp "2 sides but not
+Disp "the distances.
+Pause 
+Disp "
+Disp "Enter . for the
+Disp "2nd last dist to
+Disp "use this.
+Pause 
+ClrHome
+"     ----------------
+Disp "Arbitrary datum
+Disp "is used when you
+Disp "setup on an 
+Disp "unknown mark but
+Disp "can see two
+Disp "known marks. It 
+Disp "will calculate 
+Pause 
+Disp "your correct
+Disp "backsight
+Disp "bearing.
+Pause 
+ClrHome
+Goto A
+
+
+"------ End ------
+Lbl X

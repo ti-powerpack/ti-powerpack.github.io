@@ -1,5 +1,6 @@
 #include <FileConstants.au3>
 #include "Calculate8xpChecksum.au3"
+#include "OptimizeCode.au3"
 
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
@@ -57,24 +58,34 @@ EndFunc
 
 
 ; Takes binary code and decompiles, processes/manipulates it, and recompiles it
+; Returns the updated binary code
+; Here we also save a text copy of the original code and the optimized code
+; (for use with source control and also for debugging issues with this script)
 Func ProcessBody($binaryCode, $inputFile, $outputFile)
 
 	; Convert binary code to text
 	$textCode = BinaryCodeToTextCode($binaryCode)
 
 	; Save a copy of original text code to disk
+	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Defaults to overwriting?
 	$file = FileOpen($inputFile & "-source", $FO_OVERWRITE)
 	FileWrite($file, $textCode)
 	FileClose($file)
 
 	; Process/manipulate the text-based code
-	$textCode &= @LF & "::: Appended!"
+	; $textCode &= @LF & "::: Appended!"
+	$textCode = OptimizeCode($textCode)
 
 	; Save processed text to file
+	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Defaults to overwriting?
+	$file = FileOpen($outputFile & "-source", $FO_OVERWRITE)
+	FileWrite($file, $textCode)
+	FileClose($file)
 
 	; Recompile back to binary format
+	; TODO......
 
-	; Return bin
+	; Return original binary code, for now, until rest is implemented
 	Return $binaryCode
 EndFunc
 
