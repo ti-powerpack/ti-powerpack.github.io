@@ -31,9 +31,11 @@ Func Process8xpppFile($inputFile, $outputFile)
    $body = ProcessBody($body, $inputFile, $outputFile)
 
    ; Recalculate new length of file
+   Const $metaLength = 19			; always 19 bytes
+   Const $checksumLength = 2		; always 2 bytes
    $bodyLength = BinaryLen($body)
-   $metaAndBodyLength = $bodyLength + 19
-   $bodyAndChecksumLength = $bodyLength + 2
+   $metaAndBodyLength = $metaLength + $bodyLength
+   $bodyAndChecksumLength = $bodyLength + $checksumLength
 
    ;~ MsgBox(0, "", Binary($bodyLength))
 
@@ -93,7 +95,7 @@ EndFunc
 #include "Tokens.au3"
 #include <Array.au3>
 
-Process8xpppFile("..\Tests\Test Decompile\CLOSURE2.8xppp", "..\Tests\Test Decompile\CLOSURE2.compiled.8xp")
+; Process8xpppFile("..\Tests\Test Decompile\CLOSURE2.8xppp", "..\Tests\Test Decompile\CLOSURE2.compiled.8xp")
 ;~ _ArrayDisplay($8xpTokens)
 
 Func BinaryCodeToTextCode($binaryCode)
@@ -107,9 +109,10 @@ Func BinaryCodeToTextCode($binaryCode)
 		; known 2-byte prefixes.
 		; Could also potentially split the tokens into 2 arrays, single byte and double byte
 		; so we're not searching the list unnecessarily
+		; Anyway, seems fast enough for now...?
 
 		$tokenIndex = _ArrayBinarySearch($8xpTokens, $char, 0, 0, 0)
-		If $tokenIndex > 0 Then
+		If $tokenIndex > -1 Then
 ;~ 			ConsoleWrite("Token found" & @CRLF)
 ;~ 			ConsoleWrite($tokenIndex)
 			$textCode = $textCode & $8xpTokens[$tokenIndex][1]
@@ -147,3 +150,21 @@ Func BinaryModifyWord($binaryData, $startingByte, $newData)
    Return BinaryMid($binaryData, 1, $startingByte - 1) & BinaryMid($newData, 1, 2) & BinaryMid($binaryData, $startingByte + 2)
 EndFunc
 ;~ MsgBox(0, "BinaryModifyWord", BinaryModifyWord(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
+
+
+; This process is probably a little more complicated than the other way around (which is just reading bytes)
+; Here we have to go character by character through the text and check for matching tokens
+; and convert them to binary equivalent
+;
+; Things to watch out for:
+;   - Some text strings match multiple binary tokens. For these we probably take the earliest match. Hmmm. TBC
+;   - Some tokens appear like other ones:
+;     "Horiz" and "Horizontal ", "Polar" and "PolarGC", "Q" and "Q₁", "r" and "r₁", "rand" and "randBin(" and "randInt(", "Seq" and "Sequential"
+;     "s" and "sin(", "c" and "cos(", etc.
+;	  We should always opt for the longer one, if it matches
+;     The easiest (but slowest) way is to find the longest token, and for each character, grab that many subsequent characters, reducing
+;     one by one until we find a matching token. But the loop will have to run 14x the number of characters in the file.
+;	  Array search will likely need to be optimized by pre-indexing the array.
+Func TextCodeToBinaryCode
+
+EndFunc

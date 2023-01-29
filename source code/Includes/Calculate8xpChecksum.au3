@@ -9,11 +9,11 @@
 ;~ Calculate8xpChecksum($data)
 
 
-; Pass in binary data, from start of file to end of body (EXCLUDING checksum)
+; Pass in binary data, from start of file to end of body (everything EXCLUDING checksum)
 ; Returns the two byte checksum for the given data
 Func Calculate8xpChecksum($binaryData)
 
-   ; Extract bytes 56 to the end (minus 2 for checksum)
+   ; Extract bytes 56 to the end
    $binaryData = BinaryMid($binaryData, 56, BinaryLen($binaryData) - 55)
 
    ; Get the numerical value of each byte and sum them together
