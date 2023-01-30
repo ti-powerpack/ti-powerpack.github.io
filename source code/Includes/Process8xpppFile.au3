@@ -4,6 +4,8 @@
 
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
+; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
+; and then recompiles it, calculates the checksum, and writes a new binary file
 Func Process8xpppFile($inputFile, $outputFile)
 
    ; Open file and read data
@@ -59,9 +61,12 @@ Func Process8xpppFile($inputFile, $outputFile)
 EndFunc
 
 
-; Takes binary code and decompiles, processes/manipulates it, and recompiles it
+; Takes a block of binary code and decompiles, processes/manipulates it, and recompiles it
 ; Returns the updated binary code
-; Here we also save a text copy of the original code and the optimized code
+;
+; Does NOT work with the 8XP header, meta data, nor checksum. It's the program body only.
+;
+; During this process we also save a text copy of the original code and the optimized code
 ; (for use with source control and also for debugging issues with this script)
 Func ProcessBody($binaryCode, $inputFile, $outputFile)
 
@@ -85,7 +90,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 	FileClose($file)
 
 	; Recompile back to binary format
-	; TODO......
+	$binaryCode = TextCodeToBinaryCode($textCode)
 
 	; Return original binary code, for now, until rest is implemented
 	Return $binaryCode
@@ -94,10 +99,6 @@ EndFunc
 
 #include "Tokens.au3"
 #include <Array.au3>
-
-; Process8xpppFile("..\Tests\Test Decompile\CLOSURE2.8xppp", "..\Tests\Test Decompile\CLOSURE2.compiled.8xp")
-;~ _ArrayDisplay($8xpTokens)
-
 Func BinaryCodeToTextCode($binaryCode)
 	$textCode = ""
 
@@ -152,6 +153,8 @@ EndFunc
 ;~ MsgBox(0, "BinaryModifyWord", BinaryModifyWord(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
 
 
+; COMPILATION: Text to binary tokens
+;
 ; This process is probably a little more complicated than the other way around (which is just reading bytes)
 ; Here we have to go character by character through the text and check for matching tokens
 ; and convert them to binary equivalent
@@ -165,6 +168,110 @@ EndFunc
 ;     The easiest (but slowest) way is to find the longest token, and for each character, grab that many subsequent characters, reducing
 ;     one by one until we find a matching token. But the loop will have to run 14x the number of characters in the file.
 ;	  Array search will likely need to be optimized by pre-indexing the array.
-Func TextCodeToBinaryCode
+;
+; Does NOT yet support the old/alternative strings, only the official TI Connect CE ones.
+#include <Math.au3>
+#include "Tokens.au3"
+
+; Process8xpppFile("..\Tests\Test Decompile\CLOSURE2.8xppp", "..\Tests\Test Decompile\CLOSURE2.compiled.8xp")
+;~ $a = _ArrayExtract($8xpTokens, 1, 1)
+;~ _ArrayTranspose($a)
+;~ _ArrayDisplay($a)
+
+; Here is a simple test of this function. Should result in 0x12131415
+;~ ConsoleWriteError("Oooops" & @CRLF)
+$bin = Binary("")
+;~ debug(Hex(TokenIntToBinary(0xAA11) & TokenIntToBinary(0x12) & TokenIntToBinary(0x13)))
+
+debug("Result: " & Hex(TextCodeToBinaryCode("round(pxl-Test(augment(rowSwap(DDisp L₁")) & @CRLF)
+
+Func TokenIntToBinary($int)
+	; Ints are normally 4 bytes long, but we actually only want either 1 or 2 bytes
+	Local $result
+	If $int < 256 Then
+		$result = BinaryMid($int, 1, 1)
+	Else
+		$result = BinaryMid($int, 2, 1) & BinaryMid($int, 1, 1)
+	EndIf
+;~ 	debug($result)
+	Return $result
+EndFunc
+
+
+Func TextCodeToBinaryCode($text)
+	Local $binary = Binary("")
+
+	; Create a map for efficiently looking up tokens
+	Local $tokens[]
+;~ 	$tokens["Simon"] = "x"
+;~ 	$tokens["Hello"] = "y"
+;~ 	ConsoleWrite($tokens["Simon"])
+	For $i = 0 to UBound($8xpTokens) - 1
+;~ 		ConsoleWrite($i & " " & VarGetType($8xpTokens[$i][1]) & " " & $8xpTokens[$i][0] & " " & $8xpTokens[$i][1] & @CRLF)
+		$tokenText = $8xpTokens[$i][1]
+		$tokenBinary = TokenIntToBinary($8xpTokens[$i][0])
+		; If $val = 1 Then ContinueLoop
+		$tokens[$tokenText] = $tokenBinary
+	Next
+
+;~ 	DebugMap($tokens)
+
+	debug("Tokens have been indexed")
+
+	; Loop through entire string, character by character
+	; TODO: This may (currently) be case sensitive. To be explored whether I should fix that.
+	$textLength = StringLen($text)
+	For $i = 1 to StringLen($text)
+		; Start with grabbing the next 14 chars (the length of the longest token)
+		; and keep removing characters until we find a matching token
+		For $j = _Min(14, $textLength - $i + 1) to 1 Step -1
+			$portion = StringMid($text, $i, $j)
+
+			If MapExists($tokens, $portion) Then
+				; Great, we've found a match
+				; Put the token into our binary result
+				debug($portion)
+				debug("Found match: " & $tokens[$portion])
+				$binary = $binary & $tokens[$portion]
+				debug($binary)
+				; Increment $i to not re-search for any of those same chars
+				$i += $j-1
+				ExitLoop
+
+			ElseIf $j = 1 Then
+				$char = StringMid($text, $i, 1)
+				; TODO: Maybe this should be a fatal error?
+				debug("COULD NOT FIND TOKEN MATCH FOR CHARACTER: """ & $char & """, ASCII Code: " & Asc($char) & ", Unicode: " & AscW($char) & ". Character skipped, with no bytes added for this.")
+			EndIf
+
+		Next
+	Next
+
+	Return $binary
+
+;~ 	Exit
 
 EndFunc
+
+Func debug($string)
+	ConsoleWrite($string & @CRLF)
+EndFunc
+
+Func DebugMap($map)
+	_ArrayDisplay(MapKeys($map))
+	For $key in MapKeys($map)
+		ConsoleWrite("[" & $key & "] = " & $map[$key] & @CRLF)
+	Next
+EndFunc
+
+
+
+; Takes a block of binary and returns a string of hex characters.
+; Used for debugging and doing comparisons in a text compare tool like WinMerge
+Func BinaryToListOfHexCodes($binary)
+	Local $string = Hex($binary)
+	$string = StringRegExpReplace($string, "\w\w", "\0" & @CRLF)	; two characters per line
+	$string = StringRegExpReplace($string, "(?m)^(5C|5D|5E|60|61|62|63|7E|AA|BB|EF)\s+", "\1")	; except for certain prefixes which will be 4 per line
+	Return $string
+EndFunc
+;~ MsgBox(0,"", BinaryToListOfHexCodes(Binary("0x00112233AABBCCDDEECCFF")))

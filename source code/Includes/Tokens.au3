@@ -1,3 +1,4 @@
+#include-once
 
 ; 8XP TI Calculator Commands/Tokens and Their Binary & Text Representations
 ; ---------------------------------------------------------------------------
@@ -146,8 +147,8 @@ Global $8xpTokens[][] = [ _
     [0x91, "PrintScreen"], _
     [0x92, "ZoomSto"], _
     [0x93, "Text("], _
-    [0x94, " nPr "], _  
-    [0x95, " nCr "], _  
+    [0x94, " nPr "], _
+    [0x95, " nCr "], _
     [0x96, "FnOn "], _
     [0x97, "FnOff "], _
     [0x98, "StorePic "], _
@@ -239,7 +240,7 @@ Global $8xpTokens[][] = [ _
     [0xF1, "√", "ˣ√"], _
     [0xF2, "1-Var Stats "], _
     [0xF3, "2-Var Stats "], _
-    [0xF4, "LinReg(a+bx) "], _  
+    [0xF4, "LinReg(a+bx) "], _
     [0xF5, "ExpReg "], _
     [0xF6, "LnReg "], _
     [0xF7, "PwrReg "], _
@@ -250,8 +251,8 @@ Global $8xpTokens[][] = [ _
     [0xFC, "Histogram"], _
     [0xFD, "xyLine"], _
     [0xFE, "Scatter"], _
-    [0xFF, "LinReg(ax+b) "], _  
-    [0x5C00, "[A]"], _ 
+    [0xFF, "LinReg(ax+b) "], _
+    [0x5C00, "[A]"], _
     [0x5C01, "[B]"], _
     [0x5C02, "[C]"], _
     [0x5C03, "[D]"], _
@@ -528,7 +529,7 @@ Global $8xpTokens[][] = [ _
     [0xBB3E, "1-PropZTest("], _
     [0xBB3F, "2-PropZTest("], _
     [0xBB40, "χ²-Test("], _
-    [0xBB41, "ZInterval "], _ 
+    [0xBB41, "ZInterval "], _
     [0xBB42, "2-SampZInt("], _
     [0xBB43, "1-PropZInt("], _
     [0xBB44, "2-PropZInt("], _
@@ -547,7 +548,7 @@ Global $8xpTokens[][] = [ _
     [0xBB51, "ExprOff"], _
     [0xBB52, "ClrAllLists"], _
     [0xBB53, "GetCalc("], _
-    [0xBB54, "DelVar "], _ 
+    [0xBB54, "DelVar "], _
     [0xBB55, "EquString(", "Equ►String("], _
     [0xBB56, "StringEqu(", "String►Equ("], _
     [0xBB57, "Clear Entries"], _
@@ -559,8 +560,8 @@ Global $8xpTokens[][] = [ _
     [0xBB65, "ZoomFit"], _
     [0xBB66, "DiagnosticOn"], _
     [0xBB67, "DiagnosticOff"], _
-    [0xBB68, "Archive "], _ 
-    [0xBB69, "UnArchive "], _ 
+    [0xBB68, "Archive "], _
+    [0xBB69, "UnArchive "], _
     [0xBB6A, "Asm("], _
     [0xBB6B, "AsmComp("], _
     [0xBB6C, "AsmPrgm"], _
