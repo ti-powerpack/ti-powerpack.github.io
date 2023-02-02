@@ -8,7 +8,8 @@
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
 ; RUN THIS FOR TESTING
-;~ Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
+Process8xpppFile("..\Tests\Full Test\ALL TOKENS.8xppp", "..\Tests\Full Test\ALL TOKENS.compiled.8xp")
+Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
 
 
 ; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
@@ -204,7 +205,7 @@ EndFunc
 
 ; Here is a simple test of this function. Should result in 0x12131415
 ;~ ConsoleWriteError("Oooops" & @CRLF)
-$bin = Binary("")
+;~ $bin = Binary("")
 ;~ debug(Hex(TokenIntToBinary(0xAA11) & TokenIntToBinary(0x12) & TokenIntToBinary(0x13)))
 
 ;~ debug("Result: " & Hex(TextCodeToBinaryCode("round(pxl-Test(augment(rowSwap(DDisp L₁")) & @CRLF)
@@ -227,10 +228,7 @@ Func TextCodeToBinaryCode($text)
 
 	; Create a map for efficiently looking up tokens
 	Local $tokens[]
-;~ 	$tokens["Simon"] = "x"
-;~ 	$tokens["Hello"] = "y"
-;~ 	ConsoleWrite($tokens["Simon"])
-	For $i = 0 to UBound($8xpTokens) - 1
+	For $i = UBound($8xpTokens) - 1 To 0 Step -1
 ;~ 		ConsoleWrite($i & " " & VarGetType($8xpTokens[$i][1]) & " " & $8xpTokens[$i][0] & " " & $8xpTokens[$i][1] & @CRLF)
 		$tokenText = $8xpTokens[$i][1]
 		$tokenBinary = TokenIntToBinary($8xpTokens[$i][0])

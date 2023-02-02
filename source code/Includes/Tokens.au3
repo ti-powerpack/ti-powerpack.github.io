@@ -128,7 +128,7 @@ Global $8xpTokens[][] = [ _
     [0x7D, "DependAsk"], _
     [0x7F, "▫", "plotsquare"], _
     [0x80, "⁺", "﹢"], _
-    [0x81, "·"], _
+    [0x81, "·"], _				; TinyDotPlot? Duplicates 0xEF73 I think?
     [0x82, "*"], _
     [0x83, "/"], _
     [0x84, "Trace"], _
@@ -768,7 +768,7 @@ Global $8xpTokens[][] = [ _
     [0xEF67, "TextColor("], _
     [0xEF68, "Asm84CPrgm"], _
     [0xEF6C, "BorderColor"], _
-    [0xEF73, "·", "tinydotplot"], _
+    [0xEF73, "·", "tinydotplot"], _		; Duplicates 0x81 I think?
     [0xEF74, "Thin"], _
     [0xEF75, "Dot-Thin"] _
 ]
