@@ -70,7 +70,7 @@ Global $8xpTokens[][] = [ _
     [0x3C, " or "], _
     [0x3D, " xor "], _
     [0x3E, ":"], _
-    [0x3F, @CRLF], _ ; or should it be @LF?
+    [0x3F, @CRLF], _ 		; Line return. Or should this be @LF? @CRLF seems to be working well on Windows so far.
     [0x40, " and "], _
     [0x41, "A"], _
     [0x42, "B"], _
@@ -296,7 +296,7 @@ Global $8xpTokens[][] = [ _
     [0x5E43, "r₄"], _
     [0x5E44, "r₅"], _
     [0x5E45, "r₆"], _
-    [0x5E80, "u"], _    ; duplicated later? To check these
+    [0x5E80, "u"], _    ; duplicated later? To check these. Seems that TI-Connect prefers these. My script does not.
     [0x5E81, "v"], _    ; duplicated later? To check these
     [0x5E82, "w"], _    ; duplicated later? To check these
     [0x6000, "Pic1"], _

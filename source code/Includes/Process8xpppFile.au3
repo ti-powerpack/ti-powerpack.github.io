@@ -1,8 +1,15 @@
 #include <FileConstants.au3>
 #include "Calculate8xpChecksum.au3"
 #include "OptimizeCode.au3"
+#include "Tokens.au3"
+#include "Debug.au3"
+#include <Array.au3>
 
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
+
+; RUN THIS FOR TESTING
+;~ Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
+
 
 ; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
 ; and then recompiles it, calculates the checksum, and writes a new binary file
@@ -70,8 +77,12 @@ EndFunc
 ; (for use with source control and also for debugging issues with this script)
 Func ProcessBody($binaryCode, $inputFile, $outputFile)
 
+	$timer = TimerInit();
+
 	; Convert binary code to text
 	$textCode = BinaryCodeToTextCode($binaryCode)
+
+	ShowTimeTaken($timer, "Code decompiled in")
 
 	; Save a copy of original text code to disk
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Defaults to overwriting?
@@ -79,9 +90,13 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 	FileWrite($file, $textCode)
 	FileClose($file)
 
+	$timer = TimerInit();
+
 	; Process/manipulate the text-based code
 	; $textCode &= @LF & "::: Appended!"
 	$textCode = OptimizeCode($textCode)
+
+	ShowTimeTaken($timer, "Code optimized in")
 
 	; Save processed text to file
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Defaults to overwriting?
@@ -89,16 +104,24 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 	FileWrite($file, $textCode)
 	FileClose($file)
 
+	$timer = TimerInit()
+
 	; Recompile back to binary format
 	$binaryCode = TextCodeToBinaryCode($textCode)
+
+	ShowTimeTaken($timer, "Code compiled in")
 
 	; Return original binary code, for now, until rest is implemented
 	Return $binaryCode
 EndFunc
 
 
-#include "Tokens.au3"
-#include <Array.au3>
+Func ShowTimeTaken($timer, $description)
+	debug($description & ": " & (TimerDiff($timer) / 1000) & " seconds")
+EndFunc
+
+
+
 Func BinaryCodeToTextCode($binaryCode)
 	$textCode = ""
 
@@ -135,7 +158,8 @@ Func BinaryCodeToTextCode($binaryCode)
 			ContinueLoop
 		EndIf
 
-		ConsoleWrite("Tokens " & $char & " and " & $char2 & " (" & Number($char2 & $char) & ") not found" & @CRLF)
+		; If we got this far, it means that we couldn't find the binary characters in our official list
+		debug("Token " & $char & ", followed by " & $char2 & " (Int values " & Number($char2 & $char) & ") not found")
 	Next
 
 
@@ -183,7 +207,7 @@ EndFunc
 $bin = Binary("")
 ;~ debug(Hex(TokenIntToBinary(0xAA11) & TokenIntToBinary(0x12) & TokenIntToBinary(0x13)))
 
-debug("Result: " & Hex(TextCodeToBinaryCode("round(pxl-Test(augment(rowSwap(DDisp L₁")) & @CRLF)
+;~ debug("Result: " & Hex(TextCodeToBinaryCode("round(pxl-Test(augment(rowSwap(DDisp L₁")) & @CRLF)
 
 Func TokenIntToBinary($int)
 	; Ints are normally 4 bytes long, but we actually only want either 1 or 2 bytes
@@ -230,10 +254,10 @@ Func TextCodeToBinaryCode($text)
 			If MapExists($tokens, $portion) Then
 				; Great, we've found a match
 				; Put the token into our binary result
-				debug($portion)
-				debug("Found match: " & $tokens[$portion])
+;~ 				debug($portion)
+;~ 				debug("Found match: " & $tokens[$portion])
 				$binary = $binary & $tokens[$portion]
-				debug($binary)
+;~ 				debug($binary)
 				; Increment $i to not re-search for any of those same chars
 				$i += $j-1
 				ExitLoop
@@ -252,26 +276,3 @@ Func TextCodeToBinaryCode($text)
 ;~ 	Exit
 
 EndFunc
-
-Func debug($string)
-	ConsoleWrite($string & @CRLF)
-EndFunc
-
-Func DebugMap($map)
-	_ArrayDisplay(MapKeys($map))
-	For $key in MapKeys($map)
-		ConsoleWrite("[" & $key & "] = " & $map[$key] & @CRLF)
-	Next
-EndFunc
-
-
-
-; Takes a block of binary and returns a string of hex characters.
-; Used for debugging and doing comparisons in a text compare tool like WinMerge
-Func BinaryToListOfHexCodes($binary)
-	Local $string = Hex($binary)
-	$string = StringRegExpReplace($string, "\w\w", "\0" & @CRLF)	; two characters per line
-	$string = StringRegExpReplace($string, "(?m)^(5C|5D|5E|60|61|62|63|7E|AA|BB|EF)\s+", "\1")	; except for certain prefixes which will be 4 per line
-	Return $string
-EndFunc
-;~ MsgBox(0,"", BinaryToListOfHexCodes(Binary("0x00112233AABBCCDDEECCFF")))

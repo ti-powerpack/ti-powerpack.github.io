@@ -1,0 +1,227 @@
+ClrHome
+100.01→θ:prgmSVTOOLS
+Lbl A
+Menu("Closure Calc","Start new",N,"Redo last",R,"Save last rslt",SL,"Arbtrary datum",AD,"Help",H,"Quit",X
+Lbl R
+ClrHome
+100.05→θ
+prgmSVTOOLS
+ClrHome
+Goto C
+Lbl N
+100.3→θ
+0→Z
+prgmSVTOOLS
+Lbl C
+100.1→θ
+{1→⌊PARAM
+prgmSVTOOLS
+0→θ
+ClrHome
+Disp "Survey Closure
+Disp "--------------
+Disp "B, B+180, D:
+Disp BDMS
+Disp B+(B<180)180-(B≥180)180DMS
+Disp round(D,3),D
+90*55→R
+0
+Repeat Ans or R=0
+R-1→R
+getKey→Y
+End
+If Y=95 or Y=85 or Y=104:Then
+1→dim(⌊ROTAT
+⌊ROTAT(1→R
+Disp "Rotate answer by
+Disp "how much? D.MMSS
+Disp ". to reuse prev:
+Disp RDMS
+Input "> ",Str1
+If Str1≠".":Then
+expr(Str1→R
+iPart(R)+iPart(fPart(R)*100)/60+fPart(R*100)*100/3600→R
+R→⌊ROTAT(1
+End
+B+R→B
+B+360(B<0)-360(B>360→B
+Disp "Rotated closure:
+Disp "B, B+180, D:
+Disp BDMS
+Disp B+(B<180)180-(B≥180)180DMS
+Disp round(D,3
+If D≠round(D,3):Disp D
+Pause 
+End
+If T:Then
+ClrHome
+If T=3:Then
+Disp "Missing dist #1:","(V,W)
+Disp L₃(dim(L₃)-3)DMS
+Disp round(V,3
+Disp L₃(dim(L₃)-2)DMS
+Disp round(W,3
+Pause 
+ClrHome
+Disp "Missing dist #2:
+Else
+Disp "Missing dists:
+End
+Disp "(X,Z)
+Disp L₃(dim(L₃)-1)DMS
+Disp round(X,3
+Disp L₃(dim(L₃))DMS
+Disp round(Z,3
+If T=1 or T=3:dim(L₁)-1→dim(L₁
+Pause 
+End
+Goto X
+Lbl SL
+dim(L₁)-dim(L₂→T
+If T=0:Then
+iPart(B)+iPart(fPart(B)*60)/100+fPart(B*60)/60*3600/10000→C
+C→L₁(dim(L₁)+1
+D→L₂(dim(L₂)+1
+Disp "Saving to list:",BDMS,C,D
+End
+If T=2:Then
+Disp "Saving dists:",X,Z
+X→L₂(dim(L₂)+1
+Z→L₂(dim(L₂)+1
+End
+Return
+Lbl AD
+Disp "You're at point
+Disp "X.
+Disp "Measure
+Disp "X-A and X-B
+Disp "using any
+Disp "starting
+Disp "bearing.
+2→dim(⌊ARB1
+2→dim(⌊ARB2
+⌊ARB1→L₁
+⌊ARB2→L₂
+Pause 
+Disp ". to reuse last
+Disp "
+Input "X-A Bear: ",Str1
+If Str1=".":Then
+100.05→θ:prgmSVTOOLS
+Else
+{expr(Str1→L₁
+Input "X-A Dist: ",C
+{C→L₂
+Input "X-B Bear: ",C
+C→L₁(2
+Input "X-B Dist: ",C
+C→L₂(2
+End
+Disp "","Calculating...
+L₁→⌊ARB1
+L₂→⌊ARB2
+{L₁(2),L₁(1→L₁
+{­L₂(2),L₂(1→L₂
+100.1→θ
+{1→⌊PARAM
+prgmSVTOOLS
+ClrHome
+Disp "Arbitrary
+Disp "closure A-B:
+Disp BDMS
+Disp round(D,3),D
+Pause 
+B→G
+D→H
+Disp "
+Disp "On next screen
+Disp "enter known
+Disp "traverse(s) from
+Disp "A to B.
+Pause 
+2→dim(⌊KNOWN
+{⌊KNOWN(1→L₃
+{⌊KNOWN(2→L₂
+100.3→θ:0→Z:prgmSVTOOLS
+If N=1:Then
+100.01→θ:prgmSVTOOLS
+End
+If N=2:Then
+{fPart((L₃(1)+180(L₂(1)<0))/360)*360,abs(L₂(1→⌊KNOWN
+End
+If N>2:Then
+Disp "","Calculating...
+100.1→θ
+{1→⌊PARAM
+prgmSVTOOLS
+{B+(B≤180)180-(B>180)180,D→⌊KNOWN
+ClrHome
+Disp "A-B bear+dist:
+Disp ⌊KNOWN(1)DMS,BDMS,round(D,3
+If round(D,3)≠D:Disp D
+Pause 
+End
+ClrHome
+⌊KNOWN(1)-G→X
+fPart(X/360)*360-(X>180)360+(X<­180)360→X
+Disp "Diff:
+Disp XDMS
+Disp ⌊KNOWN(2)-H
+If abs(⌊KNOWN(2)-H)>0.006:Then
+Disp "","Dist is high.","Continue?
+Pause "
+ClrHome
+End
+⌊ARB1→L₁
+⌊ARB2→L₂
+Disp "Corrected X-A:
+Disp fPart((L₃(1)+X+360)/360)*360DMS
+Disp fPart((L₃(1)+X+360+180)/360)*360DMS
+Disp round(L₂(1),3
+Pause 
+Disp "Corrected X-B:
+Disp fPart((L₃(2)+X+360)/360)*360DMS
+Disp fPart((L₃(2)+X+360+180)/360)*360DMS
+Disp round(L₂(2),3
+Pause 
+Return
+Lbl H
+ClrHome
+Disp "CLOSURE CALC:
+Disp "Provide bearings
+Disp "and distances of
+Disp "known sides, and
+Disp "it will find the
+Disp "bear+dist for 
+Disp "the final side.
+Pause 
+ClrHome
+Disp "Can also calc
+Disp "double missing
+Disp "distance: where
+Disp "you know the
+Disp "bearings of last
+Disp "2 sides but not
+Disp "the distances.
+Pause 
+Disp "
+Disp "Enter . for the
+Disp "2nd last dist to
+Disp "use this.
+Pause 
+ClrHome
+Disp "Arbitrary datum
+Disp "is used when you
+Disp "setup on an 
+Disp "unknown mark but
+Disp "can see two
+Disp "known marks. It 
+Disp "will calculate 
+Pause 
+Disp "your correct
+Disp "backsight
+Disp "bearing.
+Pause 
+ClrHome
+Goto A
+Lbl X
