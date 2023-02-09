@@ -372,7 +372,7 @@ Global $8xpTokens[][] = [ _
     [0x6233, "upper"], _
     [0x6234, "s"], _    ; duplicated later? To check these
     [0x6235, "r²"], _
-    [0x6236, "R²"], _
+    [0x6236, "R²"], _			; Possible erroneous compilation occurs here, if you want to actually square R. TI Connect CE 5.6.3.2278 has this bug.
     [0x6237, "[factordf]"], _    ; may need updating as per TI Connect CE
     [0x6238, "[factorSS]"], _    ; may need updating as per TI Connect CE
     [0x6239, "[factorMS]"], _    ; may need updating as per TI Connect CE
