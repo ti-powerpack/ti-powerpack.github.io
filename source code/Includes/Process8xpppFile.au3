@@ -11,52 +11,76 @@
 Process8xpppFile("..\Tests\Full Test\ALL TOKENS.8xppp", "..\Tests\Full Test\ALL TOKENS.compiled.8xp")
 Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
 
+; Reads and does basic parsing on an 8XP file
+; Returns a map with 3 elements: header, meta, body (all binary)
+Func Read8xpBinary($inputFilePath)
+	; Open file and read data
+   $file = FileOpen($inputFilePath, $FO_BINARY)
+   $data = FileRead($file)
+   FileClose($file)
+
+   If @error Then
+	  ConsoleWriteError("Compilation failed. Could not read " & $inputFilePath & @CRLF)
+	  Return
+   EndIf
+
+   Local $binarySegments[]
+
+   ; Extract sections of file
+   $binarySegments.programName = ""
+   $binarySegments.header = BinaryMid($data, 1, 55) ; first 55 bytes
+   $binarySegments.meta = BinaryMid($data, 56, 19)  ; next 19 bytes
+   $binarySegments.body = BinaryMid($data, 56 + 19, BinaryLen($data) - 55 - 19 - 2)
+
+   Return $binarySegments
+EndFunc
 
 ; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
 ; and then recompiles it, calculates the checksum, and writes a new binary file
 Func Process8xpppFile($inputFile, $outputFile)
 
-   ; Open file and read data
-   $file = FileOpen($inputFile, $FO_BINARY)
-   $data = FileRead($file)
-   FileClose($file)
+	$binary = Read8xpBinary($inputFile)
 
-   If @error Then
-	  ConsoleWriteError("Compilation failed. Could not read " & $inputFile & @CRLF)
-	  Return
-   EndIf
+	; Perform optimization operations on body section
+	$binary.body = ProcessBody($binary.body, $inputFile, $outputFile)
 
-   ; Extract sections of file
-   $header = BinaryMid($data, 1, 55) ; first 55 bytes
-   $meta = BinaryMid($data, 56, 19)  ; next 19 bytes
-   $body = BinaryMid($data, 56 + 19, BinaryLen($data) - 55 - 19 - 2)
+	Update8xpLengthFields($binary)
 
-   ;~ MsgBox(0, "", $header);
-   ;~ MsgBox(0, "", $meta);
-   ;~ MsgBox(0, "", $body);
+	Write8xpBinary($binary, $outputFile)
 
-   ; Perform optimization operations on body section
-   ; for now, just remove last two characters
-;~    $body = BinaryMid($body, 1, BinaryLen($body) - 2)
-   $body = ProcessBody($body, $inputFile, $outputFile)
+EndFunc
 
-   ; Recalculate new length of file
+
+; This function updates the .header and .meta sections
+; with the correct length of .body
+; Without this, the file may be invalid
+Func Update8xpLengthFields(ByRef $binary)
+
+	; Since this optimization operation may have affected the length of the file,
+   ; we need to update the numbers in a few places.
+   ; Recalculate new length of file:
    Const $metaLength = 19			; always 19 bytes
    Const $checksumLength = 2		; always 2 bytes
-   $bodyLength = BinaryLen($body)
+   $bodyLength = BinaryLen($binary.body)
    $metaAndBodyLength = $metaLength + $bodyLength
    $bodyAndChecksumLength = $bodyLength + $checksumLength
 
    ;~ MsgBox(0, "", Binary($bodyLength))
 
    ; Update fields within the header and meta to match the new length
-   $header = BinaryModifyWord($header, 0x35 + 1, $metaAndBodyLength)
-   $meta   = BinaryModifyWord($meta, 0x39 - 55 + 1, $bodyAndChecksumLength)
-   $meta   = BinaryModifyWord($meta, 0x46 - 55 + 1, $bodyAndChecksumLength)
-   $meta   = BinaryModifyWord($meta, 0x48 - 55 + 1, $bodyLength)
+   $binary.header = BinaryModifyWord($binary.header, 0x35 + 1, $metaAndBodyLength)
+   $binary.meta   = BinaryModifyWord($binary.meta, 0x39 - 55 + 1, $bodyAndChecksumLength)
+   $binary.meta   = BinaryModifyWord($binary.meta, 0x46 - 55 + 1, $bodyAndChecksumLength)
+   $binary.meta   = BinaryModifyWord($binary.meta, 0x48 - 55 + 1, $bodyLength)
 
-   ; Recombine header, meta, body
-   $data = $header & $meta & $body
+EndFunc
+
+
+; Provide a map with .header, .meta and .body (all binary)
+; Calculates the checksum, and writes to a file
+Func Write8xpBinary($binaryPortions, $outputFile)
+	; Recombine header, meta, body
+   $data = $binaryPortions.header & $binaryPortions.meta & $binaryPortions.body
 
    ; Append checksum as the final 2 bytes of file
    $data = $data & Calculate8xpChecksum($data)
@@ -65,7 +89,6 @@ Func Process8xpppFile($inputFile, $outputFile)
    $file2 = FileOpen($outputFile, $FO_OVERWRITE + $FO_BINARY)
    FileWrite($file2, $data)
    FileClose($file2)
-
 EndFunc
 
 
@@ -86,7 +109,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 	ShowTimeTaken($timer, "Code decompiled in")
 
 	; Save a copy of original text code to disk
-	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Defaults to overwriting?
+	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
 	$file = FileOpen($inputFile & "-source", $FO_OVERWRITE)
 	FileWrite($file, $textCode)
 	FileClose($file)
@@ -100,7 +123,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 	ShowTimeTaken($timer, "Code optimized in")
 
 	; Save processed text to file
-	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Defaults to overwriting?
+	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
 	$file = FileOpen($outputFile & "-source", $FO_OVERWRITE)
 	FileWrite($file, $textCode)
 	FileClose($file)
@@ -167,6 +190,14 @@ Func BinaryCodeToTextCode($binaryCode)
 	Return $textCode
 EndFunc
 
+
+
+; Updates a single byte within a binary variable at a specific position (indexed from 1)
+; Supports numbers, binary vars, or strings like "0x12AB"
+Func BinaryModifyByte($binaryData, $startingByte, $newData)
+   Return BinaryMid($binaryData, 1, $startingByte - 1) & BinaryMid($newData, 1, 1) & BinaryMid($binaryData, $startingByte + 1)
+EndFunc
+;~ MsgBox(0, "BinaryModifyByte", BinaryModifyByte(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
 
 
 

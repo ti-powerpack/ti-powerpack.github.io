@@ -14,6 +14,7 @@
 Func Calculate8xpChecksum($binaryData)
 
    ; Extract bytes 56 to the end
+   ; (the header does NOT affect the checksum, but the meta section does!)
    $binaryData = BinaryMid($binaryData, 56, BinaryLen($binaryData) - 55)
 
    ; Get the numerical value of each byte and sum them together
