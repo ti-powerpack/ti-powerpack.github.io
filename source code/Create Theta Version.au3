@@ -32,8 +32,11 @@ Next
 Func Update8xpProgramName(ByRef $binaryObject)
 	; Ensure name is no more than 8 chars
 	; Any special treatment of theta chars?
+	; Program name is stored at bytes 0x3C - 0x43 (zero indexed, from beginning of file). Any unused bytes are 0x00 I think?
 EndFunc
 
 Func Update8xpArchiveFlag(ByRef $binaryObject, $isArchived)
-	BinaryModifyWord($binaryObject.meta, 0x00,
+	; Archive flag is stored at byte 0x45 (zero indexed, from beginning of file)
+	; 0x00 = not archived, 0x80 = archived
+	$binaryObject.meta = BinaryModifyWord($binaryObject.meta, 0x45 - 55 + 1, $isArchived ? 0x80 : 0x00)
 EndFunc
