@@ -8,8 +8,8 @@
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
 ; RUN THIS FOR TESTING
-Process8xpppFile("..\Tests\Full Test\ALL TOKENS.8xppp", "..\Tests\Full Test\ALL TOKENS.compiled.8xp")
-Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
+;~ Process8xpppFile("..\Tests\Full Test\ALL TOKENS.8xppp", "..\Tests\Full Test\ALL TOKENS.compiled.8xp")
+;~ Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
 
 ; Reads and does basic parsing on an 8XP file
 ; Returns a map with 3 elements: header, meta, body (all binary)
@@ -195,18 +195,34 @@ EndFunc
 ; Updates a single byte within a binary variable at a specific position (indexed from 1)
 ; Supports numbers, binary vars, or strings like "0x12AB"
 Func BinaryModifyByte($binaryData, $startingByte, $newData)
-   Return BinaryMid($binaryData, 1, $startingByte - 1) & BinaryMid($newData, 1, 1) & BinaryMid($binaryData, $startingByte + 1)
+   Return BinaryModifySection($binaryData, $startingByte, 2, $newData)
 EndFunc
 ;~ MsgBox(0, "BinaryModifyByte", BinaryModifyByte(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
-
 
 
 ; Updates 2 bytes within a binary variable at a specific position (indexed from 1)
 ; Supports numbers, binary vars, or strings like "0x12AB"
 Func BinaryModifyWord($binaryData, $startingByte, $newData)
-   Return BinaryMid($binaryData, 1, $startingByte - 1) & BinaryMid($newData, 1, 2) & BinaryMid($binaryData, $startingByte + 2)
+   Return BinaryModifySection($binaryData, $startingByte, 1, $newData)
 EndFunc
 ;~ MsgBox(0, "BinaryModifyWord", BinaryModifyWord(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
+
+; Replaces a chunk of binary with another chunk
+; Overall length of original binary remains the same
+; Starting byte is indexed from 1 NOT zero
+Func BinaryModifySection($binaryData, $startingByte, $length, $newData)
+   Return BinaryMid($binaryData, 1, $startingByte - 1) & BinaryPad(BinaryMid($newData, 1, $length), $length) & BinaryMid($binaryData, $startingByte + $length)
+EndFunc
+
+; Extends the length of a binary variable by padding 0x00's to the end, up to specified length
+; Does NOT truncate variables that are too long
+Func BinaryPad($binaryData, $newLength)
+	While BinaryLen($binaryData) < $newLength
+		$binaryData = $binaryData & Binary("0x00")
+	WEnd
+	Return $binaryData
+EndFunc
+
 
 
 ; COMPILATION: Text to binary tokens
