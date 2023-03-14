@@ -1,96 +1,165 @@
+"CLOSURE PROGRAM
+"Vars set/overwritten in this app: θ,Y,R,Str1,B,T,C,X,Z (N & Str1 used by CLOSUREI)
+"Other vars also used by SVTOOLS, called from this program
+
+
 ClrHome
+
+"INITIAL SETUP OF LISTS, VARS AND SETTINGS
+"-----------------------------------------
 100.01→θ:prgmSVTOOLS
+
+"---- Main Menu ----
 Lbl A
 Menu("Closure Calc","Start new",N,"Redo last",R,"Save last rslt",SL,"Arbtrary datum",AD,"Help",H,"Quit",X
+
+"---- Redo last ----
 Lbl R
 ClrHome
+"Print existing values
 100.05→θ
 prgmSVTOOLS
 ClrHome
 Goto C
+
+"--------- Closure Input ---------
 Lbl N
 100.3→θ
 0→Z
 prgmSVTOOLS
+
+"--------- Closure Calculation ----------
 Lbl C
 100.1→θ
-{1→⌊PARAM
+{1}→⌊PARAM
 prgmSVTOOLS
 0→θ
+
 ClrHome
-Disp "Survey Closure
-Disp "--------------
-Disp "B, B+180, D:
+Disp "Survey Closure"
+Disp "--------------"
+Disp "B, B+180, D:"
 Disp BDMS
 Disp B+(B<180)180-(B≥180)180DMS
 Disp round(D,3),D
+
+"---------- Optional Closure Rotation -------------
+"Provide a hidden option to rotate the answer by
+"pressing +,-, or -
+"OVERWRITES: Y,R,Str1,B
+
+"How many iterations before we timeout? (Very roughly, seconds x 55)
 90*55→R
+
+"We need to store 0 in Ans before beginning loop
 0
+
+"Pause here until a key is pressed, or timeout is reached
 Repeat Ans or R=0
-R-1→R
-getKey→Y
+::R-1→R
+::getKey→Y
 End
+
 If Y=95 or Y=85 or Y=104:Then
-1→dim(⌊ROTAT
-⌊ROTAT(1→R
-Disp "Rotate answer by
-Disp "how much? D.MMSS
-Disp ". to reuse prev:
-Disp RDMS
-Input "> ",Str1
-If Str1≠".":Then
-expr(Str1→R
-iPart(R)+iPart(fPart(R)*100)/60+fPart(R*100)*100/3600→R
-R→⌊ROTAT(1
+::"Var for remembering the rotation
+::1→dim(⌊ROTAT
+::⌊ROTAT(1)→R
+::"Ask for rotation amount
+::"     ----------------
+::Disp "Rotate answer by
+::Disp "how much? D.MMSS
+::Disp ". to reuse prev:
+::Disp RDMS
+::Input "> ",Str1
+::If Str1≠".":Then
+::::expr(Str1)→R
+::::"Parse DMS format to decimal
+::::iPart(R)+iPart(fPart(R)*100)/60+fPart(R*100)*100/3600→R
+::::R→⌊ROTAT(1)
+::End
+::B+R→B
+::B+360(B<0)-360(B>360)→B
+::Disp "Rotated closure:
+::Disp "B, B+180, D:"
+::Disp BDMS
+::Disp B+(B<180)180-(B≥180)180DMS
+::Disp round(D,3)
+::If D≠round(D,3):Disp D
+::Pause 
 End
-B+R→B
-B+360(B<0)-360(B>360→B
-Disp "Rotated closure:
-Disp "B, B+180, D:
-Disp BDMS
-Disp B+(B<180)180-(B≥180)180DMS
-Disp round(D,3
-If D≠round(D,3):Disp D
-Pause 
-End
+
+"-------- Display Double (& Quad) Missing Dist Result -------
+"This section does NOT apply the rotation above. Does it need to?
+"Not really... since we already know bearings, and only looking for dists. OK to leave as is.
 If T:Then
-ClrHome
-If T=3:Then
-Disp "Missing dist #1:","(V,W)
-Disp L₃(dim(L₃)-3)DMS
-Disp round(V,3
-Disp L₃(dim(L₃)-2)DMS
-Disp round(W,3
-Pause 
-ClrHome
-Disp "Missing dist #2:
-Else
-Disp "Missing dists:
+::ClrHome
+::
+::"Quad missing dist
+::If T=3:Then
+::::Disp "Missing dist #1:","(V,W)"
+::::Disp L₃(dim(L₃)-3)DMS
+::::Disp round(V,3)
+::::Disp L₃(dim(L₃)-2)DMS
+::::Disp round(W,3)
+::::Pause 
+::::ClrHome
+::::Disp "Missing dist #2:"
+::Else
+::::Disp "Missing dists:"
+::End
+::
+::Disp "(X,Z)"
+::Disp L₃(dim(L₃)-1)DMS
+::Disp round(X,3)
+::Disp L₃(dim(L₃))DMS
+::Disp round(Z,3)
+
+::"DMD calc complete
+::"Cleanup by removing final bearing if only 1 was initially provided,
+::"So that it's returned to the state when user began the program.
+::If T=1 or T=3:dim(L₁)-1→dim(L₁
+
+::Pause 
 End
-Disp "(X,Z)
-Disp L₃(dim(L₃)-1)DMS
-Disp round(X,3
-Disp L₃(dim(L₃))DMS
-Disp round(Z,3
-If T=1 or T=3:dim(L₁)-1→dim(L₁
-Pause 
-End
+
 Goto X
+
+"================= Save closure ====================
+"READS FROM: B,D,X,Z
+"OVERWRITES: T,C
+"AVOID USING: F,I,L
 Lbl SL
-dim(L₁)-dim(L₂→T
+"Save last closure to L1 and L2
+dim(L₁)-dim(L₂)→T
 If T=0:Then
-iPart(B)+iPart(fPart(B)*60)/100+fPart(B*60)/60*3600/10000→C
-C→L₁(dim(L₁)+1
-D→L₂(dim(L₂)+1
-Disp "Saving to list:",BDMS,C,D
+
+::"Convert bearing from dec to short DMS format
+::iPart(B)+iPart(fPart(B)*60)/100+fPart(B*60)/60*3600/10000→C
+::C→L₁(dim(L₁)+1)
+::D→L₂(dim(L₂)+1)
+
+::"Display result
+::Disp "Saving to list:",BDMS,C,D
+
 End
+
+"Saving double missing dists
 If T=2:Then
-Disp "Saving dists:",X,Z
-X→L₂(dim(L₂)+1
-Z→L₂(dim(L₂)+1
+::Disp "Saving dists:",X,Z
+::X→L₂(dim(L₂)+1)
+::Z→L₂(dim(L₂)+1)
 End
+
 Return
+
+
+
+"=================== Arb Datum Calc ===================
+"Uses vars: ⌊ARB1,⌊ARB2,Str1,C,G,H,⌊KNOWN,X
+"Overwrites: L₁,L₂
+
 Lbl AD
+"     ----------------
 Disp "You're at point
 Disp "X.
 Disp "Measure
@@ -98,95 +167,168 @@ Disp "X-A and X-B
 Disp "using any
 Disp "starting
 Disp "bearing.
+
+"Declare array in case it doesn't exist yet
 2→dim(⌊ARB1
 2→dim(⌊ARB2
+
+"Recall entries in case user wants to reuse them
+"ARB1 = arb bearings X-A and X-B (D.MMSS)
+"ARB2 = arb distances X-A and X-B
 ⌊ARB1→L₁
 ⌊ARB2→L₂
+
+"Reset L3
+"100.01-->θ
+"prgmSVTOOLS
+
 Pause 
+
+"Note: This section doesn't support multiple hops.
+"      Only used for sighting to 2 points directly.
+"      If you need to place >1 unknown point between
+"      2 known points, then you need to do manually.
+
 Disp ". to reuse last
 Disp "
 Input "X-A Bear: ",Str1
 If Str1=".":Then
-100.05→θ:prgmSVTOOLS
+::"Display prev values
+::100.05→θ:prgmSVTOOLS
 Else
-{expr(Str1→L₁
-Input "X-A Dist: ",C
-{C→L₂
-Input "X-B Bear: ",C
-C→L₁(2
-Input "X-B Dist: ",C
-C→L₂(2
+::{expr(Str1)}→L₁
+::Input "X-A Dist: ",C
+::{C}→L₂
+::Input "X-B Bear: ",C
+::C→L₁(2)
+::Input "X-B Dist: ",C
+::C→L₂(2)
 End
+
 Disp "","Calculating...
+
+"Remember X-A and X-B entries for later reuse
 L₁→⌊ARB1
 L₂→⌊ARB2
-{L₁(2),L₁(1→L₁
-{­L₂(2),L₂(1→L₂
+
+"Find A-B (via closure B-X-A)
+"First swap the two and 
+"reverse the distance to B
+{L₁(2),L₁(1)}→L₁
+{­L₂(2),L₂(1)}→L₂
+
+"Calculate the closure
 100.1→θ
-{1→⌊PARAM
+{1}→⌊PARAM
 prgmSVTOOLS
+
+"Display the closure result
 ClrHome
 Disp "Arbitrary
 Disp "closure A-B:
 Disp BDMS
 Disp round(D,3),D
 Pause 
+
+"Remember result for later use (G and H)
 B→G
 D→H
+
 Disp "
 Disp "On next screen
 Disp "enter known
 Disp "traverse(s) from
 Disp "A to B.
 Pause 
-2→dim(⌊KNOWN
-{⌊KNOWN(1→L₃
-{⌊KNOWN(2→L₂
+
+"Declare array in case it doesn't exist yet
+2→dim(⌊KNOWN)
+
+"POPULATE L2 and L3 TO SUPPORT RECALLING OF PREV ENTRIES USING .
+"TODO: Support recalling multiple traverses here! Does not currently.
+{⌊KNOWN(1)}→L₃
+{⌊KNOWN(2)}→L₂
+
+"Ask for closure input. Recalling will redisplay LKNOWN values.
 100.3→θ:0→Z:prgmSVTOOLS
+
+"N=1 signifies that we're reusing prev values. Do nothing except reset L3.
 If N=1:Then
-100.01→θ:prgmSVTOOLS
+::100.01→θ:prgmSVTOOLS
 End
+
+"If only a single bear+dist, save to lKNOWN
 If N=2:Then
-{fPart((L₃(1)+180(L₂(1)<0))/360)*360,abs(L₂(1→⌊KNOWN
+::"If a negative dist, we'll flip the bearing
+::{fPart((L₃(1)+180(L₂(1)<0))/360)*360,abs(L₂(1))}→⌊KNOWN
 End
+
+"Otherwise if multiple traverses, calc the closure:
 If N>2:Then
-Disp "","Calculating...
-100.1→θ
-{1→⌊PARAM
-prgmSVTOOLS
-{B+(B≤180)180-(B>180)180,D→⌊KNOWN
-ClrHome
-Disp "A-B bear+dist:
-Disp ⌊KNOWN(1)DMS,BDMS,round(D,3
-If round(D,3)≠D:Disp D
-Pause 
+::Disp "","Calculating...
+:"Calc closure of A-B
+::100.1→θ
+::{1}→⌊PARAM
+::prgmSVTOOLS
+::"Closure gives us B-A, so we'll flip 180 to get A-B
+::{B+(B≤180)180-(B>180)180,D}→⌊KNOWN
+::ClrHome
+::Disp "A-B bear+dist:
+::Disp ⌊KNOWN(1)DMS,BDMS,round(D,3)
+::If round(D,3)≠D:Disp D
+::Pause 
 End
+
 ClrHome
+"     ----------------
+
+"Calc necessary rotation
 ⌊KNOWN(1)-G→X
+"Calc distance diff (including a mod(360), keeping a result from -180 to 180)
 fPart(X/360)*360-(X>180)360+(X<­180)360→X
+
+"Display diff of bearing and distance
+"ClrHome
 Disp "Diff:
 Disp XDMS
 Disp ⌊KNOWN(2)-H
+
+"Warn when distance is high
 If abs(⌊KNOWN(2)-H)>0.006:Then
-Disp "","Dist is high.","Continue?
-Pause "
-ClrHome
+::Disp "","Dist is high.","Continue?
+::Pause "
+::ClrHome
 End
+
+"Reload LARB1 and LARB2 into main lists
 ⌊ARB1→L₁
 ⌊ARB2→L₂
+
 Disp "Corrected X-A:
 Disp fPart((L₃(1)+X+360)/360)*360DMS
 Disp fPart((L₃(1)+X+360+180)/360)*360DMS
-Disp round(L₂(1),3
+Disp round(L₂(1),3)
+"Disp L₂(1)
+
 Pause 
+
 Disp "Corrected X-B:
 Disp fPart((L₃(2)+X+360)/360)*360DMS
 Disp fPart((L₃(2)+X+360+180)/360)*360DMS
-Disp round(L₂(2),3
+Disp round(L₂(2),3)
+"Disp L₂(2)
+
 Pause 
 Return
+
+
+
+"------- HELP ------------
+"Note: Uses lots of space. 
+"      Consider reducing if space is an issue.
 Lbl H
 ClrHome
+"     ----------------
 Disp "CLOSURE CALC:
 Disp "Provide bearings
 Disp "and distances of
@@ -210,6 +352,7 @@ Disp "2nd last dist to
 Disp "use this.
 Pause 
 ClrHome
+"     ----------------
 Disp "Arbitrary datum
 Disp "is used when you
 Disp "setup on an 
@@ -224,4 +367,7 @@ Disp "bearing.
 Pause 
 ClrHome
 Goto A
+
+
+"------ End ------
 Lbl X

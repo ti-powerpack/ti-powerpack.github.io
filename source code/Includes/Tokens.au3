@@ -128,7 +128,7 @@ Global $8xpTokens[][] = [ _
     [0x7D, "DependAsk"], _
     [0x7F, "▫", "plotsquare"], _
     [0x80, "⁺", "﹢"], _
-    [0x81, "·"], _				; TinyDotPlot? Duplicates 0xEF73 I think?
+	[0x81, "[tinydotplot]", "·"], _		; Originally this duplicated 0xEF73. The reason the primary text here is [tinydotplot] and not the single character is to prevent the clash with 0xEF73.
     [0x82, "*"], _
     [0x83, "/"], _
     [0x84, "Trace"], _
@@ -372,7 +372,20 @@ Global $8xpTokens[][] = [ _
     [0x6233, "upper"], _
     [0x6234, "s"], _    ; duplicated later? To check these
     [0x6235, "r²"], _
-    [0x6236, "R²"], _			; Possible erroneous compilation occurs here, if you want to actually square R. TI Connect CE 5.6.3.2278 has this bug.
+	_
+	_ ;---------------------------------------------------------------------
+	_ ; R² bugfix
+	_ ; Unfortunately TI Connect 5 and 6 has a bug whereby it saves the formula R²
+	_ ; as a single token (the statistic R²) instead of the R token followed by the ² token.
+	_ ; This breaks simple formulas such as πR².
+	_ ; So the next line provides a fix/workaround so that our script does NOT have the same bug.
+	_ ; So what this means is that both 0x520D and 0x6236 will be decoded to the text R².
+	_ ; When re-encoding, "R²" will always be 0x520D, which is the more likely option.
+	_ ; To encode it as the single statistical token 0x6236, use the text "Rsquared".
+	  [0x520D, "R²"], _					; Force it to encode as two single tokens R and ²
+      [0x6236, "R²", "Rsquared"], _
+	_ ;---------------------------------------------------------------------
+	_
     [0x6237, "[factordf]"], _    ; may need updating as per TI Connect CE
     [0x6238, "[factorSS]"], _    ; may need updating as per TI Connect CE
     [0x6239, "[factorMS]"], _    ; may need updating as per TI Connect CE
@@ -383,12 +396,12 @@ Global $8xpTokens[][] = [ _
     [0x6301, "ZYscl"], _
     [0x6302, "Xscl"], _
     [0x6303, "Yscl"], _
-    [0x6304, "u(Min)", "u(nMin)"], _
-    [0x6305, "v(Min)", "v(nMin)"], _
+    [0x6304, "u(Min)", "u(nMin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
+    [0x6305, "v(Min)", "v(nMin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
     [0x6306, "Un-₁"], _
     [0x6307, "Vn-₁"], _
-    [0x6308, "Zu(Min)", "Zu(nmin)"], _
-    [0x6309, "Zv(Min)", "Zv(nmin)"], _
+    [0x6308, "Zu(Min)", "Zu(nmin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
+    [0x6309, "Zv(Min)", "Zv(nmin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
     [0x630A, "Xmin"], _
     [0x630B, "Xmax"], _
     [0x630C, "Ymin"], _
@@ -429,8 +442,8 @@ Global $8xpTokens[][] = [ _
     [0x632F, "FV"], _
     [0x6330, "P/Y", "|P/Y"], _
     [0x6331, "C/Y", "|C/Y"], _
-    [0x6332, "w(Min)", "w(nMin)"], _
-    [0x6333, "Zw(Min)", "Zw(nMin)"], _
+    [0x6332, "w(Min)", "w(nMin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
+    [0x6333, "Zw(Min)", "Zw(nMin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
     [0x6334, "PlotStep"], _
     [0x6335, "ZPlotStep"], _
     [0x6336, "Xres"], _

@@ -1,3 +1,4 @@
+#include-once
 #include <FileConstants.au3>
 #include "Calculate8xpChecksum.au3"
 #include "OptimizeCode.au3"
@@ -7,46 +8,42 @@
 
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
-; RUN THIS FOR TESTING
-;~ Process8xpppFile("..\Tests\Full Test\ALL TOKENS.8xppp", "..\Tests\Full Test\ALL TOKENS.compiled.8xp")
-;~ Process8xpppFile("..\Tests\Full Test\CLOSURE2.8xp", "..\Tests\Full Test\CLOSURE2.compiled.8xp")
-
 ; Reads and does basic parsing on an 8XP file
-; Returns a map with 3 elements: header, meta, body (all binary)
+; Returns a map with the elements: programName, header, meta, body, checksum (all binary, except for programName)
 Func Read8xpBinary($inputFilePath)
 	; Open file and read data
-   $file = FileOpen($inputFilePath, $FO_BINARY)
-   $data = FileRead($file)
-   FileClose($file)
-
+   Local $file = FileOpen($inputFilePath, $FO_BINARY)
+   Local $data = FileRead($file)
    If @error Then
-	  ConsoleWriteError("Compilation failed. Could not read " & $inputFilePath & @CRLF)
+	  Debug("Compilation failed. Could not read " & $inputFilePath)
 	  Return
    EndIf
+   FileClose($file)
 
    Local $binarySegments[]
 
    ; Extract sections of file
    $binarySegments.programName = ""
-   $binarySegments.header = BinaryMid($data, 1, 55) ; first 55 bytes
-   $binarySegments.meta = BinaryMid($data, 56, 19)  ; next 19 bytes
+   $binarySegments.header = BinaryMid($data, 1, 55) 						; first 55 bytes
+   $binarySegments.meta = BinaryMid($data, 56, 19)  						; next 19 bytes
    $binarySegments.body = BinaryMid($data, 56 + 19, BinaryLen($data) - 55 - 19 - 2)
+   $binarySegments.checksum = BinaryMid($data, BinaryLen($data) - 1, 2)		; last 2 bytes
 
    Return $binarySegments
 EndFunc
 
 ; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
 ; and then recompiles it, calculates the checksum, and writes a new binary file
-Func Process8xpppFile($inputFile, $outputFile)
+Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 
-	$binary = Read8xpBinary($inputFile)
+	Local $data = Read8xpBinary($inputFile)
 
 	; Perform optimization operations on body section
-	$binary.body = ProcessBody($binary.body, $inputFile, $outputFile)
+	$data.body = ProcessBody($data.body, $inputFile, $outputFile, $performOptimization)
 
-	Update8xpLengthFields($binary)
+	Update8xpLengthFields($data)
 
-	Write8xpBinary($binary, $outputFile)
+	Write8xpBinary($data, $outputFile)
 
 EndFunc
 
@@ -61,9 +58,9 @@ Func Update8xpLengthFields(ByRef $binary)
    ; Recalculate new length of file:
    Const $metaLength = 19			; always 19 bytes
    Const $checksumLength = 2		; always 2 bytes
-   $bodyLength = BinaryLen($binary.body)
-   $metaAndBodyLength = $metaLength + $bodyLength
-   $bodyAndChecksumLength = $bodyLength + $checksumLength
+   Local $bodyLength = BinaryLen($binary.body)
+   Local $metaAndBodyLength = $metaLength + $bodyLength
+   Local $bodyAndChecksumLength = $bodyLength + $checksumLength
 
    ;~ MsgBox(0, "", Binary($bodyLength))
 
@@ -80,13 +77,13 @@ EndFunc
 ; Calculates the checksum, and writes to a file
 Func Write8xpBinary($binaryPortions, $outputFile)
 	; Recombine header, meta, body
-   $data = $binaryPortions.header & $binaryPortions.meta & $binaryPortions.body
+   Local $data = $binaryPortions.header & $binaryPortions.meta & $binaryPortions.body
 
    ; Append checksum as the final 2 bytes of file
    $data = $data & Calculate8xpChecksum($data)
 
    ; Write to new file
-   $file2 = FileOpen($outputFile, $FO_OVERWRITE + $FO_BINARY)
+   Local $file2 = FileOpen($outputFile, $FO_OVERWRITE + $FO_BINARY)
    FileWrite($file2, $data)
    FileClose($file2)
 EndFunc
@@ -99,18 +96,18 @@ EndFunc
 ;
 ; During this process we also save a text copy of the original code and the optimized code
 ; (for use with source control and also for debugging issues with this script)
-Func ProcessBody($binaryCode, $inputFile, $outputFile)
+Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = True)
 
-	$timer = TimerInit();
+	Local $timer = TimerInit();
 
 	; Convert binary code to text
-	$textCode = BinaryCodeToTextCode($binaryCode)
+	Local $textCode = BinaryCodeToTextCode($binaryCode)
 
 	ShowTimeTaken($timer, "Code decompiled in")
 
 	; Save a copy of original text code to disk
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
-	$file = FileOpen($inputFile & "-source", $FO_OVERWRITE)
+	Local $file = FileOpen($inputFile & "-source", $FO_OVERWRITE)
 	FileWrite($file, $textCode)
 	FileClose($file)
 
@@ -118,7 +115,9 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 
 	; Process/manipulate the text-based code
 	; $textCode &= @LF & "::: Appended!"
-	$textCode = OptimizeCode($textCode)
+	If $performOptimization Then
+		$textCode = OptimizeCode($textCode)
+	EndIf
 
 	ShowTimeTaken($timer, "Code optimized in")
 
@@ -135,7 +134,6 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile)
 
 	ShowTimeTaken($timer, "Code compiled in")
 
-	; Return original binary code, for now, until rest is implemented
 	Return $binaryCode
 EndFunc
 
@@ -147,11 +145,13 @@ EndFunc
 
 
 Func BinaryCodeToTextCode($binaryCode)
-	$textCode = ""
+	Local $textCode = ""
 
-	; Loop through every character in file and replace with text representation
+	; Loop through every byte in file and replace with text representation
 	For $i = 1 To BinaryLen($binaryCode)
-		$char = BinaryMid($binaryCode, $i, 1)
+
+		; Grab a single byte
+		Local $char = BinaryMid($binaryCode, $i, 1)
 
 		; TODO: Could potentially speed this up by not searching the array for
 		; known 2-byte prefixes.
@@ -159,7 +159,9 @@ Func BinaryCodeToTextCode($binaryCode)
 		; so we're not searching the list unnecessarily
 		; Anyway, seems fast enough for now...?
 
-		$tokenIndex = _ArrayBinarySearch($8xpTokens, $char, 0, 0, 0)
+		; Does this byte exist in our list?
+		; If so, output the relevant text representation and continue onto next byte
+		Local $tokenIndex = _ArrayBinarySearch($8xpTokens, $char, 0, 0, 0)
 		If $tokenIndex > -1 Then
 ;~ 			ConsoleWrite("Token found" & @CRLF)
 ;~ 			ConsoleWrite($tokenIndex)
@@ -169,7 +171,7 @@ Func BinaryCodeToTextCode($binaryCode)
 
 		; If not found within the list, it might be a 2-byte character, so let's look for that
 		; Note: AutoIt converts binary to int in little endian format, which is NOT how 8XPs work.
-		$char2 = BinaryMid($binaryCode, $i+1, 1)
+		Local $char2 = BinaryMid($binaryCode, $i+1, 1)
 		$tokenIndex = _ArrayBinarySearch($8xpTokens, Number($char2 & $char), 0, 0, 0)
 		If $tokenIndex > 0 Then
 ;~ 			ConsoleWrite("Token found" & @CRLF)
@@ -257,12 +259,17 @@ EndFunc
 
 ;~ debug("Result: " & Hex(TextCodeToBinaryCode("round(pxl-Test(augment(rowSwap(DDisp L₁")) & @CRLF)
 
+
+; Converts 0x62 or 0x6212 into actual binary representing those one or two bytes
+; Ints in AutoIt are normally 4 bytes long, but we actually only want either 1 or 2 bytes
+; And two bytes need reversing as AutoIt stores them as little endian I think?
 Func TokenIntToBinary($int)
-	; Ints are normally 4 bytes long, but we actually only want either 1 or 2 bytes
 	Local $result
 	If $int < 256 Then
+		; Return 1 byte
 		$result = BinaryMid($int, 1, 1)
 	Else
+		; Return 2 bytes
 		$result = BinaryMid($int, 2, 1) & BinaryMid($int, 1, 1)
 	EndIf
 ;~ 	debug($result)
@@ -274,27 +281,39 @@ Func TextCodeToBinaryCode($text)
 	Local $binary = Binary("")
 
 	; Create a map for efficiently looking up tokens
+	; The text string is the key, and binary code is the value (either 1 or 2 bytes)
+	; We loop through the list in REVERSE since there are a few duplicate tokens in the list
+	; and we want EARLIER tokens to take priority over later ones
+	;
+	; TODO: We are NOT currently handling the alternative text options that are provided in the tokens list.
+	;       These might be useful in some cases.
 	Local $tokens[]
 	For $i = UBound($8xpTokens) - 1 To 0 Step -1
 ;~ 		ConsoleWrite($i & " " & VarGetType($8xpTokens[$i][1]) & " " & $8xpTokens[$i][0] & " " & $8xpTokens[$i][1] & @CRLF)
-		$tokenText = $8xpTokens[$i][1]
-		$tokenBinary = TokenIntToBinary($8xpTokens[$i][0])
+
+		; Skip 0x00 as it breaks things, and I don't think we need it for compilation? Do we...?
+		If $8xpTokens[$i][0] == 0 Then ContinueLoop
+
+		Local $tokenText = $8xpTokens[$i][1]
+		Local $tokenBinary = TokenIntToBinary($8xpTokens[$i][0])
+
 		; If $val = 1 Then ContinueLoop
 		$tokens[$tokenText] = $tokenBinary
 	Next
 
 ;~ 	DebugMap($tokens)
+;~ 	debug($tokens["["])
 
 	debug("Tokens have been indexed")
 
 	; Loop through entire string, character by character
 	; TODO: This may (currently) be case sensitive. To be explored whether I should fix that.
-	$textLength = StringLen($text)
-	For $i = 1 to StringLen($text)
+	Local $textLength = StringLen($text)
+	For $i = 1 to $textLength
 		; Start with grabbing the next 14 chars (the length of the longest token)
 		; and keep removing characters until we find a matching token
 		For $j = _Min(14, $textLength - $i + 1) to 1 Step -1
-			$portion = StringMid($text, $i, $j)
+			Local $portion = StringMid($text, $i, $j)
 
 			If MapExists($tokens, $portion) Then
 				; Great, we've found a match
