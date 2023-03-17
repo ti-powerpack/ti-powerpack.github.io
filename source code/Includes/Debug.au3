@@ -2,14 +2,21 @@
 #include <Array.au3>
 
 
-Func Debug($string)
-	ConsoleWrite($string & @CRLF)
+Func Debug($stringOrArray)
+
+	; Handles 1D arrays only, not 2D
+	If IsArray($stringOrArray) Then
+		Debug("Array:" & @CRLF & "  - " & _ArrayToString($stringOrArray, @CRLF & "  - "))
+		Return
+	EndIf
+
+	ConsoleWrite($stringOrArray & @CRLF)
+
 EndFunc
 
 Func DebugArray($array)
 	_ArrayDisplay($array)
 EndFunc
-
 
 Func DebugMap($map)
 	; _ArrayDisplay(MapKeys($map))

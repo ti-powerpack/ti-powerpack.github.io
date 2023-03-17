@@ -20,9 +20,9 @@ Func OptimizeCode($code)
 
 	;MsgBox(0, "Error", @error & @CRLF & @extended)
 
-	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (where there is NOT a store command) - won't remove comment on FINAL line of program
+	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
 	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
-	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing blank line at end of script
+	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
 	$code = StringRegExpReplace($code, "\)+→", "→")						; remove closing )'s when storing a number
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes

@@ -11,11 +11,25 @@
 ; Reads and does basic parsing on an 8XP file
 ; Returns a map with the elements: programName, header, meta, body, checksum (all binary, except for programName)
 Func Read8xpBinary($inputFilePath)
+
 	; Open file and read data
-   Local $file = FileOpen($inputFilePath, $FO_BINARY)
+	; Make 10 attempts as occasionally TI Connect is still writing to file and
+	; the FileOpen() fails
+	For $i = 0 to 10
+		Local $file = FileOpen($inputFilePath, $FO_BINARY)
+		If $file > -1 Then ExitLoop
+		Sleep(100)
+	Next
+   If $file = -1 Then
+	  Debug("FileOpen() failed after 10 attempts. Could not read " & $inputFilePath)
+	  SetError(1)
+	  Return
+   EndIf
+
    Local $data = FileRead($file)
    If @error Then
-	  Debug("Compilation failed. Could not read " & $inputFilePath)
+	  SetError(2)
+	  Debug("FileRead() failed. Could not read " & $inputFilePath)
 	  Return
    EndIf
    FileClose($file)
@@ -23,7 +37,9 @@ Func Read8xpBinary($inputFilePath)
    Local $binarySegments[]
 
    ; Extract sections of file
-   $binarySegments.programName = ""
+   $binarySegments.programName = BinaryMid($data, 0x3C + 1, 8)
+   $binarySegments.isBasicProgram = (BinaryMid($data, 0x4A + 1, 2) <> Binary("0xBB6D"))
+   Debug("Is Basic Prog? " & $binarySegments.isBasicProgram & " " & BinaryMid($data, 0x4A + 1, 2))
    $binarySegments.header = BinaryMid($data, 1, 55) 						; first 55 bytes
    $binarySegments.meta = BinaryMid($data, 56, 19)  						; next 19 bytes
    $binarySegments.body = BinaryMid($data, 56 + 19, BinaryLen($data) - 55 - 19 - 2)
@@ -37,6 +53,13 @@ EndFunc
 Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 
 	Local $data = Read8xpBinary($inputFile)
+	If @error Then Return
+
+	; Exit here if this is an assembly program
+	If Not $data.isBasicProgram Then
+		Debug("Assembly program detected. Skipping optimization and compilation steps.")
+		Return
+	EndIf
 
 	; Perform optimization operations on body section
 	$data.body = ProcessBody($data.body, $inputFile, $outputFile, $performOptimization)
@@ -304,7 +327,7 @@ Func TextCodeToBinaryCode($text)
 ;~ 	DebugMap($tokens)
 ;~ 	debug($tokens["["])
 
-	debug("Tokens have been indexed")
+	; debug("Tokens have been indexed")
 
 	; Loop through entire string, character by character
 	; TODO: This may (currently) be case sensitive. To be explored whether I should fix that.
