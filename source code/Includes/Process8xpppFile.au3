@@ -21,7 +21,7 @@ Func Read8xpBinary($inputFilePath)
 		Sleep(100)
 	Next
    If $file = -1 Then
-	  Debug("FileOpen() failed after 10 attempts. Could not read " & $inputFilePath)
+	  Debug("  - FileOpen() failed after 10 attempts. Could not read " & $inputFilePath)
 	  SetError(1)
 	  Return
    EndIf
@@ -29,7 +29,7 @@ Func Read8xpBinary($inputFilePath)
    Local $data = FileRead($file)
    If @error Then
 	  SetError(2)
-	  Debug("FileRead() failed. Could not read " & $inputFilePath)
+	  Debug("  - FileRead() failed. Could not read " & $inputFilePath)
 	  Return
    EndIf
    FileClose($file)
@@ -39,7 +39,7 @@ Func Read8xpBinary($inputFilePath)
    ; Extract sections of file
    $binarySegments.programName = BinaryMid($data, 0x3C + 1, 8)
    $binarySegments.isBasicProgram = (BinaryMid($data, 0x4A + 1, 2) <> Binary("0xBB6D"))
-   Debug("Is Basic Prog? " & $binarySegments.isBasicProgram & " " & BinaryMid($data, 0x4A + 1, 2))
+   Debug("  - Is Basic Prog? " & $binarySegments.isBasicProgram & " " & BinaryMid($data, 0x4A + 1, 2))
    $binarySegments.header = BinaryMid($data, 1, 55) 						; first 55 bytes
    $binarySegments.meta = BinaryMid($data, 56, 19)  						; next 19 bytes
    $binarySegments.body = BinaryMid($data, 56 + 19, BinaryLen($data) - 55 - 19 - 2)
@@ -52,12 +52,15 @@ EndFunc
 ; and then recompiles it, calculates the checksum, and writes a new binary file
 Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 
+	Local $timer = TimerInit()
+
 	Local $data = Read8xpBinary($inputFile)
 	If @error Then Return
 
 	; Exit here if this is an assembly program
 	If Not $data.isBasicProgram Then
-		Debug("Assembly program detected. Skipping optimization and compilation steps.")
+		Debug("  - Assembly program detected. Skipping optimization and compilation steps.")
+		SetError(1)
 		Return
 	EndIf
 
@@ -67,6 +70,8 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 	Update8xpLengthFields($data)
 
 	Write8xpBinary($data, $outputFile)
+
+	Debug("  - Processing complete in: " & TimerDiff($timer)/1000 & " seconds")
 
 EndFunc
 
@@ -126,7 +131,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	; Convert binary code to text
 	Local $textCode = BinaryCodeToTextCode($binaryCode)
 
-	ShowTimeTaken($timer, "Code decompiled in")
+	ShowTimeTaken($timer, "  - Code decompiled in")
 
 	; Save a copy of original text code to disk
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
@@ -142,7 +147,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 		$textCode = OptimizeCode($textCode)
 	EndIf
 
-	ShowTimeTaken($timer, "Code optimized in")
+	ShowTimeTaken($timer, "  - Code optimized in")
 
 	; Save processed text to file
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
@@ -155,7 +160,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	; Recompile back to binary format
 	$binaryCode = TextCodeToBinaryCode($textCode)
 
-	ShowTimeTaken($timer, "Code compiled in")
+	ShowTimeTaken($timer, "  - Code compiled in")
 
 	Return $binaryCode
 EndFunc
@@ -352,7 +357,7 @@ Func TextCodeToBinaryCode($text)
 			ElseIf $j = 1 Then
 				$char = StringMid($text, $i, 1)
 				; TODO: Maybe this should be a fatal error?
-				debug("COULD NOT FIND TOKEN MATCH FOR CHARACTER: """ & $char & """, ASCII Code: " & Asc($char) & ", Unicode: " & AscW($char) & ". Character skipped, with no bytes added for this.")
+				debug("  - COULD NOT FIND TOKEN MATCH FOR CHARACTER: """ & $char & """, ASCII Code: " & Asc($char) & ", Unicode: " & AscW($char) & ". Character skipped, with no bytes added for this.")
 			EndIf
 
 		Next
