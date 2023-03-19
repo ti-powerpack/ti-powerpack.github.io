@@ -7,6 +7,7 @@
 #include <WinAPIFiles.au3>
 #include <Date.au3>
 #include "Debug.au3"
+#include "FileExtension.au3"
 
 ;---------------------------------------------
 $monitorSubfolders = 1
@@ -164,10 +165,3 @@ Func RecordRecentEvent($filePath)
 	$RecentEvents[$filePath] = _Date_Time_GetTickCount()
 EndFunc
 
-
-#include <File.au3>
-#include <FileConstants.au3>
-Func FileExtension($fullPath)
-   Local $x = ""
-   Return StringTrimLeft(_PathSplit($fullPath, $x, $x, $x, $x)[$PATH_EXTENSION], 1)
-EndFunc

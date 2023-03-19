@@ -37,7 +37,9 @@ Func Read8xpBinary($inputFilePath)
    Local $binarySegments[]
 
    ; Extract sections of file
-   $binarySegments.programName = BinaryMid($data, 0x3C + 1, 8)
+   ; Theta characters that appear in some program names are actually the "[" character in ASCII
+   $binarySegments.programNameBinary = BinaryMid($data, 0x3C + 1, 8)
+   $binarySegments.programName = StringStripWS(BinaryToString($binarySegments.programNameBinary), 3)
    $binarySegments.isBasicProgram = (BinaryMid($data, 0x4A + 1, 2) <> Binary("0xBB6D"))
    Debug("  - Is Basic Prog? " & $binarySegments.isBasicProgram & " " & BinaryMid($data, 0x4A + 1, 2))
    $binarySegments.header = BinaryMid($data, 1, 55) 						; first 55 bytes
@@ -225,7 +227,7 @@ EndFunc
 ; Updates a single byte within a binary variable at a specific position (indexed from 1)
 ; Supports numbers, binary vars, or strings like "0x12AB"
 Func BinaryModifyByte($binaryData, $startingByte, $newData)
-   Return BinaryModifySection($binaryData, $startingByte, 2, $newData)
+   Return BinaryModifySection($binaryData, $startingByte, 1, $newData)
 EndFunc
 ;~ MsgBox(0, "BinaryModifyByte", BinaryModifyByte(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
 
@@ -233,7 +235,7 @@ EndFunc
 ; Updates 2 bytes within a binary variable at a specific position (indexed from 1)
 ; Supports numbers, binary vars, or strings like "0x12AB"
 Func BinaryModifyWord($binaryData, $startingByte, $newData)
-   Return BinaryModifySection($binaryData, $startingByte, 1, $newData)
+   Return BinaryModifySection($binaryData, $startingByte, 2, $newData)
 EndFunc
 ;~ MsgBox(0, "BinaryModifyWord", BinaryModifyWord(Binary("0xAABBCCDDEEEE"), 3, "0x9999"))
 
@@ -241,7 +243,10 @@ EndFunc
 ; Overall length of original binary remains the same
 ; Starting byte is indexed from 1 NOT zero
 Func BinaryModifySection($binaryData, $startingByte, $length, $newData)
-   Return BinaryMid($binaryData, 1, $startingByte - 1) & BinaryPad(BinaryMid($newData, 1, $length), $length) & BinaryMid($binaryData, $startingByte + $length)
+   Return _
+		BinaryMid($binaryData, 1, $startingByte - 1) & _			; content prior to section
+		BinaryPad(BinaryMid($newData, 1, $length), $length) & _		; content to be modified (ensuring it's correct length)
+		BinaryMid($binaryData, $startingByte + $length)				; content after section
 EndFunc
 
 ; Extends the length of a binary variable by padding 0x00's to the end, up to specified length
