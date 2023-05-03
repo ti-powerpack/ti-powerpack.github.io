@@ -5,6 +5,7 @@
 #include "Tokens.au3"
 #include "Debug.au3"
 #include <Array.au3>
+#include "Create Theta Version Functions.au3"
 
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
@@ -73,6 +74,10 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 
 	Write8xpBinary($data, $outputFile)
 
+	$timer2 = TimerInit()
+	CreateThetaVersion($outputFile)
+	ShowTimeTaken($timer2, "  - Theta version written in")
+
 	Debug("  - Processing complete in: " & TimerDiff($timer)/1000 & " seconds")
 
 EndFunc
@@ -139,6 +144,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
 	Local $file = FileOpen($inputFile & "-source", $FO_OVERWRITE)
 	FileWrite($file, $textCode)
+	If @error Then Debug("Could not write input source file.")
 	FileClose($file)
 
 	$timer = TimerInit();
@@ -155,6 +161,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
 	$file = FileOpen($outputFile & "-source", $FO_OVERWRITE)
 	FileWrite($file, $textCode)
+	If @error Then Debug("Could not write input source file.")
 	FileClose($file)
 
 	$timer = TimerInit()
@@ -167,7 +174,12 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	Return $binaryCode
 EndFunc
 
-
+; Calculate time taken between sections of code. Example:
+; $timer = TimerInit()
+; ShowTimeTaken($timer, "section A")
+; ShowTimeTaken($timer, "section B")
+;
+; Reset timer by calling TimerInit() again.
 Func ShowTimeTaken($timer, $description)
 	debug($description & ": " & (TimerDiff($timer) / 1000) & " seconds")
 EndFunc

@@ -1,3 +1,4 @@
+#include-once
 ; MsgBox(0, "Result", OptimizeCode("x" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 
 ; Pass in TI-BASIC code as UTF8 text

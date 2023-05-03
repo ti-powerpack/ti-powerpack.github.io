@@ -1,3 +1,4 @@
+#include-once
 #include <File.au3>
 #include <FileConstants.au3>
 

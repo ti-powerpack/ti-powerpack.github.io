@@ -25,21 +25,21 @@ EndIf
 
 ; TODO: Check for only one instance (singleton)?
 
-#include "Includes\Debug.au3"
-#include "Includes\WatchFolderForChangesBlocking.au3"
-#include "Includes\Process8xpppFile.au3"
-
 ;---------- Options --------------
 ; TODO: Allow defining options via command line parameters
-Local $WatchOptions[]
+Global $WatchOptions[]
 $WatchOptions.runWabbitAtStartUp = true
 $WatchOptions.folder = @ScriptDir & "\.."
 $WatchOptions.sendChangesToWabbit = true
 $WatchOptions.sendEnterKeyToWabbit = true
 $WatchOptions.pathToWabbitEmu = @ScriptDir & "\..\..\Emulators\Wabbitemu.exe"
-
+$WatchOptions.sourceCodeIntoSubfolder = "Source Code as Text"
 Local $alwaysProcessScriptAtStartUp = ["SVTOOLS.8xp"]
 ;---------------------------------
+
+#include "Includes\Debug.au3"
+#include "Includes\WatchFolderForChangesBlocking.au3"
+#include "Includes\Process8xpppFile.au3"
 
 ; WabbitEmu is a bit slow, so we need to increase the delay on keystrokes here:
 AutoItSetOption("SendKeyDelay", 100)
@@ -60,7 +60,7 @@ Next
 ; 3rd parameter is a list of file extensions that we want to be notified about
 ; 4th parameter is a list of substrings that should be ignored, and NOT have notifications about
 ;	(we don't want to process compiled files, so we ignore those)
-WatchFolderForChangesBlocking($WatchOptions.folder, OptimizeScriptWhenSaved, "8xp,8xppp", ".optimized.8xp")
+WatchFolderForChangesBlocking($WatchOptions.folder, OptimizeScriptWhenSaved, "8xp,8xppp", ".optimized.8xp,.theta.")
 
 ; Whenever an 8xp or 8xppp file is created/changed, run this function:
 Func OptimizeScriptWhenSaved($filename)
