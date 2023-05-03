@@ -1,5 +1,10 @@
 #AutoIt3Wrapper_Change2CUI=y
 
+;----------------------------------
+; OLD, obsolete version of script
+; See WatchFor8xpChanges.8xp
+;----------------------------------
+
 #include "Includes\Debug.au3"
 #include "Includes\WatchFolderForChangesBlocking.au3"
 #include "Includes\Process8xpppFile.au3"

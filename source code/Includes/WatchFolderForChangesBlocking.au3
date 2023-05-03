@@ -1,8 +1,9 @@
-; This script is meant to run standalone, NOT via an #include.
+; WARNING: If this script is run via an #include it will block the execution and be difficult to quit. Best to compile as a console app if so.
+
 ; It will watch a specific folder, as passed in via command line parameters
 ; And it will put the filename of any new/edited/removed file into the default console output (StdOut) on its own line
 ; Prefixed by a single character and a space: + = added, - = deleted, M = modified
-; This output is designed to be handled by the parent script WatchFolderForChanges.au3
+; It will also call a callback function as provided
 
 #include <WinAPIFiles.au3>
 #include <Date.au3>
@@ -10,9 +11,10 @@
 #include "FileExtension.au3"
 
 ;---------------------------------------------
-$monitorSubfolders = 1
-$path = $CmdLine[0] ? $CmdLine[1] : ""
-$suppressRepeatedEventsWithinSeconds = 1.8
+; TODO: Maybe move these to a map, for less clashing
+Local $monitorSubfolders = 1
+Local $path = $CmdLine[0] ? $CmdLine[1] : ""
+Local $suppressRepeatedEventsWithinSeconds = 1.8
 ;---------------------------------------------
 ; TEMP TESTING
 ;~ $path = "D:\Dropbox\TI84 Calculator\MY APPS\Binary Optimization Script\Temp"
@@ -22,10 +24,11 @@ $suppressRepeatedEventsWithinSeconds = 1.8
 ; Create a map to store recent events
 Global $RecentEvents[]
 
-Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList)
+Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList, $filenameSubstringsToIgnore)
 
 	; Array of file extensions to pay attention to, ignoring all others
 	$fileExtensionList = StringSplit($fileExtensionList, ",", $STR_NOCOUNT)
+	$filenameSubstringsToIgnore = StringSplit($filenameSubstringsToIgnore, ",", $STR_NOCOUNT)
 
 	; Get a handle to a specific folder
 	Local $hDirectory = _WinAPI_CreateFileEx( _
@@ -121,6 +124,11 @@ Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList)
 				; ConsoleWrite("File change ignored: " & $filePath & ", due to file extension: " & FileExtension($filePath) & @CRLF)
 				ContinueLoop
 			EndIf
+
+			; Ignore files that match any of the substrings that were provided
+			For $substring in $filenameSubstringsToIgnore
+				If StringInStr($filePath, $substring) Then ContinueLoop 2
+			Next
 
 			ConsoleWrite("File change detected: " & $filePath & ", with file extension: " & FileExtension($filePath) & @CRLF)
 

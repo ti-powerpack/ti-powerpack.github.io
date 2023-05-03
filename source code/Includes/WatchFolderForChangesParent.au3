@@ -1,3 +1,10 @@
+
+;----------------------------------
+; OLD, obsolete version of script
+; See WatchFor8xpChanges.8xp
+;----------------------------------
+
+
 ; This script can be used in other scripts to monitor new/changed files in a specific folder.
 ; Simply include it like this and provide a function to be called:
 ;
@@ -39,7 +46,7 @@ Func WatchFolderForChanges($folder, $callback, $fileExtensionList = "")
 		 ConsoleWrite("Child has exited." & @CRLF)
 		 ExitLoop
 	  EndIf
-	  ; Trim any surrounding whitespace, and process each line of output separately	
+	  ; Trim any surrounding whitespace, and process each line of output separately
 	  $data = StringStripWS($data, $STR_STRIPLEADING + $STR_STRIPTRAILING)
 	  If $data Then
 		 $data = StringSplit($data, @CRLF, $STR_ENTIRESPLIT + $STR_NOCOUNT)

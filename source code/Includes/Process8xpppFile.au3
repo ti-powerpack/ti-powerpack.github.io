@@ -41,7 +41,7 @@ Func Read8xpBinary($inputFilePath)
    $binarySegments.programNameBinary = BinaryMid($data, 0x3C + 1, 8)
    $binarySegments.programName = StringStripWS(BinaryToString($binarySegments.programNameBinary), 3)
    $binarySegments.isBasicProgram = (BinaryMid($data, 0x4A + 1, 2) <> Binary("0xBB6D"))
-   Debug("  - Is Basic Prog? " & $binarySegments.isBasicProgram & " " & BinaryMid($data, 0x4A + 1, 2))
+   ; Debug("  - Is Basic Prog? " & $binarySegments.isBasicProgram & " " & BinaryMid($data, 0x4A + 1, 2))
    $binarySegments.header = BinaryMid($data, 1, 55) 						; first 55 bytes
    $binarySegments.meta = BinaryMid($data, 56, 19)  						; next 19 bytes
    $binarySegments.body = BinaryMid($data, 56 + 19, BinaryLen($data) - 55 - 19 - 2)
