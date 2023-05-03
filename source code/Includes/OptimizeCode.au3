@@ -28,7 +28,10 @@ Func OptimizeCode($code)
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
 	$code = StringRegExpReplace($code, """→", "→")						; remove closing " when storing a string
 	$code = StringRegExpReplace($code, "(?m)→Ans$", "")					; remove →Ans, which is only for forcing a string to be placed in ans rather than being treated as a comment
-	$code = StringRegExpReplace($code, """\)", "")						; Remove all quotes followed by closing bracket. Couldn't think of a scenario where this would be needed.
+	$code = StringRegExpReplace($code, "(?m)""\)$", "")					; Remove all quotes followed by closing bracket, when at end of a line.
+																		; Previously this was all matches, not just those at end of a line,
+																		; However this broke `InString() or InString()`
+																		; Might still break string output that has a quote and string at end?
 
 	; \K Resets start of match at the current point in subject string.
 	; This is a workaround for being unable to replace only a subgroup of a match
