@@ -67,13 +67,25 @@ Func OptimizeScriptWhenSaved($filename)
 
 	; Process and optimize 8XP file
 	Debug("Now compiling: " & $filename)
-	$newFilename = $WatchOptions.folder & "\" & StringRegExpReplace($filename, "\.8xp+$", ".optimized.8xp")
-	Process8xpppFile($WatchOptions.folder & "\" & $filename, $newFilename)
+	Local $filePath = $WatchOptions.folder & "\" & $filename
+	Local $newFilename = StringRegExpReplace($filename, "\.8xp+$", ".optimized.8xp")
+	Local $newFilePath = $WatchOptions.folder & "\" & $newFilename
+	Process8xpppFile($filePath, $newFilePath)
+
+	; This is now done on initial write. No longer need to perform a rename here.
+	;If $WatchOptions.sourceCodeIntoSubfolder Then
+	;	Debug($filePath & "-source")
+	;	Debug($WatchOptions.folder & "\" & $WatchOptions.sourceCodeIntoSubfolder & "\" & $filename & "-source")
+	;	Debug(FileMove($filePath & "-source", $WatchOptions.folder & "\" & $WatchOptions.sourceCodeIntoSubfolder & "\" & $filename & "-source", 9))
+	;	Debug($newFilePath & "-source")
+	;	Debug($WatchOptions.folder & "\" & $WatchOptions.sourceCodeIntoSubfolder & "\" & $newFilename & "-source")
+	;	Debug(FileMove($newFilePath & "-source", $WatchOptions.folder & "\" & $WatchOptions.sourceCodeIntoSubfolder & "\" & $newFilename & "-source", 9))
+	;EndIf
 
 	If $WatchOptions.sendChangesToWabbit Then
 		; Run WabbitEmu
 		; Send the optimized version to WabbitEmu
-		RunWabbit($newFilename)
+		RunWabbit($newFilePath)
 		;MsgBox(0,"", $result & @CRLF & @error)
 		WinWait("Wabbitemu")
 

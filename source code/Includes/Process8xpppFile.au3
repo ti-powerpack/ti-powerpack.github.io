@@ -133,6 +133,9 @@ EndFunc
 ; (for use with source control and also for debugging issues with this script)
 Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = True)
 
+;~ 	Debug("Output file: " & $outputFile)
+;~ 	Debug("Output file 2: " & FileAppendPath($outputFile, "Source Code as Text"))
+
 	Local $timer = TimerInit();
 
 	; Convert binary code to text
@@ -142,10 +145,10 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 
 	; Save a copy of original text code to disk
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
-	Local $file = FileOpen($inputFile & "-source", $FO_OVERWRITE)
-	FileWrite($file, $textCode)
-	If @error Then Debug("Could not write input source file.")
-	FileClose($file)
+	Local $file = FileOpen(FileAppendPath($inputFile, "Source Code as Text") & "-source", $FO_OVERWRITE)
+	If Not FileWrite($file, $textCode) Then Debug("Could not write input source file.")
+	If Not FileFlush($file) Then Debug ("Could not flush input source file.")
+	If Not FileClose($file) Then Debug("Could not close input source file.")
 
 	$timer = TimerInit();
 
@@ -159,10 +162,10 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 
 	; Save processed text to file
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
-	$file = FileOpen($outputFile & "-source", $FO_OVERWRITE)
-	FileWrite($file, $textCode)
-	If @error Then Debug("Could not write input source file.")
-	FileClose($file)
+	$file = FileOpen(FileAppendPath($outputFile, "Source Code as Text") & "-source", $FO_OVERWRITE)
+	If Not FileWrite($file, $textCode) Then Debug("Could not write output source file.")
+	If Not FileFlush($file) Then Debug("Could not flush output source file.")
+	If Not FileClose($file) Then Debug("Could not close output source file.")
 
 	$timer = TimerInit()
 
