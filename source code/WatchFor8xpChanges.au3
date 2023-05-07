@@ -87,7 +87,7 @@ Func OptimizeScriptWhenSaved($filename)
 		; Send the optimized version to WabbitEmu
 		RunWabbit($newFilePath)
 		;MsgBox(0,"", $result & @CRLF & @error)
-		WinWait("Wabbitemu")
+		WinWait("Wabbitemu", "", 5)
 
 		; Make Wabbit the active Window, ready to receive keypresses
 		WinActivate("Wabbitemu")
@@ -98,10 +98,10 @@ Func OptimizeScriptWhenSaved($filename)
 	; otherwise, we might execute a different app to the one we were expecting
 	If $WatchOptions.sendEnterKeyToWabbit Then
 		If Not WinActive("Wabbitemu") Then
-			WinWaitActive("Wabbitemu")
+			WinWaitActive("Wabbitemu", 10)
 		EndIf
 		Sleep(50)
-		Send("{ENTER}")
+		If WinActive("Wabbitemu") Then Send("{ENTER}")
 	EndIf
 
 EndFunc

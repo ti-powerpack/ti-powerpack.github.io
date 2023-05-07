@@ -14,6 +14,9 @@ Func OptimizeCode($code)
 	;       optimizations will apply to those cases too. Currently they do not.
 	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
 
+	; TODO: Multiple DelVar statements do NOT need a line return in between.
+	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an "If" block
+
 	; REMOVE WHITE-SPACE CHARACTERS
 	$code = StringRegExpReplace($code, "(?m)^[ \t]+", "")				; remove tabs/spaces at start of a line (although tabs cannot be inserted by TI-Connect)
 	$code = StringRegExpReplace($code, "(?m)^:+", "")  					; Remove colons at start of a line
