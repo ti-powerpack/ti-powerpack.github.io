@@ -17,7 +17,7 @@ Func FileAppendPath($fullPath, $append)
 EndFunc
 
 ;~ FOR TESTING:
-Debug(FileAppendPath("C:\somewhere\myfile.abc.txt","BBBB"))
+;~ Debug(FileAppendPath("C:\somewhere\myfile.abc.txt","BBBB"))
 ;~ Debug(FileAppendPath("..\myfile.abc.txt","CCCC"))
 
 ; Returns a map object containing the various components of a file path

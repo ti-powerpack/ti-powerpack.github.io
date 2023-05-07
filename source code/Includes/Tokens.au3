@@ -113,7 +113,7 @@ Global $8xpTokens[][] = [ _
     [0x6E, "≥"], _
     [0x6F, "≠"], _
     [0x70, "+"], _
-    [0x71, "-"], _
+    [0x71, "-"], _			; minus sign
     [0x72, "Ans"], _
     [0x73, "Fix "], _
     [0x74, "Horiz"], _
@@ -174,7 +174,7 @@ Global $8xpTokens[][] = [ _
     [0xAD, "getKey"], _
     [0xAE, "'"], _
     [0xAF, "?"], _
-    [0xB0, "­", "⁻"], _ ; invisible negative sign
+    [0xB0, "­", "⁻"], _ 		; negative sign (character doesn't show in SciTE for some reason)
     [0xB1, "int("], _
     [0xB2, "abs("], _
     [0xB3, "det("], _

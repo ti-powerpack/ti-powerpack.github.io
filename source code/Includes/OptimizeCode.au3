@@ -1,5 +1,5 @@
 #include-once
-; MsgBox(0, "Result", OptimizeCode("x" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
+;~ MsgBox(0, "Result", OptimizeCode("Call CX using C" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 
 ; Pass in TI-BASIC code as UTF8 text
 ; Returns smaller version of that code, still as text
@@ -14,16 +14,26 @@ Func OptimizeCode($code)
 	;       optimizations will apply to those cases too. Currently they do not.
 	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
 
+	; COMMENTS
+	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
+	$code = StringRegExpReplace($code, "(?s)\s*/\*.*\*/", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
+	$code = StringRegExpReplace($code, "(?m)^\s*//.*", "")				; Single-line comments with // ...
 
-	$code = StringRegExpReplace($code, "(?m)^[ \t]+", "")				; remove tabs/spaces at start of a line (tabs cannot be inserted by TI-Connect)
+	; REMOVE WHITE-SPACE CHARACTERS
+	$code = StringRegExpReplace($code, "(?m)^[ \t]+", "")				; remove tabs/spaces at start of a line (although tabs cannot be inserted by TI-Connect)
 	$code = StringRegExpReplace($code, "(?m)^:+", "")  					; Remove colons at start of a line
 	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
-
-	;MsgBox(0, "Error", @error & @CRLF & @extended)
-
-	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
 	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
 	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
+
+	; Subroutines
+	; IMPORTANT: SciTE does NOT show the negative sign prior to the 1 in the For() loops below, but it's there
+	; "Call SA using X" becomes "For(X,-1,0):If X:Goto SA:End"
+	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2}) using (\w)", "For(\2,­1,0):If \2:Goto \1:End")
+	; "Call SA" becomes "For(Y,-1,0):If Y:Goto SA:End"
+	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2})", "For(Y,­1,0):If Y:Goto \1:End")
+
+	; Strip unnecessary closing quotes and brackets
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
 	$code = StringRegExpReplace($code, "\)+→", "→")						; remove closing )'s when storing a number
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
@@ -51,7 +61,6 @@ Func OptimizeCode($code)
 	;$code = StringRegExpReplace($code, "\)+DMS", "DMS")				; BUGGY: remove bracket before DMS
 
 	; A few other special cases
-
 
 	;--------------------------------------------------------------
 
