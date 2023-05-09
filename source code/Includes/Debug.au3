@@ -5,6 +5,7 @@
 Func Debug($stringOrArray)
 
 	; Handles 1D arrays only, not 2D
+	; TODO: Support 2D arrays. For now use DebugArray()
 	If IsArray($stringOrArray) Then
 		Debug("Array:" & @CRLF & "  - " & _ArrayToString($stringOrArray, @CRLF & "  - "))
 		Return

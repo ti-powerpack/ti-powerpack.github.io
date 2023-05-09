@@ -1,5 +1,24 @@
 #include-once
-;~ MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
+#include "Debug.au3"
+#include <Array.au3>
+
+;----- Run tests when this script is executed directly and NOT included ------------------
+If @ScriptName == "OptimizeCode.au3" Then
+	;~ MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
+	$result = OptimizeCode( _
+		"   @define @LabelExit X" & @CRLF & _
+		"@define @LabelHome HX" & @CRLF & _
+		"" & @CRLF & _
+		"Lbl {{@LabelExit}}" & @CRLF & _
+		"Lbl @LabelHome // comment" & @CRLF & _
+		"Lbl @LabelExit // comment" & @CRLF & _
+		"@LabelExit→A" & @CRLF & _
+		"Goto @LabelHome" _
+	)
+	MsgBox(0, "Result", $result)
+EndIf
+;-----------------
+
 
 ; Pass in TI-BASIC code as UTF8 text
 ; Returns smaller version of that code, still as text
@@ -15,20 +34,29 @@ Func OptimizeCode($code)
 	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
 
 	; TODO: Multiple DelVar statements do NOT need a line return in between.
-	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an "If" block
+	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 
-	; REMOVE WHITE-SPACE CHARACTERS
+	; REMOVE LEADING WHITE-SPACE
 	$code = StringRegExpReplace($code, "(?m)^[ \t]+", "")				; remove tabs/spaces at start of a line (although tabs cannot be inserted by TI-Connect)
 	$code = StringRegExpReplace($code, "(?m)^:+", "")  					; Remove colons at start of a line
-	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
-	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
-	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
 
 	; COMMENTS
 	; We need to also remove the trailing whitespace from comments, otherwise we might retain some blank lines in final script
+	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
 	$code = StringRegExpReplace($code, "(?s)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
-	$code = StringRegExpReplace($code, "(?m)^//.*\s*", "")				; Single-line comments with // ...
+	$code = StringRegExpReplace($code, "(?m)//.*", "")					; Single-line comments with // ...
+
+	; Process @define variables
+	$code = ParseAndReplaceDefinedVars($code)
+
+	; Check for any erroneous redefinition of labels
+	WarnIfLabelsAreRedefined($code)
+
+	; REMOVE EXTRANEOUS LINE RETURNS
+	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
+	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
+	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
 
 	; Subroutines
 	; IMPORTANT: SciTE does NOT show the negative sign prior to the 1 in the For() loops below, but it's there
@@ -72,6 +100,72 @@ Func OptimizeCode($code)
 
 EndFunc
 
+
+; Scans $code and puts a warning in the console if "Lbl XX" appears more than once in the code
+Func WarnIfLabelsAreRedefined($code)
+	$matches = StringRegExp($code, "(?m)^Lbl (\w+)", 3)
+	For $i = 0 To UBound($matches) - 2
+		If _ArraySearch($matches, $matches[$i], $i+1) > -1 Then
+			; MsgBox(0, "Compilation Error", "Oops! You have defined ""Lbl " & $matches[$i] & """ multiple times.")
+			Debug("  - WARNING: You have defined ""Lbl " & $matches[$i] & """ multiple times.")
+		EndIf
+	Next
+EndFunc
+
+
+
+; This function provides support for defining variables in your script that are replaced throughout
+; It allows for the use of longer label names, variable names, Y-function names, renaming functions, etc.
+;
+; EXAMPLE:
+;
+;	@define @LabelExit X
+;	@define @LabelHome H
+;	@define @myVar A
+;
+;	Lbl @LabelExit
+;	Goto @LabelHome
+;	@myVarB→C
+;
+; NOTE:
+; Definitions are parsed all at once, and then replaced throughout the document.
+; The order of definition is not important.
+; However, this is
+Func ParseAndReplaceDefinedVars($code)
+
+	Local $definedVars[]
+
+	; Create a array of all defined variables
+	; The array will alternate between names and values (0 = name, 1 = value, 2 = name, etc...)
+	;  (?m) = multiline mode
+	;  (?i) = case-insensitive
+	Local $regexToMatchDefines = "(?m)(?i)^@define (@[A-Z]+\w*)\s+(.+)"
+	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)
+	; Debug($matches)
+
+	; Display a warning if a variable is defined more than once
+	For $i = 0 To UBound($matches) - 1 Step 2
+		If _ArraySearch($matches, $matches[$i], $i+1) > -1 Then
+			MsgBox(0, "Compilation Error", "Oops! You have multiple @define " & $matches[$i] & " statements.")
+		EndIf
+	Next
+
+	; Erase definitions from code
+	$code = StringRegExpReplace($code, $regexToMatchDefines, "")
+
+	; Replace all vars with their contents
+	; Variables within code must not be followed by other alphaNumeric characters, otherwise names could clash
+	For $i = 0 To UBound($matches) - 1 Step 2
+		$code = StringRegExpReplace($code, "{{" & $matches[$i] & "}}", $matches[$i+1])
+		$code = StringRegExpReplace($code, $matches[$i] & "\b", $matches[$i+1])
+	Next
+
+	Return $code
+EndFunc
+
+
+
+; OLD VERSION. Now see "RegexExceptWhen.au3"
 Func RegExpReplaceExceptWhenPrecededBy($avoidThisAtStartOfLine, $avoidThisMidLine, $find, $replace)
 	; $prefix = "(?m)" & $prefix & "\K"
 EndFunc

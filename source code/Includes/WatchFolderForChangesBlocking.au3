@@ -161,6 +161,7 @@ Func WasEventTriggeredRecently($filePath)
 EndFunc
 
 Func ClearStaleRecentEvents()
+	; WARNING: _Date_Time_GetTickCount() will wrap around if Windows is run for more than 49.7 days
 	Local $time = _Date_Time_GetTickCount()
 	For $entry In MapKeys($RecentEvents)
 		Local $elapsedSeconds = ($time - $RecentEvents[$entry]) / 1000
