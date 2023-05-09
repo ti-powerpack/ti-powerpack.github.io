@@ -45,7 +45,7 @@ Func OptimizeCode($code)
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
 	$code = StringRegExpReplace($code, "(?s)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
-	$code = StringRegExpReplace($code, "(?m)//.*", "")					; Single-line comments with // ...
+	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")				; Single-line comments with // ...
 
 	; Process @define variables
 	$code = ParseAndReplaceDefinedVars($code)
@@ -125,12 +125,14 @@ EndFunc
 ;
 ;	Lbl @LabelExit
 ;	Goto @LabelHome
-;	@myVarB→C
+;	{{@myVar}}B→C
 ;
 ; NOTE:
 ; Definitions are parsed all at once, and then replaced throughout the document.
 ; The order of definition is not important.
 ; However, this is
+;
+; TODO: Ensure that someone cannot define a label called "define", or any other reserved words.
 Func ParseAndReplaceDefinedVars($code)
 
 	Local $definedVars[]
