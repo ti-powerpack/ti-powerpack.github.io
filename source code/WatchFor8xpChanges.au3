@@ -69,7 +69,7 @@ Func OptimizeScriptWhenSaved($filename)
 	Debug("Now compiling: " & $filename)
 	Local $filePath = $WatchOptions.folder & "\" & $filename
 	Local $newFilename = StringRegExpReplace($filename, "\.8xp+$", ".optimized.8xp")
-	Local $newFilePath = $WatchOptions.folder & "\" & $newFilename
+	Local $newFilePath = $WatchOptions.folder & "\Compiled Programs\" & $newFilename
 	Process8xpppFile($filePath, $newFilePath)
 
 	; This is now done on initial write. No longer need to perform a rename here.
@@ -103,6 +103,8 @@ Func OptimizeScriptWhenSaved($filename)
 		Sleep(50)
 		If WinActive("Wabbitemu") Then Send("{ENTER}")
 	EndIf
+
+	Debug("  - Wabbit commands sent. Returning to watching.")
 
 EndFunc
 

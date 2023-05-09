@@ -12,7 +12,7 @@
 
 ;---------------------------------------------
 ; TODO: Maybe move these to a map, for less clashing
-Local $monitorSubfolders = 1
+Local $monitorSubfolders = 0
 Local $path = $CmdLine[0] ? $CmdLine[1] : ""
 Local $suppressRepeatedEventsWithinSeconds = 1.8
 ;---------------------------------------------
@@ -49,6 +49,8 @@ Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList, $filena
 
 	Local $arrayOfEvents
 	While 1
+
+		Debug("  - Watching...")
 
 		; Wait until a file is created/modified/deleted in our watched folder.
 		; This function is BLOCKING meaning the script will hang on this line until an event occurs.
