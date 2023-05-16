@@ -1,0 +1,42 @@
+$brand-color: rgb(214, 64, 14);
+
+:root {
+  // The main brand color:
+  // Typically used for Hero text, links, "brand" buttons, search result boxes, and other highlights
+  --vp-c-brand: #{$brand-color};
+  // --vp-c-brand: #646cff;
+
+  // --vp-c-brand-light: #747bff;
+
+  // Lighter variation of brand color
+  // Typicaly used for the border of brand-colored buttons
+  --vp-c-brand-lighter: #{darken($brand-color, 10%)};
+
+  // Darker variation of brand color
+  // Typically used for brand button hover state
+  --vp-c-brand-dark: #{darken($brand-color, 10%)};
+
+  // Even darker variation of brand color
+  // Typically used for brand button active state
+  --vp-c-brand-darker: #{darken($brand-color, 20%)};
+
+  // --vp-c-brand-darker: #393d82;
+
+  // Search result highlights
+  --vp-local-search-highlight-bg: #{lighten($brand-color, 22%)};
+}
+
+.dark {
+  // --vp-c-brand: orange;
+}
+
+.dark body {
+  // background-color: $brand-color;
+  // background-color: black;
+}
+
+.custom-container {
+  max-width: 1152px;
+  padding: 0 24px;
+  margin: 0 auto;
+}
