@@ -3,6 +3,16 @@
 #include <FileConstants.au3>
 #include "Debug.au3"
 
+;-----------------------------------
+;~ FOR TESTING:
+If @ScriptName = "FileExtension.au3" Then
+;~ Debug(FileAppendPath("C:\somewhere\myfile.abc.txt","BBBB"))
+;~ Debug(FileAppendPath("..\myfile.abc.txt","CCCC"))
+	Debug(Folder("C:\Somewhere\help.txt"))
+EndIf
+;-----------------------------------
+
+
 ; Provide a full path to a file, returns only the extension, after the dot
 Func FileExtension($fullPath)
    Local $x = ""
@@ -16,10 +26,6 @@ Func FileAppendPath($fullPath, $append)
 	Return PathComponentsToString($path)
 EndFunc
 
-;~ FOR TESTING:
-;~ Debug(FileAppendPath("C:\somewhere\myfile.abc.txt","BBBB"))
-;~ Debug(FileAppendPath("..\myfile.abc.txt","CCCC"))
-
 ; Returns a map object containing the various components of a file path
 Func PathToComponents($path)
 	Local $drive
@@ -29,10 +35,12 @@ Func PathToComponents($path)
 	_PathSplit($path, $drive, $folder, $filename, $extension)
 
 	Local $map[]
-	$map.drive = $drive
-	$map.folder = $folder
-	$map.filename = $filename
-	$map.extension = $extension
+	$map.drive = $drive										; C:
+	$map.folder = $folder									; \some\path\here\
+	$map.driveAndFolder = $drive & $folder					; C:\some\path\here\
+	$map.filename = $filename								; filename
+	$map.extension = $extension								; .txt
+	$map.filenameAndExtension = $filename & $extension		; filename.txt
 
 ;~ 	Debug($drive)
 ;~ 	Debug($folder)
@@ -40,6 +48,11 @@ Func PathToComponents($path)
 ;~ 	Debug($extension)
 
 	Return $map
+EndFunc
+
+; Pass in a full file path and it will return the parent folder with a trailing slash
+Func Folder($path)
+	Return PathToComponents($path).driveAndFolder
 EndFunc
 
 ; Pass in a map of the path components and it returns a string

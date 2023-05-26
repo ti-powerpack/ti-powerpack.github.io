@@ -1,13 +1,17 @@
 #include-once
 #include "Debug.au3"
 #include <Array.au3>
+#include "Process8xpppFile.au3"
 
-;----- Run tests when this script is executed directly and NOT included ------------------
+;----- Run tests when this script is executed directly and NOT included from a parent script ----------
 If @ScriptName == "OptimizeCode.au3" Then
 	;~ MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 	$result = OptimizeCode( _
-		"   @define @LabelExit X" & @CRLF & _
-		"@define @LabelHome HX" & @CRLF & _
+		"   #include ""test include.8xp.inc"" " & @CRLF & _
+		"   #include ""test include 2.8xp.inc"" " & @CRLF & _
+		"   #include ""test include 3.inc"" " & @CRLF & _
+		"   #define @LabelExit X" & @CRLF & _
+		"#define @LabelHome HX" & @CRLF & _
 		"" & @CRLF & _
 		"Lbl {{@LabelExit}}" & @CRLF & _
 		"Lbl @LabelHome // comment" & @CRLF & _
@@ -22,7 +26,8 @@ EndIf
 
 ; Pass in TI-BASIC code as UTF8 text
 ; Returns smaller version of that code, still as text
-Func OptimizeCode($code)
+; Also applies advanced functionality such as #include statements, #define statements, etc.
+Func OptimizeCode($code, $pathToSourceFile = "")
 
 	;----------- Optimization Phase ------------------------------
 	; Perform regex to clean up script
@@ -36,6 +41,9 @@ Func OptimizeCode($code)
 	; TODO: Multiple DelVar statements do NOT need a line return in between.
 	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 
+	; Process #include directives
+	$code = ParseAndPerformIncludeStatements($code, $pathToSourceFile)
+
 	; REMOVE LEADING WHITE-SPACE
 	$code = StringRegExpReplace($code, "(?m)^[ \t]+", "")				; remove tabs/spaces at start of a line (although tabs cannot be inserted by TI-Connect)
 	$code = StringRegExpReplace($code, "(?m)^:+", "")  					; Remove colons at start of a line
@@ -47,7 +55,7 @@ Func OptimizeCode($code)
 	$code = StringRegExpReplace($code, "(?s)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
 	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")				; Single-line comments with // ...
 
-	; Process @define variables
+	; Process #define directives
 	$code = ParseAndReplaceDefinedVars($code)
 
 	; Check for any erroneous redefinition of labels
@@ -101,6 +109,62 @@ Func OptimizeCode($code)
 EndFunc
 
 
+; Files can include other files using this syntax:
+;
+;	#include "myFile.8xp"
+;
+; This function searches for those directives and performs the actual include.
+; Also supports nested includes.
+Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
+
+	If $depth > 20 Then
+		Debug("  - ERROR: #include statements created a recursive loop deeper than 20 levels. Cannot continue. Exiting.")
+		Return $code
+	EndIf
+
+	; Scan for #include "..."
+	Local $includeStatements = StringRegExp($code, "(?m)^[ \t]*#include ""([^""]*)""[ \t]*$", 4)
+	; Debug($includeStatements, 1)
+
+	; No matches? Return code unchanged.
+	If $includeStatements == 1 Then Return $code
+
+	For $include In $includeStatements
+
+		; TODO: Has include already been included? If so, show error and stop processing includes.
+		; Or maybe don't worry. We can just rely on the recursive loop detection.
+
+		; Check if file exists
+		Local $includeFilePath = $include[1]
+		If Not FileExists($includeFilePath) Then
+			Debug("  - ERROR: Could not open include file for " & $include[0])
+			ExitLoop
+		EndIf
+
+		; Is this a binary file?
+		If Is8xpBinaryFile($includeFilePath) Then
+			; If so, parse binary into text code
+			Local $includeCode = BinaryCodeToTextCode(Read8xpBinary($includeFilePath).body)
+			; We'll also save a text copy of include file (original, prior to processing)
+			; to assist with version control and performing text comparisons on different versions
+			SaveSourceCodeToTextFile($includeFilePath, $includeCode)
+		Else
+			Local $includeCode = FileRead($includeFilePath)
+		EndIf
+
+		; Call this same function recursively, to process any sub-includes
+		$includeCode = ParseAndPerformIncludeStatements($includeCode, $includeFilePath, $depth + 1)
+
+		; Embed code from include file into parent code
+		$code = StringReplace($code, $include[0], $includeCode)
+
+	Next
+
+	Return $code
+
+EndFunc
+
+
 ; Scans $code and puts a warning in the console if "Lbl XX" appears more than once in the code
 Func WarnIfLabelsAreRedefined($code)
 	$matches = StringRegExp($code, "(?m)^Lbl (\w+)", 3)
@@ -119,9 +183,9 @@ EndFunc
 ;
 ; EXAMPLE:
 ;
-;	@define @LabelExit X
-;	@define @LabelHome H
-;	@define @myVar A
+;	#define @LabelExit X
+;	#define @LabelHome H
+;	#define @myVar A
 ;
 ;	Lbl @LabelExit
 ;	Goto @LabelHome
@@ -130,9 +194,7 @@ EndFunc
 ; NOTE:
 ; Definitions are parsed all at once, and then replaced throughout the document.
 ; The order of definition is not important.
-; However, this is
-;
-; TODO: Ensure that someone cannot define a label called "define", or any other reserved words.
+; However, this means that a definition cannot be defined twice, nor redefined later in the doc.
 Func ParseAndReplaceDefinedVars($code)
 
 	Local $definedVars[]
@@ -141,14 +203,14 @@ Func ParseAndReplaceDefinedVars($code)
 	; The array will alternate between names and values (0 = name, 1 = value, 2 = name, etc...)
 	;  (?m) = multiline mode
 	;  (?i) = case-insensitive
-	Local $regexToMatchDefines = "(?m)(?i)^@define (@[A-Z]+\w*)\s+(.+)"
+	Local $regexToMatchDefines = "(?m)(?i)^#define (@[A-Z]+\w*)\s+(.+)"
 	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)
 	; Debug($matches)
 
 	; Display a warning if a variable is defined more than once
 	For $i = 0 To UBound($matches) - 1 Step 2
 		If _ArraySearch($matches, $matches[$i], $i+1) > -1 Then
-			MsgBox(0, "Compilation Error", "Oops! You have multiple @define " & $matches[$i] & " statements.")
+			MsgBox(0, "Compilation Error", "Oops! You have multiple #define " & $matches[$i] & " statements.")
 		EndIf
 	Next
 

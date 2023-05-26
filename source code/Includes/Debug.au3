@@ -2,19 +2,77 @@
 #include <Array.au3>
 
 
-Func Debug($stringOrArray)
+; ------ Tests ---------
+If @ScriptName == "Debug.au3" Then
+	Debug("Simple string")
+	Debug("String with line" & @CRLF & " returns" & @CRLF, 1)
+	Debug(123)
 
-	; Handles 1D arrays only, not 2D
-	; TODO: Support 2D arrays. For now use DebugArray()
-	If IsArray($stringOrArray) Then
-		Debug("Array:" & @CRLF & "  - " & _ArrayToString($stringOrArray, @CRLF & "  - "))
+	; Simple array
+	Local $array = [1,2,3]
+	Debug($array)
+
+	Local $nested = [$array, $array]
+	Debug($nested)
+
+	; 2D array
+	Local $array[2][2] = [[1,2],[3,4]]
+	Debug($array)
+
+EndIf
+
+;
+
+
+Func Debug($stringOrArray, $showLineReturns = 0)
+
+	; Handle 2D arrays
+	If Is2dArray($stringOrArray) Then
+		; DebugArray($stringOrArray)
+		Debug("2D Array: (" & UBound($stringOrArray, 1) & " rows x " & UBound($stringOrArray, 2) & " cols)")
+		For $i = 0 to UBound($stringOrArray, 1) - 1
+			For $j = 0 to UBound($stringOrArray, 2) - 1
+				Debug("  [" & $i & "][" & $j & "]:  " & ShowLineReturns($stringOrArray[$i][$j], $showLineReturns))
+			Next
+		Next
 		Return
 	EndIf
 
-	ConsoleWrite($stringOrArray & @CRLF)
+	; Handle nested arrays
+	If IsArray($stringOrArray) And IsArray($stringOrArray[0]) Then
+		Debug("Nested Array: (" & UBound($stringOrArray) & " rows)")
+		For $i = 0 to UBound($stringOrArray) - 1
+			For $j = 0 to UBound($stringOrArray[$i]) - 1
+				Debug("  [" & $i & "][" & $j & "]:  " & ShowLineReturns(($stringOrArray[$i])[$j], $showLineReturns))
+			Next
+		Next
+		Return
+	EndIf
+
+	; Handles 1D arrays only, not 2D
+	If IsArray($stringOrArray) Then
+		; Debug(UBound($stringOrArray, 2))
+		Debug("Array: (" & UBound($stringOrArray) & " items)")
+		Debug("  - " & _ArrayToString($stringOrArray, @CRLF & "  - "))
+		Return
+	EndIf
+
+	ConsoleWrite(ShowLineReturns($stringOrArray, $showLineReturns) & @CRLF)
 
 EndFunc
 
+Func ShowLineReturns($string, $enabled = 1)
+	If Not $enabled Then Return $string
+	Return StringReplace(StringReplace($string, @CR, "\r"), @LF, "\n")
+EndFunc
+
+
+Func Is2dArray($var)
+	; Return number of columns. All numbers, strings, and 1D arrays have 0 columns.
+	Return UBound($var, 2)
+EndFunc
+
+; Shows array data in a popup box. Does NOT really handle nested arrays.
 Func DebugArray($array)
 	_ArrayDisplay($array)
 EndFunc

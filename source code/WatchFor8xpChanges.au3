@@ -9,6 +9,7 @@
 ; Force this script to only run when it's compiled as an EXE
 If Not @Compiled Then
 
+	; Get path to EXE file
 	Local $exeFilename = StringReplace(@ScriptName, ".au3", ".exe")
 
 	; Is EXE newer than this?
@@ -18,7 +19,7 @@ If Not @Compiled Then
 		Exit
 	EndIf
 
-	; Otherwise warn user
+	; Otherwise warn user and exit
 	MsgBox(16, @ScriptName, "Compile this script before executing." & @CRLF & @CRLF & "This script cannot be run solo. Press F7 in SciTE to compile it, then F5 to run." & @CRLF & @CRLF & "This runs it as a compiled EXE, which is necessary since it needs a console window.")
 	Exit
 EndIf

@@ -27,7 +27,10 @@ Func Read8xpBinary($inputFilePath)
 	  Return
    EndIf
 
+   ; Attempt to read the data
    Local $data = FileRead($file)
+
+   ; If there was an error reading file data...
    If @error Then
 	  SetError(2)
 	  Debug("  - FileRead() failed. Could not read " & $inputFilePath)
@@ -50,6 +53,38 @@ Func Read8xpBinary($inputFilePath)
 
    Return $binarySegments
 EndFunc
+
+Func Is8xpBinaryFile($filePath)
+
+	Local $file = FileOpen($filePath, $FO_BINARY)
+
+	; Handle error getting handle
+	If $file = -1 Then
+	  Debug("  - Is8xpBinaryFile() failed. Could not get read handle for " & $filePath)
+	  SetError(1)
+	  Return
+	EndIf
+
+	; Attempt to read the data
+	Local $data = FileRead($file, 8)
+
+	; If there was an error reading file data...
+	If @error Then
+	  SetError(2)
+	  Debug("  - Is8xpBinaryFile() failed. Could not read data from " & $filePath)
+	  Return
+	EndIf
+
+	FileClose($file)
+
+	If $data = Binary("**TI83F*") Then
+		Return True
+	Else
+		Return False
+	EndIf
+
+EndFunc
+
 
 ; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
 ; and then recompiles it, calculates the checksum, and writes a new binary file
@@ -143,22 +178,17 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 
 	ShowTimeTaken($timer, "  - Code decompiled in")
 
-	; Save a copy of original text code to disk
-	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
-	Local $file = FileOpen(FileAppendPath($inputFile, "Source Code as Text") & "-source", $FO_OVERWRITE)
-	If Not FileWrite($file, $textCode) Then Debug("  ERROR: Could not write input source file.")
-	If Not FileFlush($file) Then Debug ("  ERROR: Could not flush input source file.")
-	If Not FileClose($file) Then Debug("  ERROR: Could not close input source file.")
+	; Save a copy of original text code to disk, under a different filename/path
+	SaveSourceCodeToTextFile($inputFile, $textCode)
 
 	$timer = TimerInit();
 
 	; Process/manipulate the text-based code
 	; $textCode &= @LF & "::: Appended!"
 	If $performOptimization Then
-		$textCode = OptimizeCode($textCode)
+		$textCode = OptimizeCode($textCode, $inputFile)
+		ShowTimeTaken($timer, "  - Code optimized in")
 	EndIf
-
-	ShowTimeTaken($timer, "  - Code optimized in")
 
 	; Save processed text to file
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
@@ -176,6 +206,15 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 
 	Return $binaryCode
 EndFunc
+
+Func SaveSourceCodeToTextFile($originalFilename, $code)
+	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
+	Local $file = FileOpen(FileAppendPath($originalFilename, "Source Code as Text") & "-source", $FO_CREATEPATH + $FO_OVERWRITE)
+	If Not FileWrite($file, $code) Then Debug("  ERROR: Could not write input source file.")
+	If Not FileFlush($file) Then Debug ("  ERROR: Could not flush input source file.")
+	If Not FileClose($file) Then Debug("  ERROR: Could not close input source file.")
+EndFunc
+
 
 ; Calculate time taken between sections of code. Example:
 ; $timer = TimerInit()
