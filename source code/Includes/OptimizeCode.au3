@@ -3,7 +3,7 @@
 #include <Array.au3>
 #include "Process8xpppFile.au3"
 
-;----- Run tests when this script is executed directly and NOT included from a parent script ----------
+;----- We run the following tests when this script is executed directly, but NOT when included from a parent script ----------
 If @ScriptName == "OptimizeCode.au3" Then
 	;~ MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 	$result = OptimizeCode( _
@@ -17,7 +17,25 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"Lbl @LabelHome // comment" & @CRLF & _
 		"Lbl @LabelExit // comment" & @CRLF & _
 		"@LabelExit→A" & @CRLF & _
-		"Goto @LabelHome" _
+		"Goto @LabelHome" & @CRLF & _
+		"" & @CRLF & _
+		"#define @TestVar 1" & @CRLF & _
+		"#ifDefined @TestVar" & @CRLF & _
+		"  CORRECT. TestVar is defined: @TestVar" & @CRLF & _
+		"  #ifDefined @MissingVar" & @CRLF & _
+		"    INCORRECT. MissingVar should be hidden." & @CRLF & _
+		"  #else" & @CRLF & _
+		"    CORRECT. MissingVar is not defined. @MissingVar" & @CRLF & _
+		"  #endIfDefined" & @CRLF & _
+		"#else" & @CRLF & _
+		"  INCORRECT. TestVar is defined, so this section should be hidden." & @CRLF & _
+		"#endIfDefined" & @CRLF & _
+		"#ifNotDefined @MissingVar" & @CRLF & _
+		"  CORRECT. MissingVar is not defined." & @CRLF & _
+		"#else" & @CRLF & _
+		"  INCORRECT. MissingVar is not defined. @MissingVar" & @CRLF & _
+		"#endIfDefined" & @CRLF & _
+		"" & @CRLF _
 	)
 	MsgBox(0, "Result", $result)
 EndIf
@@ -53,7 +71,10 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
 	$code = StringRegExpReplace($code, "(?s)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
-	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")				; Single-line comments with // ...
+	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ...
+
+	; Process #ifDefined and #ifNotDefined directives
+	$code = ParseAndPerformConditionalStatements($code)
 
 	; Process #define directives
 	$code = ParseAndReplaceDefinedVars($code)
@@ -161,6 +182,125 @@ Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
 	Next
 
 	Return $code
+
+EndFunc
+
+; Parses code for any #ifDefined directives and applies the logic to the code, removing sections that do not match the criteria
+; NOTE: Currently #define statements can be anywhere in the code. The order is not important. Later
+;       we might make the order crucial to allow redefining vars.
+Func ParseAndPerformConditionalStatements($code)
+
+	; TOKENS: (not case sensitive)
+	Local $tokens[]
+	$tokens.ifDefined = "#ifDefined"
+	$tokens.ifNotDefined = "#ifNotDefined"
+	$tokens.else = "#else"
+	$tokens.endIfDefined = "#endIfDefined"
+
+	; Main loop that continues as long as a match is found
+	; Exits when no more matches
+	While 1
+
+		; ------ #ifDefined ... #else ... #endIfDefined -------
+		; Find first instance of #endIfDefined
+		Local $endIfDefinedPos = StringInStr($code, $tokens.endIfDefined)
+		If $endIfDefinedPos Then
+
+			; Find closest preceding instance of #ifDefined or #ifNotDefined to get the full block
+			; (Due to nested #ifDefined statements, this may not be the first one found sequentially from beginning of file)
+			; so we search backwards
+			$ifDefinedPos =    StringInStr($code, "#ifDefined",    0, -1, $endIfDefinedPos)
+			$ifNotDefinedPos = StringInStr($code, "#ifNotDefined", 0, -1, $endIfDefinedPos)
+
+			; Since #ifDefined and #ifNotDefined have the same closing token, whichever one
+			; we find that's closer to the end token will be the one we use
+			If $ifNotDefinedPos > $ifDefinedPos Then $ifDefinedPos = $ifNotDefinedPos
+
+			; Did we find an unmatched block? Show error.
+			If $ifDefinedPos = 0 Then
+				Debug("  - ERROR: #endIfDefined directive found without a matching #ifDefined or #ifNotDefined. Remaining directives not processed.")
+				ExitLoop
+			EndIf
+
+			; We now have the full block, plus starting and ending offsets
+			Local $endIfDefinedFinalPos = $endIfDefinedPos + StringLen($tokens.endIfDefined)
+			Local $codeBlock = StringMid($code, $ifDefinedPos, $endIfDefinedFinalPos - $ifDefinedPos)
+
+			; I think we can safely assume that there will NOT be any nested #ifDefined within
+			; our specific match as the algorithm should always match the innermost blocks
+			; first and then process them outwards.
+
+			; Split this specific code block into these pieces:
+			;  - var (the name of the variable to look for, starting with "@"
+			;  - negativeMatch (whether the block started with #ifNotDefined rather than #ifDefined)
+			;  - true portion
+			;  - else portion
+
+			Local $var = StringRegExp($codeBlock, "#if(?:Not)?Defined (@\w+)", 1)[0]
+			;Debug("Var: " & $var)
+
+			Local $negativeMatch = ($ifNotDefinedPos = $ifDefinedPos)
+			;Debug("NegativeMatch: " & $negativeMatch)
+
+			; Is the $var variable actually defined? This determines which branch of code is used
+			Local $varIsDefined = StringRegExp($code, "#define[ \t]+" & $var & "\b")
+			;Debug("varIsDefined: " & $varIsDefined)
+
+			Local $truePortion = GetStringBetweenTags($codeBlock, "#if[^\r\n]+", "(#else|#endIfDefined)")
+			;Debug("truePortion: " & $truePortion)
+
+			; Else portion could be empty
+			Local $elsePortion = GetStringBetweenTags($codeBlock, "#else\b", "#endIfDefined")
+			;Debug("elsePortion: " & $elsePortion)
+
+			; Piece the resulting code back together, with only the relevant pieces
+			; Start with all the code leading up to the start of our block
+			Local $updatedCode = StringLeft($code, $ifDefinedPos - 1)
+			; Then the code left after the conditional
+			If ($varIsDefined And Not $negativeMatch) Or (Not $varIsDefined And $negativeMatch) Then
+				$updatedCode &= $truePortion
+			Else
+				$updatedCode &= $elsePortion
+			EndIf
+			; And then the final section of code that follows our block
+			$updatedCode &= StringMid($code, $endIfDefinedFinalPos)
+
+			$code = $updatedCode
+
+;~ 			Debug("---- Updated Code ----")
+;~ 			Debug($code)
+;~ 			Debug("----------------------")
+
+			; Re-run the loop to search for next set of conditional statements
+			ContinueLoop
+
+		EndIf
+
+		ExitLoop
+	WEnd
+
+	Return $code
+
+EndFunc
+
+;~ Debug(GetStringBetweenTags("something <start> "&@CRLF&" and more here </end> ....", "<start>", "<(/?)end>"))
+
+; Start and end tags are regular expressions
+; Don't use groups in $startTag unless you mark it as non-capturing via (?:...)
+Func GetStringBetweenTags($string, $startTag, $endTag)
+
+	Local $match = StringRegExp($string, $startTag & "([\d\D]*?)" & $endTag, 1)
+
+;~ 	Debug($string)
+;~ 	Debug($startTag)
+;~ 	Debug($endTag)
+;~ 	Debug($match)
+;~ 	Debug(VarGetType($match))
+
+	; $match will be 1 if there was no match
+	If IsArray($match) Then Return StringStripWS($match[0], 3)
+
+	Return ""
 
 EndFunc
 
