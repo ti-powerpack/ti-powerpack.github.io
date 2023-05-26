@@ -92,6 +92,8 @@ Func OptimizeScriptWhenSaved($filename)
 
 		; Make Wabbit the active Window, ready to receive keypresses
 		WinActivate("Wabbitemu")
+
+		Debug("  - File sent to Wabbit, and window activated")
 	EndIf
 
 	; Send ENTER key to Wabbit
@@ -103,9 +105,11 @@ Func OptimizeScriptWhenSaved($filename)
 		EndIf
 		Sleep(50)
 		If WinActive("Wabbitemu") Then Send("{ENTER}")
+
+		Debug("  - Wabbit commands sent")
 	EndIf
 
-	Debug("  - Wabbit commands sent. Returning to watching.")
+	Debug("  - Returning to watching")
 
 EndFunc
 

@@ -123,7 +123,7 @@ Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList, $filena
 
 			; If a list of file extensions was provided, check if the file matches one in the list
 			If $fileExtensionList[0] <> "" And _ArraySearch($fileExtensionList, FileExtension($filePath)) = -1 Then
-				; ConsoleWrite("File change ignored: " & $filePath & ", due to file extension: " & FileExtension($filePath) & @CRLF)
+				ConsoleWrite("File change ignored: " & $filePath & ", due to file extension: " & FileExtension($filePath) & @CRLF)
 				ContinueLoop
 			EndIf
 

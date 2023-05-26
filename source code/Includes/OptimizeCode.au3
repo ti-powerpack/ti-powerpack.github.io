@@ -7,9 +7,10 @@
 If @ScriptName == "OptimizeCode.au3" Then
 	;~ MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 	$result = OptimizeCode( _
-		"   #include ""test include.8xp.inc"" " & @CRLF & _
-		"   #include ""test include 2.8xp.inc"" " & @CRLF & _
-		"   #include ""test include 3.inc"" " & @CRLF & _
+		@CRLF & _
+		"  /*   #include ""..\Tests\Include Directive\test include.8xp.inc"" " & @CRLF & _
+		"   #include ""..\Tests\Include Directive\test include 2.8xp.inc"" " & @CRLF & _
+		"   #include ""..\Tests\Include Directive\test include 3.inc"" */" & @CRLF & _
 		"   #define @LabelExit X" & @CRLF & _
 		"#define @LabelHome HX" & @CRLF & _
 		"" & @CRLF & _
@@ -19,6 +20,7 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"@LabelExit→A" & @CRLF & _
 		"Goto @LabelHome" & @CRLF & _
 		"" & @CRLF & _
+		"#define @SomeVar" & @CRLF & _
 		"#define @TestVar 1" & @CRLF & _
 		"#ifDefined @TestVar" & @CRLF & _
 		"  CORRECT. TestVar is defined: @TestVar" & @CRLF & _
@@ -70,7 +72,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; We need to also remove the trailing whitespace from comments, otherwise we might retain some blank lines in final script
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
-	$code = StringRegExpReplace($code, "(?s)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
+	$code = StringRegExpReplace($code, "(?sm)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
 	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ...
 
 	; Process #ifDefined and #ifNotDefined directives
@@ -144,7 +146,31 @@ Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
 	EndIf
 
 	; Scan for #include "..."
+	; Leading spaces/tabs are allowed
+	; If an #include is commented out then it will NOT be detected here,
+	; but instead will be stripped out in a later step
 	Local $includeStatements = StringRegExp($code, "(?m)^[ \t]*#include ""([^""]*)""[ \t]*$", 4)
+
+	; EXPLANATION OF REGEX:
+	; (?m)^[ \t]*#include ""([^""]*)""[ \t]*$
+	;
+	; Match the remainder of the regex with the options: ^ and $ match at line breaks (m) «(?m)»
+	; Assert position at the beginning of a line (at beginning of the string or after a line break character) «^»
+	; Match a single character present in the list below «[ \t]*»
+	;    Between zero and unlimited times, as many times as possible, giving back as needed (greedy) «*»
+	;    The character " " « »
+	;    A tab character «\t»
+	; Match the characters "#include """ literally «#include ""»
+	; Match the regular expression below and capture its match into backreference number 1 «([^""]*)»
+	;    Match any character that is not a """ «[^""]*»
+	;       Between zero and unlimited times, as many times as possible, giving back as needed (greedy) «*»
+	; Match the characters """" literally «""»
+	; Match a single character present in the list below «[ \t]*»
+	;    Between zero and unlimited times, as many times as possible, giving back as needed (greedy) «*»
+	;    The character " " « »
+	;    A tab character «\t»
+	; Assert position at the end of a line (at the end of the string or before a line break character) «$»
+
 	; Debug($includeStatements, 1)
 
 	; No matches? Return code unchanged.
@@ -156,7 +182,7 @@ Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
 		; Or maybe don't worry. We can just rely on the recursive loop detection.
 
 		; Check if file exists
-		Local $includeFilePath = $include[1]
+		Local $includeFilePath = Folder($pathToSourceFile) & $include[1]
 		If Not FileExists($includeFilePath) Then
 			Debug("  - ERROR: Could not open include file for " & $include[0])
 			ExitLoop
@@ -298,7 +324,7 @@ Func GetStringBetweenTags($string, $startTag, $endTag)
 ;~ 	Debug(VarGetType($match))
 
 	; $match will be 1 if there was no match
-	If IsArray($match) Then Return StringStripWS($match[0], 3)
+	If IsArray($match) Then Return $match[0]
 
 	Return ""
 
@@ -343,7 +369,7 @@ Func ParseAndReplaceDefinedVars($code)
 	; The array will alternate between names and values (0 = name, 1 = value, 2 = name, etc...)
 	;  (?m) = multiline mode
 	;  (?i) = case-insensitive
-	Local $regexToMatchDefines = "(?m)(?i)^#define (@[A-Z]+\w*)\s+(.+)"
+	Local $regexToMatchDefines = "(?m)(?i)^[ \t]*#define (@[A-Z]+\w*)[ \t]*(.*)"
 	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)
 	; Debug($matches)
 

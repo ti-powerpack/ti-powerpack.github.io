@@ -1,0 +1,4 @@
+Disp "This comes from included file 1."
+#include "test include 2.8xp.inc"
+
+// Here is a comment
