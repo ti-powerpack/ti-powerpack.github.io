@@ -22,21 +22,21 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"" & @CRLF & _
 		"#define @SomeVar" & @CRLF & _
 		"#define @TestVar 1" & @CRLF & _
-		"#ifDefined @TestVar" & @CRLF & _
+		"#IfDefined @TestVar" & @CRLF & _
 		"  CORRECT. TestVar is defined: @TestVar" & @CRLF & _
 		"  #ifDefined @MissingVar" & @CRLF & _
 		"    INCORRECT. MissingVar should be hidden." & @CRLF & _
-		"  #else" & @CRLF & _
+		"  #Else" & @CRLF & _
 		"    CORRECT. MissingVar is not defined. @MissingVar" & @CRLF & _
-		"  #endIfDefined" & @CRLF & _
-		"#else" & @CRLF & _
+		"  #EndIfDefined" & @CRLF & _
+		"#Else" & @CRLF & _
 		"  INCORRECT. TestVar is defined, so this section should be hidden." & @CRLF & _
-		"#endIfDefined" & @CRLF & _
-		"#ifNotDefined @MissingVar" & @CRLF & _
+		"#EndIfDefined" & @CRLF & _
+		"#IfNotDefined @MissingVar" & @CRLF & _
 		"  CORRECT. MissingVar is not defined." & @CRLF & _
-		"#else" & @CRLF & _
+		"#Else" & @CRLF & _
 		"  INCORRECT. MissingVar is not defined. @MissingVar" & @CRLF & _
-		"#endIfDefined" & @CRLF & _
+		"#EndIfDefined" & @CRLF & _
 		"" & @CRLF _
 	)
 	MsgBox(0, "Result", $result)
@@ -262,14 +262,14 @@ Func ParseAndPerformConditionalStatements($code)
 			;  - true portion
 			;  - else portion
 
-			Local $var = StringRegExp($codeBlock, "#if(?:Not)?Defined (@\w+)", 1)[0]
+			Local $var = StringRegExp($codeBlock, "(?i)#(?:ifDefined|ifNotDefined) (@\w+)", 1)[0]
 			;Debug("Var: " & $var)
 
 			Local $negativeMatch = ($ifNotDefinedPos = $ifDefinedPos)
 			;Debug("NegativeMatch: " & $negativeMatch)
 
 			; Is the $var variable actually defined? This determines which branch of code is used
-			Local $varIsDefined = StringRegExp($code, "#define[ \t]+" & $var & "\b")
+			Local $varIsDefined = StringRegExp($code, "#[dD][eE][fF][iI][nN][eE][ \t]+" & $var & "\b")
 			;Debug("varIsDefined: " & $varIsDefined)
 
 			Local $truePortion = GetStringBetweenTags($codeBlock, "#if[^\r\n]+", "(#else|#endIfDefined)")
@@ -315,7 +315,7 @@ EndFunc
 ; Don't use groups in $startTag unless you mark it as non-capturing via (?:...)
 Func GetStringBetweenTags($string, $startTag, $endTag)
 
-	Local $match = StringRegExp($string, $startTag & "([\d\D]*?)" & $endTag, 1)
+	Local $match = StringRegExp($string, "(?i)" & $startTag & "([\d\D]*?)" & $endTag, 1)
 
 ;~ 	Debug($string)
 ;~ 	Debug($startTag)
