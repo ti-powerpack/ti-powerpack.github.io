@@ -12,6 +12,8 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"   #include ""..\Tests\Include Directive\test include 2.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 3.inc"" */" & @CRLF & _
 		"   #define @LabelExit X" & @CRLF & _
+		"   #define @Mod360 r₃" & @CRLF & _
+		"   Disp @Mod360(B+180)" & @CRLF & _
 		"#define @LabelHome HX" & @CRLF & _
 		"" & @CRLF & _
 		"Lbl {{@LabelExit}}" & @CRLF & _
@@ -72,8 +74,8 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; We need to also remove the trailing whitespace from comments, otherwise we might retain some blank lines in final script
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?m)^""[^→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command) - won't remove comment on FINAL line of program, just in case this is desired
-	$code = StringRegExpReplace($code, "(?sm)^/\*.*\*/\s*", "")			; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
-	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ...
+	$code = StringRegExpReplace($code, "(?sm)^/\*.*?\*/\s*", "")		; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
+	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ... (we also strip leading space here, between any prior characters and start of the comment)
 
 	; Process #ifDefined and #ifNotDefined directives
 	$code = ParseAndPerformConditionalStatements($code)
