@@ -198,10 +198,12 @@ Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
 			; to assist with version control and performing text comparisons on different versions
 			SaveSourceCodeToTextFile($includeFilePath, $includeCode)
 		Else
+			; Otherwise it's plain text, so we'll just do a simple read
 			Local $includeCode = FileRead($includeFilePath)
 		EndIf
 
 		; Call this same function recursively, to process any sub-includes
+		; increasing the depth each time so we can catch infinite recursion
 		$includeCode = ParseAndPerformIncludeStatements($includeCode, $includeFilePath, $depth + 1)
 
 		; Embed code from include file into parent code
