@@ -63,6 +63,8 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; TODO: Multiple DelVar statements do NOT need a line return in between.
 	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 
+	; TODO: {0,0}→⌊COORD  - ⌊ symbol can be stripped out in these cases
+
 	; Process #include directives
 	$code = ParseAndPerformIncludeStatements($code, $pathToSourceFile)
 
