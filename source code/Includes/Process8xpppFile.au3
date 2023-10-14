@@ -363,7 +363,17 @@ Func TokenIntToBinary($int)
 	Return $result
 EndFunc
 
-
+; Converts text code into binary tokens, suitable for calculator
+; Works on the BODY only
+;
+; Known bug:
+;   - When certain reserved words like "AUTO", "DEC", "RED", etc. are used in list names like ⌊REDLEVEL
+;     the special token is injected into the list name, rather than just the characters. This causes
+;     programs to fail. I either need to change the token conversion strings themselves
+;     (making them less compatible with TIConnect), or add more advanced search mechanisms here
+;     to replace tokens differently based on different contexts
+;     (such as if letters follow a ⌊ symbol). The latter is probably the best?
+;	  Any alphanumeric characters following ⌊ should
 Func TextCodeToBinaryCode($text)
 	Local $binary = Binary("")
 

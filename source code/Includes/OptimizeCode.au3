@@ -4,10 +4,13 @@
 #include "Process8xpppFile.au3"
 
 ;----- We run the following tests when this script is executed directly, but NOT when included from a parent script ----------
+; PRESS F5 to run this test.
 If @ScriptName == "OptimizeCode.au3" Then
-	;~ MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
+	; MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 	$result = OptimizeCode( _
 		@CRLF & _
+		"⌊REDLEVEL→X" & @CRLF & _
+		"X→⌊REDLEVEL" & @CRLF & _
 		"  /*   #include ""..\Tests\Include Directive\test include.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 2.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 3.inc"" */" & @CRLF & _

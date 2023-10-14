@@ -752,26 +752,26 @@ Global $8xpTokens[][] = [ _
     [0xEF38, "CLASSIC"], _
     [0xEF39, "nd", "n⁄d"], _
     [0xEF3A, "Und", "Un⁄d"], _
-    [0xEF3B, "AUTO", "[AUTO]"], _
-    [0xEF3C, "DEC", "[DEC]"], _
-    [0xEF3D, "FRAC", "[FRAC]"], _
+    [0xEF3B, "AUTO", "[AUTO]"], _   ; WARNING
+    [0xEF3C, "DEC", "[DEC]"], _		; WARNING: Using AUTO/DEC/FRAC in a list name will likely cause issues here. Avoid ⌊DEC or ⌊XDECX
+    [0xEF3D, "FRAC", "[FRAC]"], _   ; WARNING
 	[0xEF3F, "STATWIZARD ON"], _
     [0xEF40, "STATWIZARD OFF"], _
-    [0xEF41, "BLUE"], _
-    [0xEF42, "RED"], _
-    [0xEF43, "BLACK"], _
-    [0xEF44, "MAGENTA"], _
-    [0xEF45, "GREEN"], _
-    [0xEF46, "ORANGE"], _
-    [0xEF47, "BROWN"], _
-    [0xEF48, "NAVY"], _
-    [0xEF49, "LTBLUE"], _
-    [0xEF4A, "YELLOW"], _
-    [0xEF4B, "WHITE"], _
-    [0xEF4C, "LTGREY"], _
-    [0xEF4D, "MEDGREY"], _
-    [0xEF4E, "GREY"], _
-    [0xEF4F, "DARKGREY"], _
+    [0xEF41, "[BLUE]"], _
+    [0xEF42, "[RED]"], _
+    [0xEF43, "[BLACK]"], _
+    [0xEF44, "[MAGENTA]"], _
+    [0xEF45, "[GREEN]"], _
+    [0xEF46, "[ORANGE]"], _
+    [0xEF47, "[BROWN]"], _
+    [0xEF48, "[NAVY]"], _
+    [0xEF49, "[LTBLUE]"], _
+    [0xEF4A, "[YELLOW]"], _
+    [0xEF4B, "[WHITE]"], _
+    [0xEF4C, "[LTGREY]"], _
+    [0xEF4D, "[MEDGREY]"], _
+    [0xEF4E, "[GREY]"], _
+    [0xEF4F, "[DARKGREY]"], _
     [0xEF5A, "GridLine"], _
     [0xEF5B, "BackgroundOn"], _
     [0xEF6A, "DetectAsymOn"], _
