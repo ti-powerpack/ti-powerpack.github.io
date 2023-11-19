@@ -67,6 +67,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 
 	; TODO: {0,0}→⌊COORD  - ⌊ symbol can be stripped out in these cases
+	; TODO: L₁→⌊COORD     - ⌊ symbol can be stripped out in this case also
 
 	; Process #include directives
 	$code = ParseAndPerformIncludeStatements($code, $pathToSourceFile)
