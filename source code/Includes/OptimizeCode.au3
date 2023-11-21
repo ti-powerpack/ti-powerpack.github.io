@@ -14,15 +14,15 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"  /*   #include ""..\Tests\Include Directive\test include.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 2.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 3.inc"" */" & @CRLF & _
-		"   #define @LabelExit X" & @CRLF & _
+		"   #define @Label_Exit X" & @CRLF & _
 		"   #define @Mod360 r₃" & @CRLF & _
 		"   Disp @Mod360(B+180)" & @CRLF & _
 		"#define @LabelHome HX" & @CRLF & _
 		"" & @CRLF & _
-		"Lbl {{@LabelExit}}" & @CRLF & _
+		"Lbl {{@Label_Exit}}" & @CRLF & _
 		"Lbl @LabelHome // comment" & @CRLF & _
-		"Lbl @LabelExit // comment" & @CRLF & _
-		"@LabelExit→A" & @CRLF & _
+		"Lbl @Label_Exit // comment" & @CRLF & _
+		"@Label_Exit→A" & @CRLF & _
 		"Goto @LabelHome" & @CRLF & _
 		"" & @CRLF & _
 		"#define @SomeVar" & @CRLF & _
@@ -42,6 +42,11 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"#Else" & @CRLF & _
 		"  INCORRECT. MissingVar is not defined. @MissingVar" & @CRLF & _
 		"#EndIfDefined" & @CRLF & _
+		"" & @CRLF & _
+		"  If Str1=""X"":Then" & @CRLF & _
+		"  If ((Str1=""X"")):Then" & @CRLF & _
+		"" & @CRLF & _
+		"" & @CRLF & _
 		"" & @CRLF _
 	)
 	MsgBox(0, "Result", $result)
@@ -64,7 +69,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
 
 	; TODO: Multiple DelVar statements do NOT need a line return in between.
-	;       Can also remove line return after a DelVar in 95% of cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
+	;       Can also remove line return after a DelVar in 95% of other cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 
 	; TODO: {0,0}→⌊COORD  - ⌊ symbol can be stripped out in these cases
 	; TODO: L₁→⌊COORD     - ⌊ symbol can be stripped out in this case also
@@ -91,6 +96,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 
 	; Check for any erroneous redefinition of labels
 	WarnIfLabelsAreRedefined($code)
+
+	; Move ":Then" to its own separate line, so that the bracket and quote stripping also works correctly for those cases.
+	$code = StringRegExpReplace($code, "(?m):Then$", @CRLF & "Then")
 
 	; REMOVE EXTRANEOUS LINE RETURNS
 	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
@@ -121,7 +129,10 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	;           it is therefore always possible to backreference to them later on.
 
 	; Remove trailing brackets, EXCEPT when For is start of line, or there's quotes (string) in the line
-	; Will miss a few, such as Menu("Abc", A), but will prevent stripping bracket from "This (Example)"
+	; Will miss a few, such as:
+	;   - Menu("Abc", A)
+	;   - If X and (Str1="." or Str1="x")
+	; ...but will prevent stripping bracket from "This (Example)"
 	$code = StringRegExpReplace($code, "(?m)^(?!For)[^""\r\n]*?\K\)+$", "")
 
 	; There's a couple of special cases where we can definitely remove trailing brackets.
@@ -356,6 +367,11 @@ EndFunc
 
 ; This function provides support for defining variables in your script that are replaced throughout
 ; It allows for the use of longer label names, variable names, Y-function names, renaming functions, etc.
+;
+; Rules for using variables:
+; 	- Variables are CASE SENSITIVE (I think)
+;   - Names must start with a letter, but can have numbers, underscores (periods were considered, but could lead to ambiguous replacements
+;     such as MyVar and MyVar.Something. MyVar and MyVar_Something does NOT have this problem because _ is a word character.)
 ;
 ; EXAMPLE:
 ;

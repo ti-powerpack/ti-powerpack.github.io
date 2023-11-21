@@ -96,14 +96,21 @@ Func OptimizeScriptWhenSaved($filename)
 		Debug("  - File sent to Wabbit, and window activated")
 	EndIf
 
+	; BUG: Sometimes program hangs here for some reason. Not sure why.
+
 	; Send ENTER key to Wabbit
 	; TODO: Only do this if we're running the same file that we did last time,
 	; otherwise, we might execute a different app to the one we were expecting
 	If $WatchOptions.sendEnterKeyToWabbit Then
+		Debug("  - sendEnterKeyToWabbit 1")
 		If Not WinActive("Wabbitemu") Then
+			Debug("  - sendEnterKeyToWabbit 2")
 			WinWaitActive("Wabbitemu", 10)
+			Debug("  - sendEnterKeyToWabbit 3")
 		EndIf
+		Debug("  - sendEnterKeyToWabbit 4")
 		Sleep(50)
+		Debug("  - sendEnterKeyToWabbit 5")
 		If WinActive("Wabbitemu") Then Send("{ENTER}")
 
 		Debug("  - Wabbit commands sent")
