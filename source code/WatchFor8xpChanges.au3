@@ -105,7 +105,7 @@ Func OptimizeScriptWhenSaved($filename)
 		Debug("  - sendEnterKeyToWabbit 1")
 		If Not WinActive("Wabbitemu") Then
 			Debug("  - sendEnterKeyToWabbit 2")
-			WinWaitActive("Wabbitemu", 10)
+			WinWaitActive("Wabbitemu", "", 10)
 			Debug("  - sendEnterKeyToWabbit 3")
 		EndIf
 		Debug("  - sendEnterKeyToWabbit 4")

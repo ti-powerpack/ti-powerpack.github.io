@@ -46,9 +46,15 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"  If Str1=""X"":Then" & @CRLF & _
 		"  If ((Str1=""X"")):Then" & @CRLF & _
 		"" & @CRLF & _
+		"DelVar X" & @CRLF & _
+		"DelVar ⌊ABC" & @CRLF & _
+		"DelVar L₂" & @CRLF & _
+		"DelVar AAADelVar BBBDelVar CCCDelVar DDD" & @CRLF & _
+		"DelVar Y" & @CRLF & _
 		"" & @CRLF & _
 		"" & @CRLF _
 	)
+	Debug($result)
 	MsgBox(0, "Result", $result)
 EndIf
 ;-----------------
@@ -68,11 +74,21 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	;       optimizations will apply to those cases too. Currently they do not.
 	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
 
-	; TODO: Multiple DelVar statements do NOT need a line return in between.
-	;       Can also remove line return after a DelVar in 95% of other cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
+	; TODO: {0,0}→⌊COORD  - ⌊ symbol can be stripped out in these cases. Test carefully.
+	; TODO: L₁→⌊COORD     - ⌊ symbol can be stripped out in this case also. Test carefully.
 
-	; TODO: {0,0}→⌊COORD  - ⌊ symbol can be stripped out in these cases
-	; TODO: L₁→⌊COORD     - ⌊ symbol can be stripped out in this case also
+	; TODO: Strip trailing spaces which can cause programs to crash. SOME tokens require it,
+	;		however, so needs to be done carefully.
+	;		Or at least WARN user about the trailing spaces.
+	;		These tokens may appear with a trailing space, and then NOTHING: (I think)
+    ; 			- FnOn
+    ;			- FnOff
+	;			- Pause
+	;			- PlotsOff
+	;			- AxesOn
+	;			- SetUpEditor
+	;			- Fix?
+	;			...and maybe others
 
 	; Process #include directives
 	$code = ParseAndPerformIncludeStatements($code, $pathToSourceFile)
@@ -101,10 +117,16 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Move ":Then" to its own separate line, so that the bracket and quote stripping also works correctly for those cases.
 	$code = StringRegExpReplace($code, "(?m):Then$", @CRLF & "Then")
 
+	; Remove line returns between consecutive DelVar statements
+	; To do: remove other line returns following DelVars (but not in ALL cases, beware)
+	; Can also remove line return after a DelVar in 95% of other cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
+	$code = StringRegExpReplace($code, "(DelVar [⌊\S]+)\r\n(?=DelVar)", "$1")
+
 	; REMOVE EXTRANEOUS LINE RETURNS
 	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
 	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
 	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
+
 
 	; Subroutines
 	; IMPORTANT: SciTE does NOT show the negative sign prior to the 1 in the For() loops below, but it's there
