@@ -20,6 +20,8 @@ MsgBox(0, "Result", RegexReplaceExceptWhen($source, "^AVOID.*|""([^""]|"""")*"""
 ; Multiline mode enabled
 ; $exceptWhenRegex can contain multiple patterns, each separated by a pipe
 ; Uses this special technique provided by PCRE: (?:avoid1|avoid2)(*SKIP)(*FAIL)|What_I_want_to_match
+;
+; ✔ Appears to be working from the test above
 #include <StringConstants.au3>
 Func RegexReplaceExceptWhen($text, $exceptWhenRegex, $matchRegex, $replace)
 
@@ -50,6 +52,7 @@ EndFunc
 
 ; Removes a portion of a string, and injects a new string in its place
 ; Positions start from 1
+; Is this used anywhere? Not sure.
 Func StringInject($string, $startPos, $endPos, $textToInject)
 	Return StringLeft($string, $startPos-1) & $textToInject & StringMid($string, $endPos+1)
 EndFunc

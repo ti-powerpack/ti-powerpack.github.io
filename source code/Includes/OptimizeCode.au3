@@ -69,6 +69,10 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Perform regex to clean up script
 	; Use (?m) at start to enable multiline mode where ^ matches the start of a line
 	; (?!...) is a negative look-ahead
+	; NOTE: You CANNOT do positive look-behinds that are variable length in AutoIt3. Instead:
+	; 			- use \K to ignore preceding match.
+	;        	- use submatches and replace with $1, $2, etc.
+	;			- see RegexExceptWhen.au3
 
 	; TODO: Convert all colons NOT inside a string into line returns. That way the following
 	;       optimizations will apply to those cases too. Currently they do not.
