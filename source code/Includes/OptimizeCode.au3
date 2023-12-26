@@ -52,6 +52,10 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"DelVar AAADelVar BBBDelVar CCCDelVar DDD" & @CRLF & _
 		"DelVar Y" & @CRLF & _
 		"" & @CRLF & _
+		"If X=0:Then" & @CRLF & _
+		"If Y=0" & @CRLF & _
+		"If Z=0 and X" & @CRLF & _
+		"If T=0 or X" & @CRLF & _
 		"" & @CRLF _
 	)
 	Debug($result)
@@ -126,6 +130,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Can also remove line return after a DelVar in 95% of other cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 	$code = StringRegExpReplace($code, "(DelVar [⌊\S]+)\r\n(?=DelVar)", "$1")
 
+	; Remove colon before ":Disp" so that it can use additional optimisations below
+	$code = StringReplace($code, ":Disp ", @CRLF & "Disp ")
+
 	; REMOVE EXTRANEOUS LINE RETURNS
 	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
 	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
@@ -138,6 +145,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2}) using (\w)", "For(\2,­1,0):If \2:Goto \1:End")
 	; "Call SA" becomes "For(Y,-1,0):If Y:Goto SA:End"
 	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2})", "For(Y,­1,0):If Y:Goto \1:End")
+
+	; Replace "If X=0" with "If not(X)"
+	$code = StringRegExpReplace($code, "(?m) ([A-Zθ])=0$", " not($1)")
 
 	; Strip unnecessary closing quotes and brackets
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
@@ -159,6 +169,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Will miss a few, such as:
 	;   - Menu("Abc", A)
 	;   - If X and (Str1="." or Str1="x")
+	;   - If (X):Disp "Something...
 	; ...but will prevent stripping bracket from "This (Example)"
 	$code = StringRegExpReplace($code, "(?m)^(?!For)[^""\r\n]*?\K\)+$", "")
 
@@ -167,7 +178,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m)^StringEqu\(.*\K\)$", "")
 
 	$code = StringRegExpReplace($code, "(?m)^.*[^, ]\K""$", "")			; remove trailing double-quotes, except directly after comma or space
-	;$code = StringRegExpReplace($code, "\)+DMS", "DMS")				; BUGGY: remove bracket before DMS
+
+	; BUGGY? remove bracket before DMS
+	$code = StringRegExpReplace($code, "\)+DMS", "DMS")
 
 	; A few other special cases
 
