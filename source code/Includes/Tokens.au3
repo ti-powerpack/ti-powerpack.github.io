@@ -783,5 +783,7 @@ Global $8xpTokens[][] = [ _
     [0xEF6C, "BorderColor"], _
     [0xEF73, "·", "tinydotplot"], _		; Duplicates 0x81 I think?
     [0xEF74, "Thin"], _
-    [0xEF75, "Dot-Thin"] _
+    [0xEF75, "Dot-Thin"], _
+	[0x576216bbb8622429, "Wait "], _	; When compiling, this should take priority. Wait command doesn't work on TI-84+
+    [0xEF96, "Wait "] _					; Added support for this to reduce bugs
 ]

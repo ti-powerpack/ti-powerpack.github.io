@@ -93,7 +93,7 @@ Func OptimizeScriptWhenSaved($filename)
 		; Make Wabbit the active Window, ready to receive keypresses
 		WinActivate("Wabbitemu")
 
-		Debug("  - File sent to Wabbit, and window activated")
+		Debug("  - " & $newFilename & " sent to Wabbit and window activated")
 	EndIf
 
 	; BUG: Sometimes program hangs here for some reason. Not sure why.

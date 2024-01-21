@@ -227,9 +227,21 @@ Func ShowTimeTaken($timer, $description)
 EndFunc
 
 
+;;; Debugging ;;;
+; debug(0xEF74)
+; debug(0xEF75)
+; debug(0x6234)
+; debug(0x576216bbb8622429)
+; debug(BinaryCodeToTextCode(Binary("0xEF96")))
+; debug(BinaryCodeToTextCode(Binary("0x6234")))
 
 Func BinaryCodeToTextCode($binaryCode)
 	Local $textCode = ""
+
+	; Since _ArrayBinarySearch requires a SORTED array, we'll sort the array by token
+	$8xpTokensSorted = $8xpTokens
+	_ArraySort($8xpTokensSorted)
+	; debug($8xpTokensSorted)
 
 	; Loop through every byte in file and replace with text representation
 	For $i = 1 To BinaryLen($binaryCode)
@@ -245,22 +257,23 @@ Func BinaryCodeToTextCode($binaryCode)
 
 		; Does this byte exist in our list?
 		; If so, output the relevant text representation and continue onto next byte
-		Local $tokenIndex = _ArrayBinarySearch($8xpTokens, $char, 0, 0, 0)
+		; Warning: when using _ArrayBinarySearch, array MUST be sorted in ASCENDING ORDER
+		Local $tokenIndex = _ArrayBinarySearch($8xpTokensSorted, $char, 0, 0, 0)
 		If $tokenIndex > -1 Then
 ;~ 			ConsoleWrite("Token found" & @CRLF)
 ;~ 			ConsoleWrite($tokenIndex)
-			$textCode = $textCode & $8xpTokens[$tokenIndex][1]
+			$textCode = $textCode & $8xpTokensSorted[$tokenIndex][1]
 			ContinueLoop
 		EndIf
 
 		; If not found within the list, it might be a 2-byte character, so let's look for that
 		; Note: AutoIt converts binary to int in little endian format, which is NOT how 8XPs work.
 		Local $char2 = BinaryMid($binaryCode, $i+1, 1)
-		$tokenIndex = _ArrayBinarySearch($8xpTokens, Number($char2 & $char), 0, 0, 0)
+		$tokenIndex = _ArrayBinarySearch($8xpTokensSorted, Number($char2 & $char), 0, 0, 0)
 		If $tokenIndex > 0 Then
 ;~ 			ConsoleWrite("Token found" & @CRLF)
 ;~ 			ConsoleWrite($tokenIndex)
-			$textCode = $textCode & $8xpTokens[$tokenIndex][1]
+			$textCode = $textCode & $8xpTokensSorted[$tokenIndex][1]
 
 			; Skip the next char because it's now used
 			$i += 1
@@ -269,7 +282,8 @@ Func BinaryCodeToTextCode($binaryCode)
 		EndIf
 
 		; If we got this far, it means that we couldn't find the binary characters in our official list
-		debug("Token " & $char & ", followed by " & $char2 & " (Int values " & Number($char2 & $char) & ") not found")
+		$textCode = ""
+		debug("ERROR: Binary token " & $char & ", followed by " & $char2 & " (Int values " & Number($char2 & $char) & ") is not a known token. This token will be skipped during decompilation.")
 	Next
 
 
