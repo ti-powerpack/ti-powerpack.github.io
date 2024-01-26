@@ -102,15 +102,15 @@ Func OptimizeScriptWhenSaved($filename)
 	; TODO: Only do this if we're running the same file that we did last time,
 	; otherwise, we might execute a different app to the one we were expecting
 	If $WatchOptions.sendEnterKeyToWabbit Then
-		Debug("  - sendEnterKeyToWabbit 1")
+		;Debug("  - sendEnterKeyToWabbit 1")
 		If Not WinActive("Wabbitemu") Then
-			Debug("  - sendEnterKeyToWabbit 2")
+			;Debug("  - sendEnterKeyToWabbit 2")
 			WinWaitActive("Wabbitemu", "", 10)
-			Debug("  - sendEnterKeyToWabbit 3")
+			;Debug("  - sendEnterKeyToWabbit 3")
 		EndIf
-		Debug("  - sendEnterKeyToWabbit 4")
+		;Debug("  - sendEnterKeyToWabbit 4")
 		Sleep(50)
-		Debug("  - sendEnterKeyToWabbit 5")
+		;Debug("  - sendEnterKeyToWabbit 5")
 		If WinActive("Wabbitemu") Then Send("{ENTER}")
 
 		Debug("  - Wabbit commands sent")

@@ -24,6 +24,8 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"Lbl @Label_Exit // comment" & @CRLF & _
 		"@Label_Exit→A" & @CRLF & _
 		"Goto @LabelHome" & @CRLF & _
+		"If (X):Goto X" & @CRLF & _
+		"If (X):Disp Y" & @CRLF & _
 		"" & @CRLF & _
 		"#define @SomeVar" & @CRLF & _
 		"#define @TestVar 1" & @CRLF & _
@@ -56,6 +58,8 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"If Y=0" & @CRLF & _
 		"If Z=0 and X" & @CRLF & _
 		"If T=0 or X" & @CRLF & _
+		"(((X)))DMS" & @CRLF & _
+		"Disp (((X)))DMS,(((Y)))DMS" & @CRLF & _
 		"" & @CRLF _
 	)
 	Debug($result)
@@ -122,16 +126,15 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Check for any erroneous redefinition of labels
 	WarnIfLabelsAreRedefined($code)
 
-	; Move ":Then" to its own separate line, so that the bracket and quote stripping also works correctly for those cases.
-	$code = StringRegExpReplace($code, "(?m):Then$", @CRLF & "Then")
+	; COLON OPTIMIZATIONS:
+	; Move some common statements after a colon to their own line so that they can use additional optimisations below
+	; $code = StringRegExpReplace($code, "(?m):Then$", @CRLF & "Then")
+	$code = StringRegExpReplace($code, "(?m):(Then$|Disp |Goto |Pause |Input |Prompt |Menu\(|Return|Stop|Output\(|Get\(|Send\(|ClrHome)", @CRLF & "$1")
 
 	; Remove line returns between consecutive DelVar statements
 	; To do: remove other line returns following DelVars (but not in ALL cases, beware)
 	; Can also remove line return after a DelVar in 95% of other cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
 	$code = StringRegExpReplace($code, "(DelVar [⌊\S]+)\r\n(?=DelVar)", "$1")
-
-	; Remove colon before ":Disp" so that it can use additional optimisations below
-	$code = StringReplace($code, ":Disp ", @CRLF & "Disp ")
 
 	; REMOVE EXTRANEOUS LINE RETURNS
 	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
@@ -146,8 +149,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; "Call SA" becomes "For(Y,-1,0):If Y:Goto SA:End"
 	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2})", "For(Y,­1,0):If Y:Goto \1:End")
 
-	; Replace "If X=0" with "If not(X)"
+	; Replace "If X=0" and "0=X" with "If not(X)", but only at end of a line. Earlier in line it doesn't save any bytes, so no use.
 	$code = StringRegExpReplace($code, "(?m) ([A-Zθ])=0$", " not($1)")
+	$code = StringRegExpReplace($code, "(?m) 0=([A-Zθ])$", " not($1)")
 
 	; Strip unnecessary closing quotes and brackets
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
@@ -170,7 +174,8 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	;   - Menu("Abc", A)
 	;   - If X and (Str1="." or Str1="x")
 	;   - If (X):Disp "Something...
-	; ...but will prevent stripping bracket from "This (Example)"
+	; ...but will prevent stripping bracket from: Disp "This (Example)"
+	; Could probably strip when "Then" is on the next line... although then it would break: If Str1=")":Then
 	$code = StringRegExpReplace($code, "(?m)^(?!For)[^""\r\n]*?\K\)+$", "")
 
 	; There's a couple of special cases where we can definitely remove trailing brackets.
@@ -179,8 +184,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 
 	$code = StringRegExpReplace($code, "(?m)^.*[^, ]\K""$", "")			; remove trailing double-quotes, except directly after comma or space
 
-	; BUGGY? remove bracket before DMS
-	$code = StringRegExpReplace($code, "\)+DMS", "DMS")
+	; Remove brackets before DMS, but only when DMS is the last item on a line
+	; Otherwise this will break statements like "Disp (X)DMS,(Y)DMS"
+	$code = StringRegExpReplace($code, "(?m)\)+DMS$", "DMS")
 
 	; A few other special cases
 
