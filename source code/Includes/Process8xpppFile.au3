@@ -106,6 +106,7 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 	$data.body = ProcessBody($data.body, $inputFile, $outputFile, $performOptimization)
 
 	Update8xpLengthFields($data)
+	VersionFix($data)
 
 	Write8xpBinary($data, $outputFile)
 
@@ -141,6 +142,13 @@ Func Update8xpLengthFields(ByRef $binary)
    $binary.meta   = BinaryModifyWord($binary.meta, 0x48 - 55 + 1, $bodyLength)
 
 EndFunc
+
+; Small workaround for WabbitEmu bug whereby version field cannot exceed 0x06
+Func VersionFix(ByRef $binary)
+	; Change the 14th byte to a value of 6 (0x06)
+	$binary.meta = BinaryModifyByte($binary.meta, 14, 6)
+EndFunc
+
 
 
 ; Provide a map with .header, .meta and .body (all binary)
