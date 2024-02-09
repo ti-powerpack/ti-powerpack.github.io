@@ -10,7 +10,8 @@ If @ScriptName == "OptimizeCode.au3" Then
 	$result = OptimizeCode( _
 		@CRLF & _
 		"⌊REDLEVEL→X" & @CRLF & _
-		"X→⌊REDLEVEL" & @CRLF & _
+		"X→⌊REDLEVEL2" & @CRLF & _
+		"X→⌊REDLEVEL(2)" & @CRLF & _
 		"  /*   #include ""..\Tests\Include Directive\test include.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 2.8xp.inc"" " & @CRLF & _
 		"   #include ""..\Tests\Include Directive\test include 3.inc"" */" & @CRLF & _
@@ -187,6 +188,13 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Remove brackets before DMS, but only when DMS is the last item on a line
 	; Otherwise this will break statements like "Disp (X)DMS,(Y)DMS"
 	$code = StringRegExpReplace($code, "(?m)\)+DMS$", "DMS")
+
+	; Strip "⌊" when assigning a value to a list. Doesn't appear to be needed.
+	; But DON'T strip it when assigning to a specific list item.
+	;  e.g.  {1,2,3}→⌊MYLIST      - OK to strip
+	;        234→⌊MYLIST(1)		  - Not OK to strip. Needs to be included.
+	;
+	$code = StringRegExpReplace($code, "(?m)→⌊([A-Z0-9]+)$", "→$1")
 
 	; A few other special cases
 
