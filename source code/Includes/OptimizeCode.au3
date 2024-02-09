@@ -155,7 +155,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 
 	; Strip unnecessary closing quotes and brackets
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
-	$code = StringRegExpReplace($code, "\)+→", "→")						; remove closing )'s when storing a number
+	$code = StringRegExpReplace($code, "[)}]+→", "→")					; remove closing brackets ")" and "}" when storing a number
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
 	$code = StringRegExpReplace($code, """→", "→")						; remove closing " when storing a string
 	$code = StringRegExpReplace($code, "(?m)→Ans$", "")					; remove →Ans, which is only for forcing a string to be placed in ans rather than being treated as a comment
