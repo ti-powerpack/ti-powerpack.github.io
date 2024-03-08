@@ -21,6 +21,7 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"#define @LabelHome HX" & @CRLF & _
 		"" & @CRLF & _
 		"Lbl {{@Label_Exit}}" & @CRLF & _
+		"Lbl {{@Label_Exit}}" & @CRLF & _
 		"Lbl @LabelHome // comment" & @CRLF & _
 		"Lbl @Label_Exit // comment" & @CRLF & _
 		"@Label_Exit→A" & @CRLF & _
@@ -113,10 +114,10 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; COMMENTS
 	; We need to also remove the trailing whitespace from comments, otherwise we might retain some blank lines in final script
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
-	$code = StringRegExpReplace($code, "(?m)^""[^""→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command or closing quotes) - won't remove comment on FINAL line of program, just in case this is desired
-																		; Note that it will remove strings that are intended to be placed in Ans! Workaround: Put a closing quote (which will later be stripped), or a "(" bracket at the start to prevent this.
 	$code = StringRegExpReplace($code, "(?sm)^/\*.*?\*/\s*", "")		; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
 	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ... (we also strip leading space here, between any prior characters and start of the comment)
+	$code = StringRegExpReplace($code, "(?m)^""[^""→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command or closing quotes) - won't remove comment on FINAL line of program, just in case this is desired
+																		; Note that it will remove strings that are intended to be placed in Ans! Workaround: Put a closing quote (which will later be stripped), or a "(" bracket at the start to prevent this.
 
 	; Process #ifDefined and #ifNotDefined directives
 	$code = ParseAndPerformConditionalStatements($code)
@@ -194,6 +195,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	;  e.g.  {1,2,3}→⌊MYLIST      - OK to strip
 	;        234→⌊MYLIST(1)		  - Not OK to strip. Needs to be included.
 	;
+	; TODO: Can also strip it when using in SetUpEditor
 	$code = StringRegExpReplace($code, "(?m)→⌊([A-Z0-9]+)$", "→$1")
 
 	; A few other special cases
