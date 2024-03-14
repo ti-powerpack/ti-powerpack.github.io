@@ -426,7 +426,7 @@ EndFunc
 ;
 ; Rules for using variables:
 ; 	- Variables are CASE SENSITIVE (I think)
-;   - Names must start with a letter, but can have numbers, underscores (periods were considered, but could lead to ambiguous replacements
+;   - Names must start with a letter or underscore, but can have numbers, underscores (periods were considered, but could lead to ambiguous replacements
 ;     such as MyVar and MyVar.Something. MyVar and MyVar_Something does NOT have this problem because _ is a word character.)
 ;
 ; EXAMPLE:
@@ -451,7 +451,7 @@ Func ParseAndReplaceDefinedVars($code)
 	; The array will alternate between names and values (0 = name, 1 = value, 2 = name, etc...)
 	;  (?m) = multiline mode
 	;  (?i) = case-insensitive
-	Local $regexToMatchDefines = "(?m)(?i)^[ \t]*#define (@[A-Z]+\w*)[ \t]*(.*)"
+	Local $regexToMatchDefines = "(?m)(?i)^[ \t]*#define (@[_A-Z]+\w*)[ \t]*(.*)"
 	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)
 	; Debug($matches)
 
