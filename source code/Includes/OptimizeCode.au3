@@ -443,6 +443,8 @@ EndFunc
 ; Definitions are parsed all at once, and then replaced throughout the document.
 ; The order of definition is not important.
 ; However, this means that a definition cannot be defined twice, nor redefined later in the doc.
+;
+; TODO: WARN user if a label is found that is not defined. (Although could also be an email address.)
 Func ParseAndReplaceDefinedVars($code)
 
 	Local $definedVars[]
@@ -451,7 +453,7 @@ Func ParseAndReplaceDefinedVars($code)
 	; The array will alternate between names and values (0 = name, 1 = value, 2 = name, etc...)
 	;  (?m) = multiline mode
 	;  (?i) = case-insensitive
-	Local $regexToMatchDefines = "(?m)(?i)^[ \t]*#define (@[_A-Z]+\w*)[ \t]*(.*)"
+	Local $regexToMatchDefines = "(?m)(?i)^[ \t]*#define (@[_A-Z0-9]+\w*)[ \t]*(.*)"
 	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)
 	; Debug($matches)
 
