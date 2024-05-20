@@ -1,4 +1,5 @@
-; WARNING: If this script is run via an #include it will block the execution and be difficult to quit. Best to compile as a console app if so.
+; WARNING: If this script is run via an #include it will block the execution and be difficult to quit.
+;          Best to compile as a console app if so.
 
 ; It will watch a specific folder, as passed in via command line parameters
 ; And it will put the filename of any new/edited/removed file into the default console output (StdOut) on its own line
@@ -26,6 +27,8 @@ Global $RecentEvents[]
 
 Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList, $filenameSubstringsToIgnore)
 
+	Debug("Now watching " & $path & "\*." & $fileExtensionList & " for changes...")
+
 	; Array of file extensions to pay attention to, ignoring all others
 	$fileExtensionList = StringSplit($fileExtensionList, ",", $STR_NOCOUNT)
 	$filenameSubstringsToIgnore = StringSplit($filenameSubstringsToIgnore, ",", $STR_NOCOUNT)
@@ -50,7 +53,7 @@ Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList, $filena
 	Local $arrayOfEvents
 	While 1
 
-		Debug("  - Watching...")
+;~ 		Debug("  - Watching...")
 
 		; Wait until a file is created/modified/deleted in our watched folder.
 		; This function is BLOCKING meaning the script will hang on this line until an event occurs.
@@ -123,7 +126,7 @@ Func WatchFolderForChangesBlocking($path, $callback, $fileExtensionList, $filena
 
 			; If a list of file extensions was provided, check if the file matches one in the list
 			If $fileExtensionList[0] <> "" And _ArraySearch($fileExtensionList, FileExtension($filePath)) = -1 Then
-				ConsoleWrite("File change ignored: " & $filePath & ", due to file extension: " & FileExtension($filePath) & @CRLF)
+;~ 				ConsoleWrite("File change ignored: " & $filePath & ", due to file extension: " & FileExtension($filePath) & @CRLF)
 				ContinueLoop
 			EndIf
 
