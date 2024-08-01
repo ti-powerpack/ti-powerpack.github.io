@@ -34,13 +34,16 @@ $WatchOptions.folder = @ScriptDir & "\.."
 $WatchOptions.sendChangesToWabbit = true
 $WatchOptions.sendEnterKeyToWabbit = true
 $WatchOptions.pathToWabbitEmu = @ScriptDir & "\..\..\Emulators\Wabbitemu.exe"
-$WatchOptions.sourceCodeIntoSubfolder = "Source Code as Text"
+$WatchOptions.sourceCodeIntoSubfolder = "Source Code as Text"		; NOTE: also hard-coded into Process8xpppFile.au3
+$WatchOptions.compiledCodeIntoSubfolder = "Compiled Programs"
 Local $alwaysProcessScriptAtStartUp = ["SVTOOLS.8xp"]
 ;---------------------------------
 
 #include "Includes\Debug.au3"
 #include "Includes\WatchFolderForChangesBlocking.au3"
 #include "Includes\Process8xpppFile.au3"
+#include "Includes\FileExtension.au3"
+; #include "Includes\InjectSubfolderIntoPath.au3"
 
 ; WabbitEmu is a bit slow, so we need to increase the delay on keystrokes here:
 AutoItSetOption("SendKeyDelay", 100)
@@ -70,7 +73,12 @@ Func OptimizeScriptWhenSaved($filename)
 	Debug("Now compiling: " & $filename)
 	Local $filePath = $WatchOptions.folder & "\" & $filename
 	Local $newFilename = StringRegExpReplace($filename, "\.8xp+$", ".optimized.8xp")
-	Local $newFilePath = $WatchOptions.folder & "\Compiled Programs\" & $newFilename
+	Local $newFilePath = $WatchOptions.folder & "\" & FileAppendPath($newFilename, $WatchOptions.compiledCodeIntoSubfolder)
+
+	; Create necessary folders
+	If DirCreate(Folder($filePath) & $WatchOptions.sourceCodeIntoSubfolder) Then Debug("  - Created folder " & Folder($filePath) & $WatchOptions.sourceCodeIntoSubfolder)
+	If DirCreate(Folder($newFilePath)) Then Debug("  - Created folder " & Folder($newFilePath))
+
 	Process8xpppFile($filePath, $newFilePath)
 
 	; This is now done on initial write. No longer need to perform a rename here.

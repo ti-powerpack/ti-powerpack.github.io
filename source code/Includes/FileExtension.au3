@@ -6,8 +6,9 @@
 ;-----------------------------------
 ;~ FOR TESTING:
 If @ScriptName = "FileExtension.au3" Then
-;~ Debug(FileAppendPath("C:\somewhere\myfile.abc.txt","BBBB"))
-;~ Debug(FileAppendPath("..\myfile.abc.txt","CCCC"))
+	Debug(FileAppendPath("myfile.abc.txt","BBBB"))
+	Debug(FileAppendPath("C:\somewhere\myfile.abc.txt","BBBB"))
+	Debug(FileAppendPath("..\myfile.abc.txt","CCCC"))
 	Debug(Folder("C:\Somewhere\help.txt"))
 EndIf
 ;-----------------------------------
@@ -27,6 +28,7 @@ Func FileAppendPath($fullPath, $append)
 EndFunc
 
 ; Returns a map object containing the various components of a file path
+; See the components of the map object below
 Func PathToComponents($path)
 	Local $drive
 	Local $folder
@@ -50,7 +52,7 @@ Func PathToComponents($path)
 	Return $map
 EndFunc
 
-; Pass in a full file path and it will return the parent folder with a trailing slash
+; Pass in a full file path and it will return the parent folder WITH a trailing slash
 Func Folder($path)
 	Return PathToComponents($path).driveAndFolder
 EndFunc

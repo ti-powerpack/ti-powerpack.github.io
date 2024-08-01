@@ -13,7 +13,7 @@
 
 ;---------------------------------------------
 ; TODO: Maybe move these to a map, for less clashing
-Local $monitorSubfolders = 0
+Local $monitorSubfolders = True
 Local $path = $CmdLine[0] ? $CmdLine[1] : ""
 Local $suppressRepeatedEventsWithinSeconds = 1.8
 ;---------------------------------------------
