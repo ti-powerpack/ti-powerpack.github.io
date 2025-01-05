@@ -7,6 +7,9 @@
 ; the character(s) used in TI Connect CE, for best compatibility.
 ; Other alternatives may be used when compiling *from* text to binary form.
 
+; Be careful. The numbers on the left actually become integers: 4 bytes, little endian.
+; To avoid this, wrap in Binary("0x00..")
+
 Global $8xpTokens[][] = [ _
     [0x00, 0x00], _
     [0x01, "DMS", "►DMS"], _
@@ -772,18 +775,54 @@ Global $8xpTokens[][] = [ _
     [0xEF4D, "[MEDGREY]"], _
     [0xEF4E, "[GREY]"], _
     [0xEF4F, "[DARKGREY]"], _
+	_ ; some tokens missing here
     [0xEF5A, "GridLine"], _
     [0xEF5B, "BackgroundOn"], _
-    [0xEF6A, "DetectAsymOn"], _
-    [0xEF6B, "DetectAsymOff"], _
+	_ ; some tokens missing here
     [0xEF64, "BackgroundOff"], _
     [0xEF65, "GraphColor("], _
     [0xEF67, "TextColor("], _
     [0xEF68, "Asm84CPrgm"], _
+    [0xEF6A, "DetectAsymOn"], _
+    [0xEF6B, "DetectAsymOff"], _
     [0xEF6C, "BorderColor"], _
+	_ ; some tokens missing here
     [0xEF73, "·", "tinydotplot"], _		; Duplicates 0x81 I think?
     [0xEF74, "Thin"], _
     [0xEF75, "Dot-Thin"], _
-	[0x576216bbb8622429, "Wait "], _	; When compiling, this should take priority. Wait command doesn't work on TI-84+
-    [0xEF96, "Wait "] _					; Added support for this to reduce bugs
+	_
+	_ ;------------- Extras ---------------
+	_ ; Not sure where these are from. TI Basic 68k I think? But TI Connect sometimes compiles these tokens even for 8XP programs.
+	_ ; Well, except when I put them inside a string!
+	_ ;
+	_ ; The entries below ensure that we DECOMPILE them to the correct string,
+	_ ; and them COMPILE them to the raw text, NOT to the token used by TI Connect.
+	_ ; I don't think the TI-84+ can read/understand these tokens.
+	_ ;
+	_ ; The first entry is always used for COMPILATION (since the array is searched forward for the first matching string)
+	_ ; The second entry is     used for DECOMPILATION (since the array is searched forward for the first matching bytes)
+	_ ;
+	_ ;EF90 SEQ(+1)
+	_ ;EF91 SEQ(+2)
+	_ ;EF95 invBinom(
+	_
+	[Binary("0x4C454654"), "LEFT"], _				; Used for compilation only. Bugfix.
+	[0xEF92, "LEFT"], _
+	_
+	[Binary("0x43454E544552"), "CENTER"], _		; Used for compilation only. Bugfix.
+	[0xEF93, "CENTER"], _
+	_
+	[Binary("0x5249474854"), "RIGHT"], _			; Used for compilation only. Bugfix.
+	[0xEF94, "RIGHT"], _
+	_
+	[Binary("0x576216bbb8622429"), "Wait "], _	; When compiling, set "Wait " to the actual text characters. It's first in array as it should take priority. Wait command doesn't work on TI-84+.
+    [0xEF96, "Wait "], _					; Added support for decompiling this to reduce bugs
+	_
+	[Binary("0x6224BBBF5362246212BBB86202BBB610"), "toString("], _ ; Used for compilation only. Bugfix.
+	[0xEF97, "toString("], _
+	_
+	[Binary("0x621A5E816216BBBC10"), "eval("], _ 	; Used for compilation only. Bugfix.
+	[0xEF98, "eval("] _
+	_
+	_ ;EF99 considered "bad token" by TI Connect
 ]
