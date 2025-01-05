@@ -240,8 +240,12 @@ EndFunc
 ; debug(0xEF75)
 ; debug(0x6234)
 ; debug(0x576216bbb8622429)
-; debug(BinaryCodeToTextCode(Binary("0xEF96")))
-; debug(BinaryCodeToTextCode(Binary("0x6234")))
+;~ debug(Hex(Binary("0x838485")))
+
+;~ debug("BinaryCodeToTextCode: " & BinaryCodeToTextCode(Binary("0x0505EF96")))
+;~ Debug(Hex(Binary("0x11112222333344445555")))
+
+;~ debug(BinaryCodeToTextCode(Binary("0x838329ef973f")))
 
 Func BinaryCodeToTextCode($binaryCode)
 	Local $textCode = ""
@@ -249,7 +253,7 @@ Func BinaryCodeToTextCode($binaryCode)
 	; Since _ArrayBinarySearch requires a SORTED array, we'll sort the array by token
 	$8xpTokensSorted = $8xpTokens
 	_ArraySort($8xpTokensSorted)
-	; debug($8xpTokensSorted)
+;~ 	debugArray($8xpTokensSorted)
 
 	; Loop through every byte in file and replace with text representation
 	For $i = 1 To BinaryLen($binaryCode)
@@ -266,18 +270,20 @@ Func BinaryCodeToTextCode($binaryCode)
 		; Does this byte exist in our list?
 		; If so, output the relevant text representation and continue onto next byte
 		; Warning: when using _ArrayBinarySearch, array MUST be sorted in ASCENDING ORDER
-		Local $tokenIndex = _ArrayBinarySearch($8xpTokensSorted, $char, 0, 0, 0)
+		Local $tokenIndex = _ArrayBinarySearch($8xpTokensSorted, Hex($char), 0, 0, 0)
 		If $tokenIndex > -1 Then
-;~ 			ConsoleWrite("Token found" & @CRLF)
+;~ 			Debug("Token found: " & $tokenIndex)
 ;~ 			ConsoleWrite($tokenIndex)
 			$textCode = $textCode & $8xpTokensSorted[$tokenIndex][1]
 			ContinueLoop
+		; Else
+;~ 			debug("Hex: " & Hex($char) & " " & Hex($8xpTokensSorted[17][0]))
 		EndIf
 
 		; If not found within the list, it might be a 2-byte character, so let's look for that
 		; Note: AutoIt converts binary to int in little endian format, which is NOT how 8XPs work.
 		Local $char2 = BinaryMid($binaryCode, $i+1, 1)
-		$tokenIndex = _ArrayBinarySearch($8xpTokensSorted, Number($char2 & $char), 0, 0, 0)
+		$tokenIndex = _ArrayBinarySearch($8xpTokensSorted, Hex($char & $char2), 0, 0, 0)
 		If $tokenIndex > 0 Then
 ;~ 			ConsoleWrite("Token found" & @CRLF)
 ;~ 			ConsoleWrite($tokenIndex)
@@ -290,8 +296,19 @@ Func BinaryCodeToTextCode($binaryCode)
 		EndIf
 
 		; If we got this far, it means that we couldn't find the binary characters in our official list
-		$textCode = ""
-		debug("ERROR: Binary token " & $char & ", followed by " & $char2 & " (Int values " & Number($char2 & $char) & ") is not a known token. This token will be skipped during decompilation.")
+;~ 		$textCode = ""
+
+		; Is the first character known to indicate a 2-byte token? If so, we'll skip the next byte and continue thereafter.
+		Local $doubleByteTokenPrefixes = [0x5C, 0x5D, 0x5E, 0x60, 0x61, 0x62, 0x63, 0x7E, 0xAA, 0xBB, 0xEF]
+		If _ArraySearch($doubleByteTokenPrefixes, $char) > -1 Then
+			$i += 1
+			debug("ERROR: Binary token " & ($char & $char2) & " (Int values " & Number($char2 & $char) & ") is not a known token. This token will be skipped during decompilation.")
+			$textCode = $textCode & "??"
+		Else
+			debug("ERROR: Binary token " & $char & ", followed by " & $char2 & " (Int values " & Number($char2 & $char) & ") is not a known token. This token will be skipped during decompilation.")
+			$textCode = $textCode & "?"
+		EndIf
+
 	Next
 
 
@@ -368,11 +385,19 @@ EndFunc
 
 ;~ debug("Result: " & Hex(TextCodeToBinaryCode("round(pxl-Test(augment(rowSwap(DDisp L₁")) & @CRLF)
 
+;------- Test Runner --------
+;~ Local $x = TextCodeToBinaryCode("LEFT")
+;~ debug("Result (" & BinaryLen($x) & " bytes): 0x" & Hex($x) & @CRLF)
 
 ; Converts 0x62 or 0x6212 into actual binary representing those one or two bytes
 ; Ints in AutoIt are normally 4 bytes long, but we actually only want either 1 or 2 bytes
 ; And two bytes need reversing as AutoIt stores them as little endian I think?
 Func TokenIntToBinary($int)
+
+	; No longer converting since all tokens are already Binary.
+	Return $int
+	;;;;;;;;;;;;;;;;;;;;;;;;
+
 	Local $result
 	If $int < 256 Then
 		; Return 1 byte
@@ -400,7 +425,7 @@ Func TextCodeToBinaryCode($text)
 	Local $binary = Binary("")
 
 	; Create a map for efficiently looking up tokens
-	; The text string is the key, and binary code is the value (either 1 or 2 bytes)
+	; The text string is the key, and binary string is the value (either 1 or 2 bytes)
 	; We loop through the list in REVERSE since there are a few duplicate tokens in the list
 	; and we want EARLIER tokens to take priority over later ones
 	;
@@ -439,7 +464,7 @@ Func TextCodeToBinaryCode($text)
 				; Put the token into our binary result
 ;~ 				debug($portion)
 ;~ 				debug("Found match: " & $tokens[$portion])
-				$binary = $binary & $tokens[$portion]
+				$binary = $binary & Binary("0x" & $tokens[$portion])
 ;~ 				debug($binary)
 				; Increment $i to not re-search for any of those same chars
 				$i += $j-1
