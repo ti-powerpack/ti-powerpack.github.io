@@ -454,7 +454,7 @@ Func ParseAndReplaceDefinedVars($code)
 	;  (?m) = multiline mode
 	;  (?i) = case-insensitive
 	Local $regexToMatchDefines = "(?m)(?i)^[ \t]*#define (@[_A-Z0-9]+\w*)[ \t]*(.*)"
-	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)
+	Local $matches = StringRegExp($code, $regexToMatchDefines, 3)   ; 3 ensures global matching
 	; Debug($matches)
 
 	; Display a warning if a variable is defined more than once
@@ -473,6 +473,14 @@ Func ParseAndReplaceDefinedVars($code)
 		$code = StringRegExpReplace($code, "{{" & $matches[$i] & "}}", $matches[$i+1])
 		$code = StringRegExpReplace($code, $matches[$i] & "\b", $matches[$i+1])
 	Next
+
+	Local $unknownVariablesUsed = StringRegExp($code, "(?i)(@[_A-Z0-9]+\w*)", 3)  ; 3 ensures global matching
+	For $i = 0 To UBound($unknownVariablesUsed) - 1
+		Debug("------------- WARNING -----------------")
+		Debug(" UNDEFINED VARIABLE: " & $unknownVariablesUsed[$i])
+	Next
+	If $i > 0 Then Debug("---------------------------------------")
+
 
 	Return $code
 EndFunc
