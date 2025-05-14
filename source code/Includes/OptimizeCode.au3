@@ -52,9 +52,12 @@ If @ScriptName == "OptimizeCode.au3" Then
 		"" & @CRLF & _
 		"DelVar X" & @CRLF & _
 		"DelVar ⌊ABC" & @CRLF & _
-		"DelVar L₂" & @CRLF & _
+		"DelVar Str1" & @CRLF & _
+		"2+2" & @CRLF & _
 		"DelVar AAADelVar BBBDelVar CCCDelVar DDD" & @CRLF & _
-		"DelVar Y" & @CRLF & _
+		"dim(3" & @CRLF & _
+		"DelVar ⌊YYY" & @CRLF & _
+		"Pause " & @CRLF & _
 		"" & @CRLF & _
 		"If X=0:Then" & @CRLF & _
 		"If Y=0" & @CRLF & _
@@ -133,16 +136,25 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; $code = StringRegExpReplace($code, "(?m):Then$", @CRLF & "Then")
 	$code = StringRegExpReplace($code, "(?m):(Then$|Disp |Goto |Pause |Input |Prompt |Menu\(|Return|Stop|Output\(|Get\(|Send\(|ClrHome)", @CRLF & "$1")
 
-	; Remove line returns between consecutive DelVar statements
-	; To do: remove other line returns following DelVars (but not in ALL cases, beware)
-	; Can also remove line return after a DelVar in 95% of other cases, but NOT preceding "Lbl" labels or an "End" statement for an If block
-	$code = StringRegExpReplace($code, "(DelVar [⌊\S]+)\r\n(?=DelVar)", "$1")
-
 	; REMOVE EXTRANEOUS LINE RETURNS
 	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
 	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
 	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
 
+	; Remove line returns between consecutive DelVar statements
+	; To do: remove other line returns following DelVars (but not in ALL cases, beware)
+	; Can remove line return after a DelVar in 70% of other cases, but NOT preceding:
+	;  - "Lbl" labels
+	;  - "End" statement for an If block
+	;  - "Else" statement
+	;  - A line starting with a single letter variable (A-Z) (unless the deleted var is a String var)
+	;  - A line starting with a list variable name that is missing the ⌊ character (e.g. XLIST) (unless the deleted var is a String var)
+	;  - A line starting with a a digit, as it could be confused as part of a variable name (unless the deleted var is a String var)
+	; The "(?=" means if the line return is followed by any of these strings, we can strip the line-return.
+	; CAREFUL THOUGH: Will removing line returns break the compilation of any TI tokens? To be tested.
+	$code = StringRegExpReplace($code, "(DelVar ([⌊A-Zθ0-9]+|Str[0-9]))\r\n(?=(DelVar|Goto|Return|Stop|Float|Str|Pause |If |Disp |prgm|Input |Prompt |""|⌊|[a-z]|\.|While |Repeat |Output\(|Menu\(|For\())", "$1")
+	$code = StringRegExpReplace($code, "(DelVar ⌊[A-Z\d]+)\r\n(?=(ClrHome|ClrDraw|ClrTable))", "$1")  ; ClrHome only works if the ⌊ char is included
+	$code = StringRegExpReplace($code, "(DelVar Str[0-9])\r\n(?=\d)", "$1")
 
 	; Subroutines
 	; IMPORTANT: SciTE does NOT show the negative sign prior to the 1 in the For() loops below, but it's there
@@ -444,7 +456,10 @@ EndFunc
 ; The order of definition is not important.
 ; However, this means that a definition cannot be defined twice, nor redefined later in the doc.
 ;
-; TODO: WARN user if a label is found that is not defined. (Although could also be an email address.)
+; TODO:
+;  - What happens when there's a var called @x and another called @xCoord - will they clash?
+;    Do we need to replace them starting with longest length first?
+;  - WARN user if a label is found that is not defined. (Although could also be an email address.)
 Func ParseAndReplaceDefinedVars($code)
 
 	Local $definedVars[]
