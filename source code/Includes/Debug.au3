@@ -24,6 +24,11 @@ EndIf
 ;
 
 
+Func Debug2($item1, $item2 = "", $item3 = "")
+	Debug($item1 & " " & $item2 & " " & $item3)
+EndFunc
+
+
 Func Debug($stringOrArray, $showLineReturns = 0)
 
 	; Handle 2D arrays
