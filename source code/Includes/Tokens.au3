@@ -15,14 +15,14 @@ Global $8xpTokens[][] = [ _
 	["01", "DMS", "►DMS"], _
 	["02", "Dec", "►Dec"], _
 	["03", "Frac", "►Frac"], _
-	["04", "→"], _   ; assignment
+	["04", "→"], _   			; STO or "store", used for variable assignment
 	["05", "Boxplot"], _
 	["06", "["], _
 	["07", "]"], _
 	["08", "{"], _
 	["09", "}"], _
 	["0A", "", "ʳ"], _
-	["0B", "°"], _   ; degree symbol
+	["0B", "°"], _   			; degree symbol
 	["0C", "", "ˉ¹"], _
 	["0D", "²"], _
 	["0E", "", "ᵀ"], _
@@ -51,7 +51,7 @@ Global $8xpTokens[][] = [ _
 	["25", "nDeriv("], _
 	["27", "fMin("], _
 	["28", "fMax("], _
-	["29", " "], _
+	["29", " "], _				; space?
 	["2A", """"], _
 	["2B", ","], _
 	["2C", "", "[i]"], _
@@ -101,7 +101,7 @@ Global $8xpTokens[][] = [ _
 	["58", "X"], _
 	["59", "Y"], _
 	["5A", "Z"], _
-	["5B", "θ"], _
+	["5B", "θ"], _			; theta
 	["5F", "prgm"], _
 	["64", "Radian"], _
 	["65", "Degree"], _
@@ -775,18 +775,20 @@ Global $8xpTokens[][] = [ _
 	["EF4D", "[MEDGREY]"], _
 	["EF4E", "[GREY]"], _
 	["EF4F", "[DARKGREY]"], _
-	_ ; some tokens missing here
+	_ ; some tokens missing here (50-59)
 	["EF5A", "GridLine"], _
 	["EF5B", "BackgroundOn"], _
-	_ ; some tokens missing here
+	_ ; some tokens missing here (5C-63)
 	["EF64", "BackgroundOff"], _
 	["EF65", "GraphColor("], _
+	; 66 missing
 	["EF67", "TextColor("], _
 	["EF68", "Asm84CPrgm"], _
+	; 69 missing
 	["EF6A", "DetectAsymOn"], _
 	["EF6B", "DetectAsymOff"], _
 	["EF6C", "BorderColor"], _
-	_ ; some tokens missing here
+	_ ; some tokens missing here (6D-72)
 	["EF73", "·", "tinydotplot"], _		; Duplicates 0x81 I think?
 	["EF74", "Thin"], _
 	["EF75", "Dot-Thin"], _
