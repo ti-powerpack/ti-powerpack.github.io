@@ -4,7 +4,7 @@
 #include "Process8xpppFile.au3"
 
 ;----- We run the following tests when this script is executed directly, but NOT when included from a parent script ----------
-; PRESS F5 to run this test.
+; PRESS F5 to run this test case
 If @ScriptName == "OptimizeCode.au3" Then
 	; MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 	$result = OptimizeCode( _
@@ -104,14 +104,17 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; TODO: Strip trailing spaces which can cause programs to crash. SOME tokens require it,
 	;		however, so needs to be done carefully.
 	;		Or at least WARN user about the trailing spaces.
-	;		These tokens may appear with a trailing space, and then NOTHING: (I think)
+	;		The following tokens MUST appear with a trailing space, even when no parameter follows (I think)
     ; 			- FnOn
     ;			- FnOff
 	;			- Pause
-	;			- PlotsOff
+	;			- PlotsOn PlotsOff
 	;			- AxesOn
 	;			- SetUpEditor
-	;			- Fix?
+	;			- ExpReg ?
+	;			- LinReg(a+bx) LinReg(ax+b) LinRegTInt LinRegTTest LnReg Logistic Manual-Fit Med-Med PwrReg
+	; 			- QuadReg QuartReg 2-SampTest 2-SampTInt 2-SampTTest SinReg TInterval 1-Var Stats 2-Var Stats
+	;			- Fix (I think always requires a parameter)
 	;			...and maybe others
 
 	; Process #include directives
