@@ -9,6 +9,15 @@ If @ScriptName == "OptimizeCode.au3" Then
 	; MsgBox(0, "Result", OptimizeCode(@CRLF & "  ""Something here" & @CRLF & "For(I,1,2)" & @CRLF & "y"))
 	$result = OptimizeCode( _
 		@CRLF & _
+		"""Test string that gets removed" & @CRLF & _
+		"""Test string that remains""" & @CRLF & _
+		"""Test string""+""that remains""" & @CRLF & _
+		"mean({1,2,3)))})}))}" & @CRLF & _
+		"(mean({1,2,3}))" & @CRLF & _
+		"SetUpEditor L₁,⌊A,⌊BB,⌊CCC" & @CRLF & _
+		"SetUpEditor L₁,⌊AA,⌊BBB,⌊CCC" & @CRLF & _
+		"{0,0}→⌊COORD" & @CRLF & _
+		"L₁→⌊COORD" & @CRLF & _
 		"⌊REDLEVEL→X" & @CRLF & _
 		"X→⌊REDLEVEL2" & @CRLF & _
 		"X→⌊REDLEVEL(2)" & @CRLF & _
@@ -90,9 +99,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; TODO: Convert all colons NOT inside a string into line returns. That way the following
 	;       optimizations will apply to those cases too. Currently they do not.
 	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
-
-	; TODO: {0,0}→⌊COORD  - ⌊ symbol can be stripped out in these cases. Test carefully.
-	; TODO: L₁→⌊COORD     - ⌊ symbol can be stripped out in this case also. Test carefully.
+	;		Partly done, for many common commands/functions.
 
 	; TODO: Strip trailing spaces which can cause programs to crash. SOME tokens require it,
 	;		however, so needs to be done carefully.
@@ -167,9 +174,11 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m) ([A-Zθ])=0$", " not($1)")
 	$code = StringRegExpReplace($code, "(?m) 0=([A-Zθ])$", " not($1)")
 
-	; Strip unnecessary closing quotes and brackets
+	; Strip unnecessary closing brackets
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
 	$code = StringRegExpReplace($code, "[)}]+→", "→")					; remove closing brackets ")" and "}" when storing a number
+
+	; Strip unnecessary closing quotes
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
 	$code = StringRegExpReplace($code, """→", "→")						; remove closing " when storing a string
 	$code = StringRegExpReplace($code, "(?m)→Ans$", "")					; remove →Ans, which is only for forcing a string to be placed in ans rather than being treated as a comment
@@ -183,14 +192,14 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; From DOC: Note that groups already captured are left alone and still populate the returned array;
 	;           it is therefore always possible to backreference to them later on.
 
-	; Remove trailing brackets, EXCEPT when For is start of line, or there's quotes (string) in the line
+	; Remove trailing brackets (curved and curly), EXCEPT when For is start of line, or there's quotes (string) in the line
 	; Will miss a few, such as:
 	;   - Menu("Abc", A)
 	;   - If X and (Str1="." or Str1="x")
 	;   - If (X):Disp "Something...
 	; ...but will prevent stripping bracket from: Disp "This (Example)"
 	; Could probably strip when "Then" is on the next line... although then it would break: If Str1=")":Then
-	$code = StringRegExpReplace($code, "(?m)^(?!For)[^""\r\n]*?\K\)+$", "")
+	$code = StringRegExpReplace($code, "(?m)^(?!For)[^""\r\n]*?\K[)}]+$", "")
 
 	; There's a couple of special cases where we can definitely remove trailing brackets.
 	$code = StringRegExpReplace($code, "(?m)^Menu\(.*\K\)$", "")
@@ -206,9 +215,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; But DON'T strip it when assigning to a specific list item.
 	;  e.g.  {1,2,3}→⌊MYLIST      - OK to strip
 	;        234→⌊MYLIST(1)		  - Not OK to strip. Needs to be included.
-	;
-	; TODO: Can also strip it when using in SetUpEditor
 	$code = StringRegExpReplace($code, "(?m)→⌊([A-Z0-9]+)$", "→$1")
+	; Also strip it when using in SetUpEditor
+	$code = NestedRegExpReplace($code, "(?m)SetUpEditor .*?(:|$)", "⌊")
 
 	; A few other special cases
 
@@ -217,6 +226,28 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	Return $code
 
 EndFunc
+
+
+; When you want to remove certain characters from a string, but only
+; in certain contexts, use this.
+; - First regex finds a specific line or context to operate on.
+; - Next regex is what to replace/strip
+; - Replacement (optional)
+Func NestedRegExpReplace($text, $regex1, $regex2, $replace = "")
+	; Find all matches of the first regex (the context)
+	Local $matches = StringRegExp($text, $regex1, $STR_REGEXPARRAYGLOBALFULLMATCH )
+
+	; Return if no matches
+	If $matches = 1 Then Return $text
+
+	; Loop through all matches and perform a normal string replace on each one
+	For $match in $matches
+		$text = StringReplace($text, $match[0], StringRegExpReplace($match[0], $regex2, $replace))
+	Next
+	Return $text
+EndFunc
+
+
 
 
 ; Files can include other files using this syntax:

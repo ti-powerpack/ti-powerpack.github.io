@@ -781,10 +781,10 @@ Global $8xpTokens[][] = [ _
 	_ ; some tokens missing here (5C-63)
 	["EF64", "BackgroundOff"], _
 	["EF65", "GraphColor("], _
-	; 66 missing
+	_ ; 66 missing
 	["EF67", "TextColor("], _
 	["EF68", "Asm84CPrgm"], _
-	; 69 missing
+	_ ; 69 missing
 	["EF6A", "DetectAsymOn"], _
 	["EF6B", "DetectAsymOff"], _
 	["EF6C", "BorderColor"], _
