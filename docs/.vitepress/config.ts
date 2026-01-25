@@ -1,15 +1,15 @@
-import { defineConfig } from 'vitepress';
+// import { defineConfig } from 'vitepress';
 
 // refer https://vitepress.vuejs.org/config/introduction for details
-export default defineConfig({
+export default {
   lang: 'en-US',
-  title: '💪 TI Basic Powerpack',
+  title: '🚀 TI Basic Powerpack',
   description: 'Vite & Vue powered static site generator.',
   appearance: 'dark',
   themeConfig: {
     nav: [
-      { text: 'Download', link: '###' },
-      { text: 'Guide', link: '###' },
+      { text: 'Download', link: '/download' },
+      { text: 'Guide', link: '/what-is-powerpack' },
       { text: 'Github', link: 'https://github.com/...' },
 
       // {
@@ -25,11 +25,14 @@ export default defineConfig({
     ],
 
     sidebar: [
+      { text: 'What is Powerpack?', link: '/what-is-powerpack' },
+      { text: 'Download', link: '/download' },
+      { text: 'Getting Started', link: '/getting-started' },
       {
-        text: 'Guide',
+        text: 'Features',
         items: [
-          { text: 'Example', link: '/example' },
-          { text: 'Page 2', link: '/more/page-2' },
+          // { text: 'Example', link: '/example' },
+          { text: 'Test', link: '/features/test' },
 
           // ...
         ],
@@ -45,4 +48,4 @@ export default defineConfig({
       provider: 'local',
     },
   },
-});
+};

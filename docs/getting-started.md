@@ -2,7 +2,7 @@
 layout: doc
 ---
 
-# VitePress 💙 StackBlitz
+# Getting Started
 
 Hi there :wave: This is a demo running VitePress within your **browser tab**!
 
