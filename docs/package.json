@@ -6,7 +6,9 @@
     "docs:serve": "vitepress serve docs"
   },
   "devDependencies": {
-    "sass": "^1.81.0",
+    "rfs": "^10.0.0",
+    "sass-embedded": "^1.97.3",
+    "unplugin-vue-components": "^31.0.0",
     "vitepress": "^1.6.4"
   }
 }

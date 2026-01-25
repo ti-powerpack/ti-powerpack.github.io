@@ -1,29 +1,41 @@
+@use '../../../../../MY LIBS/css/simon-vitepress.scss';
+@use "rfs/scss" as *;
+@use "sass:color";
+
 $brand-color: rgb(214, 64, 14);
 
 :root {
   // The main brand color:
   // Typically used for Hero text, links, "brand" buttons, search result boxes, and other highlights
-  --vp-c-brand: #{$brand-color};
+  --vp-c-brand-1: #{$brand-color};
   // --vp-c-brand: #646cff;
 
   // --vp-c-brand-light: #747bff;
 
   // Lighter variation of brand color
   // Typicaly used for the border of brand-colored buttons
-  --vp-c-brand-lighter: #{darken($brand-color, 10%)};
+  --vp-c-brand-2: #{color.adjust($brand-color, $lightness: 10%)};
 
   // Darker variation of brand color
   // Typically used for brand button hover state
-  --vp-c-brand-dark: #{darken($brand-color, 10%)};
-
+  --vp-c-brand-3: #{color.adjust($brand-color, $lightness: -10%)};
   // Even darker variation of brand color
   // Typically used for brand button active state
-  --vp-c-brand-darker: #{darken($brand-color, 20%)};
+  --vp-c-brand-4: #{color.adjust($brand-color, $lightness: -20%)};
 
   // --vp-c-brand-darker: #393d82;
 
   // Search result highlights
-  --vp-local-search-highlight-bg: #{lighten($brand-color, 22%)};
+  --vp-local-search-highlight-bg: #{color.adjust($brand-color, $lightness: 22%)};
+}
+
+// Homepage heading
+.VPHero .name {
+  @include font-size(3.5rem);
+}
+// Secondary heading
+.VPHero .text {
+  @include font-size(2.6rem);
 }
 
 .dark {
