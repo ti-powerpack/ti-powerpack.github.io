@@ -15,6 +15,9 @@ $VERSION = "1.0.0-beta"
 #include "Includes\Process8xpppFile.au3"
 #include "Includes\ConsoleWriteUnicode.au3"
 
+; Tell compiler to make a console application
+#pragma compile(Console, true)
+
 ; Force this script to only run when it's compiled as an EXE.
 ; If the AU3 source is run directly, then compile it to EXE first,
 ; and then run the compiled EXE.
@@ -39,7 +42,7 @@ If Not @Compiled Then
 
 	; Run the EXE version and exit this script
 	Debug("Compilation succeeded. Now running EXE...")
-	Run($exeFilename & " .", "..")  ; Tell it to watch the parent folder
+	Run($exeFilename & " .", "../temp")  ; Tell it to watch the parent folder
 	Exit
 
 	; OLD METHOD: Otherwise warn user and exit
@@ -81,7 +84,7 @@ _ConsoleWriteUnicode("│   | |  | |  |  __/ (_) \ V  V /  __/ |  | |_) | (_| | 
 _ConsoleWriteUnicode("│   |_| |___| |_|   \___/ \_/\_/ \___|_|  | .__/ \__,_|\___|_|\_\ │")
 _ConsoleWriteUnicode("│                                         |_|                     │")
 _ConsoleWriteUnicode("└─────────────────────────────────────────────────────────────────┘")
-_ConsoleWriteUnicode("v" & $VERSION)
+_ConsoleWriteUnicode("  v" & $VERSION)
 _ConsoleWriteUnicode("")
 
 ; WabbitEmu is a bit slow, so we need to increase the delay on keystrokes here:
@@ -122,10 +125,16 @@ If $CmdLine[0] = 0 Then
 EndIf
 
 ; Start watching the folder and monitoring it for changes
-; 3rd parameter is a list of file extensions that we want to be notified about
-; 4th parameter is a list of substrings that should be ignored, and NOT have notifications about
+; 3rd parameter is a comma-separated list of file extensions that we want to be notified about
+; 4th parameter is a comma-separated list of substrings that should be ignored, and should NOT trigger the callback
 ;	(we don't want to process compiled files, so we ignore those)
-If $WatchFolder Then WatchFolderForChangesBlocking($WatchFolder, OptimizeScriptWhenSaved, "8xp,8xppp", ".optimized.8xp,.theta.")
+If $WatchFolder Then
+	Debug("Press Ctrl+C or close window to exit.")
+	WatchFolderForChangesBlocking($WatchFolder, HandleFileChange, "8xp,8xppp", ".optimized.8xp,.theta.")
+EndIf
+Func HandleFileChange($filename)
+	OptimizeScriptWhenSaved($WatchFolder & "\" & $filename)
+EndFunc
 
 ; Whenever an 8xp or 8xppp file is created/changed, this function is called.
 ; $filename is the full path to the file, or a relative path based on this EXE's folder
@@ -196,7 +205,14 @@ EndFunc
 ; Run WabbitEmu emulator, optionally with an 8XP file that should be loaded into the system
 Func RunWabbit($fileToLoad = "")
 	; Wrap quotes around the filename to be passed to Wabbit
-	If $fileToLoad Then $fileToLoad = """" & $fileToLoad & """"
+	If $fileToLoad Then
+		; If it's a relative path, make it absolute
+		If Not StringInStr($fileToLoad, ":") Then
+			$fileToLoad = @ScriptDir & "\" & $fileToLoad
+		EndIf
+		$fileToLoad = """" & $fileToLoad & """"
+	EndIf
+
 	; Execute it
 	$result = ShellExecute( _
 		$WatchOptions.pathToWabbitEmu, _

@@ -114,7 +114,7 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 	CreateThetaVersion($outputFile)
 	ShowTimeTaken($timer2, "  - Theta version written in")
 
-	Debug("  - Processing complete in: " & TimerDiff($timer)/1000 & " seconds")
+	Debug("  - Processing complete in: " & Round(TimerDiff($timer)/1000, 3) & " seconds")
 
 EndFunc
 
@@ -225,13 +225,13 @@ EndFunc
 
 
 ; Calculate time taken between sections of code. Example:
-; $timer = TimerInit()
-; ShowTimeTaken($timer, "section A")
-; ShowTimeTaken($timer, "section B")
+;     $timer = TimerInit()
+;     ShowTimeTaken($timer, "section A")
+;     ShowTimeTaken($timer, "section B")
 ;
 ; Reset timer by calling TimerInit() again.
 Func ShowTimeTaken($timer, $description)
-	debug($description & ": " & (TimerDiff($timer) / 1000) & " seconds")
+	debug($description & ": " & Round(TimerDiff($timer) / 1000, 3) & " seconds")
 EndFunc
 
 
