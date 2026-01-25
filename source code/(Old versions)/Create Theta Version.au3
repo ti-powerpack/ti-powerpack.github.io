@@ -2,7 +2,7 @@
 ; Will output a copy of the 8XP that has the name changed and the archived flag set
 
 #include "Includes\Debug.au3"
-#include "Includes\FileExtension.au3"
+#include "Includes\PathTools.au3"
 #include "Includes\Create Theta Version Functions.au3"
 
 ;~ $HELLO = Binary("0x48454C4C4F000000")

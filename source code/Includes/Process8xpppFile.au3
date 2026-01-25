@@ -410,8 +410,8 @@ Func TokenIntToBinary($int)
 	Return $result
 EndFunc
 
-; Converts text code into binary tokens, suitable for calculator
-; Works on the BODY only
+; Converts plain text TI-Basic code into binary tokens, suitable for calculator.
+; Operates on the BODY of the program only.
 ;
 ; Known bug:
 ;   - When certain reserved words like "AUTO", "DEC", "RED", etc. are used in list names like ⌊REDLEVEL
@@ -435,18 +435,17 @@ Func TextCodeToBinaryCode($text)
 	For $i = UBound($8xpTokens) - 1 To 0 Step -1
 ;~ 		ConsoleWrite($i & " " & VarGetType($8xpTokens[$i][1]) & " " & $8xpTokens[$i][0] & " " & $8xpTokens[$i][1] & @CRLF)
 
-		; Skip 0x00 as it breaks things, and I don't think we need it for compilation? Do we...?
-		If $8xpTokens[$i][0] == 0 Then ContinueLoop
+		; Skip 0x00 as it breaks things (such as the square bracket character "["
+		; and I don't think we need it for compilation? Do we...?
+		If $8xpTokens[$i][0] == "00" Then ContinueLoop
 
 		Local $tokenText = $8xpTokens[$i][1]
 		Local $tokenBinary = TokenIntToBinary($8xpTokens[$i][0])
-
-		; If $val = 1 Then ContinueLoop
 		$tokens[$tokenText] = $tokenBinary
 	Next
 
-;~ 	DebugMap($tokens)
-;~ 	debug($tokens["["])
+	;~ DebugMap($tokens)
+	;~ debug($tokens["["])
 
 	; debug("Tokens have been indexed")
 

@@ -1,7 +1,8 @@
 #include "..\Includes\Debug.au3"
 #include "..\Includes\Process8xpppFile.au3"
 
-$testCode = @CRLF & "R²" & @CRLF
+;~ $testCode = @CRLF & "R²" & @CRLF
+$testCode = "R²"
 $expectedBinaryOutput = Binary("0x520D")
 
 $output = TextCodeToBinaryCode($testCode)

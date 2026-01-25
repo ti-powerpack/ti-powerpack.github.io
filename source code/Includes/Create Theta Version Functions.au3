@@ -2,7 +2,7 @@
 #include "Debug.au3"
 #include <File.au3>
 #include "Process8xpppFile.au3"
-#include "FileExtension.au3"
+#include "PathTools.au3"
 
 
 Func CreateThetaVersion($filePath)

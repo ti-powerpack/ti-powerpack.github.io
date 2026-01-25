@@ -1,3 +1,4 @@
+#include "..\Includes\Debug.au3"
 #include "..\Includes\Process8xpppFile.au3"
 
 ; TEST STEPS (TO UPDATE)
@@ -10,3 +11,6 @@
 
 ; Decompile, process, and recompile the following files
 Process8xpppFile("Optimizations\input.8xp", "Optimizations\output.compiled.8xp")
+
+; Show result
+WinMergeCompare("Optimizations\output.expected.8xp-source", "Optimizations\output.compiled.8xp-source")

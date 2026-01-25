@@ -6,6 +6,8 @@
 ; Other tests inspect just the decompilation, or the optimization steps.
 ; RUN THIS FOR TESTING COMPILATION, and everything, end-to-end
 
+; Result is not fully matching currently.
+
 Local $TestFiles[][] = [ _
 	["..\Tests\Full Test\ALL TOKENS.8xppp", "..\Tests\Full Test\ALL TOKENS.compiled.8xp"] _
 	_ ; , ["..\Tests\Full Test\CLOSURE2.8xp",     "..\Tests\Full Test\CLOSURE2.compiled.8xp"] _

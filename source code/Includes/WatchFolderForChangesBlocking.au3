@@ -9,7 +9,7 @@
 #include <WinAPIFiles.au3>
 #include <Date.au3>
 #include "Debug.au3"
-#include "FileExtension.au3"
+#include "PathTools.au3"
 
 ;---------------------------------------------
 ; TODO: Maybe move these to a map, for less clashing
