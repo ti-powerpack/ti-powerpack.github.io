@@ -18,6 +18,11 @@ Func HexDumpToText($inputFile, $outputFile)
 
 	Local $data = Read8xpBinary($inputFile)
 
+	If @error Then
+		debug("HexDumpToText: Could not read input file: " & $inputFile)
+		Return
+	EndIf
+
 ;~ 	$data = FileRead(FileOpen($inputFile, 16))		; open in binary mode
 ;~ 	If @error Then
 ;~ 		debug("HexDumpToText: Could not open input file: " & $inputFile)

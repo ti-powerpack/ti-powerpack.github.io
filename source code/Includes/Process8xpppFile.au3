@@ -6,6 +6,7 @@
 #include "Debug.au3"
 #include <Array.au3>
 #include "Create Theta Version Functions.au3"
+#include "PathTools.au3"
 
 ;~ $filename = "temp\Hex Files to Compare\PROG3.8xp"
 
@@ -60,18 +61,18 @@ Func Is8xpBinaryFile($filePath)
 
 	; Handle error getting handle
 	If $file = -1 Then
-	  Debug("  - Is8xpBinaryFile() failed. Could not get read handle for " & $filePath)
+	  Debug("  - ERROR: Could not open file: " & $filePath)
 	  SetError(1)
 	  Return
 	EndIf
 
-	; Attempt to read the data
+	; Attempt to read the data (8 chars)
 	Local $data = FileRead($file, 8)
 
 	; If there was an error reading file data...
 	If @error Then
 	  SetError(2)
-	  Debug("  - Is8xpBinaryFile() failed. Could not read data from " & $filePath)
+	  Debug("  - ERROR: Could not read from file: " & $filePath)
 	  Return
 	EndIf
 
@@ -85,14 +86,113 @@ Func Is8xpBinaryFile($filePath)
 
 EndFunc
 
+Func IsPlainText($fileContents)
+	;~ If Not IsBinary($fileContents) Then Return SetError(1, 0, False)
+
+    Local $iLen = BinaryLen($fileContents)
+    If $iLen = 0 Then Return True  ; Empty file → treat as text
+
+    Local $iBadCount = 0
+    Local $bHasNull = False
+
+    Local $iByteVal
+    For $i = 1 To $iLen
+        $iByteVal = Dec(Hex(BinaryMid($fileContents, $i, 1)))
+
+        If $iByteVal = 0 Then $bHasNull = True
+
+        ; Good bytes: TAB(9), LF(10), FF(12), CR(13), ESC(27), printable ASCII 32-126, all high bytes 128-255
+        If Not ($iByteVal = 9 Or $iByteVal = 10 Or $iByteVal = 12 Or $iByteVal = 13 Or $iByteVal = 27 Or _
+                ($iByteVal >= 32 And $iByteVal <= 126) Or _
+                $iByteVal >= 128) Then
+            $iBadCount += 1
+        EndIf
+
+        ; Early exit optimisation for very bad files (optional but useful)
+        If $iBadCount * 100 > $iLen * 30 Then ExitLoop
+    Next
+
+    ; Null byte → definitely binary
+    If $bHasNull Then Return False
+
+    ; More than ~30% bad control bytes → binary
+    If $iBadCount * 100 > $iLen * 30 Then Return False
+
+    Return True
+EndFunc
 
 ; Reads binary 8XP file, decompiles it, performs the processing/optimisation steps,
 ; and then recompiles it, calculates the checksum, and writes a new binary file
 Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 
 	Local $timer = TimerInit()
+	Local $data[]
+	Local $isBinary
 
-	Local $data = Read8xpBinary($inputFile)
+	; Is this file a binary 8XP or plain source code?
+	If Is8xpBinaryFile($inputFile) Then
+
+		; We'll read in the binary 8XP file content, and make only the minimal changes needed
+		; keeping the existing header and metadata intact
+		$data = Read8xpBinary($inputFile)
+		$isBinary = True
+
+	Else
+		
+		$fileContents = FileRead($inputFile)
+		If @error Then
+			Debug("  - ERROR: Could not read from file: " & $inputFile)
+			SetError(1)
+			Return
+		EndIf
+
+		; If not plain text, then it's an invalid file. Exit here.
+		If Not IsPlainText($fileContents) Then
+			Debug("  - ERROR. Cannot proceed. Input file is neither a valid 8XP binary nor plain text source code: " & $inputFile)
+			SetError(1)
+			Return
+		EndIf
+
+		; If we've reached here, the file appears to be plain text source code
+		$isBinary = False
+
+		Debug("  - Input file detected as plain text source code")
+
+		; Create basic 8XP structure:
+
+		; Program name: derived from input filename
+		; (Later, we might provide options to customize the program name via either a command line arg
+		; or via metadata within the source code itself (like a special comment at the top))
+		; We'll enforce uppercase letters and numbers only, max 8 chars
+		$data.programName = StringUpper(StringLeft(StringRegExpReplace(FileNameNoExt($inputFile), "[^A-Za-z0-9]", ""), 8))
+
+		Debug("  - Program name set to: " & $data.programName & " from " & FileNameNoExt($inputFile))
+
+		$data.isBasicProgram = True
+
+		; Header
+		$data.header = _
+			Binary("**TI83F*") & _		; TI83F signature
+			Binary("0x1a0a0a") & _ 	    ; Signature part 2 and mystery byte
+			PadWithNullBytes(Binary("Created by Powerpack"), 42) & _ ; Creator string, padded to 42 bytes
+			Binary("0x0000")			; header.metaAndBodyLength (to be updated later)
+
+		; Meta
+		$data.meta = _
+			Binary("0x0D") & _			; meta.flag
+			Binary("0x00") & _			; meta.unknown
+			Binary("0x0000") & _			; meta.bodyAndChecksumLength (to be updated later)
+			Binary("0x05") & _			; meta.fileType (0x05 = Basic program)
+			PadWithNullBytes(Binary($data.programName), 8) & _	; meta.programName (padded to 8 bytes)
+			Binary("0x00") & _				; meta.version (not really sure what this does, but we'll set to 0)
+			Binary("0x00") & _			; meta.isArchived
+			Binary("0x0000") & _			; meta.bodyAndChecksumLength2 (to be updated later)
+			Binary("0x0000") 				; meta.bodyLength (to be updated later)
+
+		$data.body = $fileContents	; Plain text source code
+
+	EndIf
+
 	If @error Then Return
 
 	; Exit here if this is an assembly program
@@ -102,12 +202,20 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 		Return
 	EndIf
 
-	; Perform optimization operations on body section
-	$data.body = ProcessBody($data.body, $inputFile, $outputFile, $performOptimization)
+	; Perform parsing and optimization operations on body section
+	$data.body = ProcessBody($data.body, $isBinary, $inputFile, $outputFile, $performOptimization)
 
+	; Update length fields in header and meta sections to match new body length
 	Update8xpLengthFields($data)
+
+	; Apply version fix for WabbitEmu compatibility
 	VersionFix($data)
 
+	; Check destination folder exists, create if not
+	Local $folder = Folder($outputFile)
+	If Not FileExists($folder) Then	DirCreate($folder)
+
+	; Write out new 8XP binary file
 	Write8xpBinary($data, $outputFile)
 
 	$timer2 = TimerInit()
@@ -118,6 +226,13 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 
 EndFunc
 
+; Takes a binary string and pads it with null bytes (0x00) up to the desired length
+Func PadWithNullBytes($binary, $desiredLength)
+	While BinaryLen($binary) < $desiredLength
+		$binary &= Binary("0x00")
+	WEnd
+	Return $binary
+EndFunc
 
 ; This function updates the .header and .meta sections
 ; with the correct length of .body
@@ -135,7 +250,11 @@ Func Update8xpLengthFields(ByRef $binary)
 
    ;~ MsgBox(0, "", Binary($bodyLength))
 
-   ; Update fields within the header and meta to match the new length
+   ; Update fields within the header and meta to match the new length:
+   ; - header.metaAndBodyLength at offset 0x35 (2 bytes)
+   ; - meta.bodyAndChecksumLength at offset 0x39 (2 bytes)
+   ; - meta.bodyAndChecksumLength2 at offset 0x46 (2 bytes)
+   ; - meta.bodyLength at offset 0x48 (2 bytes)
    $binary.header = BinaryModifyWord($binary.header, 0x35 + 1, $metaAndBodyLength)
    $binary.meta   = BinaryModifyWord($binary.meta, 0x39 - 55 + 1, $bodyAndChecksumLength)
    $binary.meta   = BinaryModifyWord($binary.meta, 0x46 - 55 + 1, $bodyAndChecksumLength)
@@ -150,8 +269,9 @@ Func VersionFix(ByRef $binary)
 EndFunc
 
 
-
-; Provide a map with .header, .meta and .body (all binary)
+; Writes out an 8XP binary file from provided portions
+; Provide a map object with .header, .meta and .body (all binary)
+; Assumes that length fields are already correct, see Update8xpLengthFields()
 ; Calculates the checksum, and writes to a file
 Func Write8xpBinary($binaryPortions, $outputFile)
 	; Recombine header, meta, body
@@ -174,7 +294,7 @@ EndFunc
 ;
 ; During this process we also save a text copy of the original code and the optimized code
 ; (for use with source control and also for debugging issues with this script)
-Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = True)
+Func ProcessBody($code, $isBinary, $inputFile, $outputFile, $performOptimization = True)
 
 ;~ 	Debug("Output file: " & $outputFile)
 ;~ 	Debug("Output file 2: " & FileAppendPath($outputFile, "Source Code as Text"))
@@ -182,14 +302,14 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	Local $timer = TimerInit();
 
 	; Convert binary code to text
-	Local $textCode = BinaryCodeToTextCode($binaryCode)
+	Local $textCode = $isBinary ? BinaryCodeToTextCode($code) : $code
 
 	ShowTimeTaken($timer, "  - Code decompiled in")
 
 	; Save a copy of original text code to disk, under a different filename/path
-	SaveSourceCodeToTextFile($inputFile, $textCode)
+	If $isBinary Then SaveSourceCodeToTextFile($inputFile, $textCode)
 
-	$timer = TimerInit();
+	Local $timer = TimerInit();
 
 	; Process/manipulate the text-based code
 	; $textCode &= @LF & "::: Appended!"
@@ -200,7 +320,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 
 	; Save processed text to file
 	; Can maybe just use a single FileWrite() call here, when just UTF8 text? Actually NO. Defaults to appending.
-	$file = FileOpen(FileAppendPath($outputFile, "..\Source Code as Text") & "-source", $FO_OVERWRITE)
+	Local $file = FileOpen(FileAppendPath($outputFile, "..\Source Code as Text") & "-source", $FO_OVERWRITE)
 	If Not FileWrite($file, $textCode) Then Debug("  ERROR: Could not write output source file.")
 	If Not FileFlush($file) Then Debug("  ERROR: Could not flush output source file.")
 	If Not FileClose($file) Then Debug("  ERROR: Could not close output source file.")
@@ -208,7 +328,7 @@ Func ProcessBody($binaryCode, $inputFile, $outputFile, $performOptimization = Tr
 	$timer = TimerInit()
 
 	; Recompile back to binary format
-	$binaryCode = TextCodeToBinaryCode($textCode)
+	Local $binaryCode = TextCodeToBinaryCode($textCode)
 
 	ShowTimeTaken($timer, "  - Code compiled in")
 

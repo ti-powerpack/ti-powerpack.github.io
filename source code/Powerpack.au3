@@ -1,10 +1,19 @@
 ﻿;---------------------------------------------------------
+; TI Basic Powerpack
+; This file contains the source code to the entry point
+; of the program. Other supporting functions are located
+; in the "Includes" folder.
+;---------------------------------------------------------
 ; In SciTE or VSCode, PRESS F5 to run.
 ; File will first be compiled to EXE, and then executed.
 ;---------------------------------------------------------
 
+; Powerpack Version
 ; For beta versioning, use this format: 1.1.1-beta.1
 $VERSION = "1.0.0-beta"
+
+; Tell compiler to make a console application, not a GUI one
+#pragma compile(Console, true)
 
 ; Include necessary libraries
 #include <AutoItConstants.au3>
@@ -14,9 +23,6 @@ $VERSION = "1.0.0-beta"
 #include "Includes\WatchFolderForChangesBlocking.au3"
 #include "Includes\Process8xpppFile.au3"
 #include "Includes\ConsoleWriteUnicode.au3"
-
-; Tell compiler to make a console application
-#pragma compile(Console, true)
 
 ; Force this script to only run when it's compiled as an EXE.
 ; If the AU3 source is run directly, then compile it to EXE first,
@@ -98,14 +104,15 @@ EndIf
 
 Local $WatchFolder
 
-; Process files and folders specified in the command line
-; For any files specified in the command line, process them immediately
-; The first folder specified becomes the folder that we watch for changes
-; (only 1 supported currently)
+; Process files and folders specified in the command line:
+; - For any files specified in the command line, process them immediately.
+; - The first folder specified becomes the folder that we watch for changes
+;   (only 1 watch folder at a time is supported, currently)
 For $i = 1 To $CmdLine[0]
-	Local $option = $CmdLine[$i]
-	; Only process files. Is $option a file?
-	Local $file = StringTrimQuotes($option) ; trim quotes
+	Local $arg = $CmdLine[$i]
+
+	; Only process individual files. Is $arg a file?
+	Local $file = StringTrimQuotes($arg) ; trim quotes
 	If Not FileExists($file) Then ContinueLoop
 
 	; Skip directories
@@ -140,11 +147,13 @@ EndFunc
 ; $filename is the full path to the file, or a relative path based on this EXE's folder
 Func OptimizeScriptWhenSaved($filename, $sendEnterKeyToWabbit = True)
 
+	; TODO: Move some of this logic into Process8xpppFile()?
+
 	; Process and optimize 8XP file
 	Debug("Now compiling: " & $filename)
 	Local $filePath = $filename ; $WatchOptions.folder & "\" & $filename
 	Local $parentFolder = Folder($filePath)
-	Local $newFilename = StringRegExpReplace($filename, "\.8xp+$", ".optimized.8xp")
+	Local $newFilename = StringRegExpReplace($filename, "\.8xp.*", "") & ".optimized.8xp"
 
 	; Place compiled file into subfolder
 	;~ Local $newFilePath = $WatchOptions.folder & "\" & FileAppendPath($newFilename, $WatchOptions.compiledCodeIntoSubfolder)
@@ -192,9 +201,10 @@ Func OptimizeScriptWhenSaved($filename, $sendEnterKeyToWabbit = True)
 		;Debug("  - sendEnterKeyToWabbit 4")
 		Sleep(50)
 		;Debug("  - sendEnterKeyToWabbit 5")
-		If WinActive("Wabbitemu") Then Send("{ENTER}")
-
-		Debug("  - Wabbit commands sent")
+		If WinActive("Wabbitemu") Then
+			Send("{ENTER}")
+			Debug("  - Enter key sent to Wabbit")
+		EndIf
 	EndIf
 
 	;~ Debug("  - Returning to watching")
@@ -227,7 +237,8 @@ Func RunWabbit($fileToLoad = "")
 	Sleep(100)
 EndFunc
 
-; Trim quotes from start and end of string
+; Trim double quotes from start and end of string
+; Useful for parsing command line parameters which are wrapped in quotes
 Func StringTrimQuotes($str)
 	Return StringRegExpReplace($str, '^"|"$', '')
 EndFunc

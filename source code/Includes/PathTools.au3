@@ -24,9 +24,15 @@ EndFunc
 
 ; Provide a full path to a file, returns only the filename & extension
 Func FileName($fullPath)
-   Local $x, $name, $ext
-   _PathSplit($fullPath, $x, $x, $name, $ext)
-   Return $name & $ext
+	Local $x, $name, $ext
+	_PathSplit($fullPath, $x, $x, $name, $ext)
+	Return $name & $ext
+EndFunc
+
+; Provide a full path to a file, returns only the filename portion (no extension)
+Func FilenameNoExt($fullPath)
+   Local $x
+   Return _PathSplit($fullPath, $x, $x, $x, $x)[$PATH_FILENAME]
 EndFunc
 
 ; "C:\A\B\C.txt" --> "C:\A\B\SOMETHING-HERE\C.txt"
