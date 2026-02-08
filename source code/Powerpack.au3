@@ -4,7 +4,7 @@
 ; of the program. Other supporting functions are located
 ; in the "Includes" folder.
 ;---------------------------------------------------------
-; In SciTE or VSCode, PRESS F5 to run.
+; In SciTE or VSCode, PRESS F5 to run, or F7 to compile.
 ; File will first be compiled to EXE, and then executed.
 ;---------------------------------------------------------
 
@@ -18,10 +18,8 @@ $VERSION = "1.0.0-beta"
 ; Include necessary libraries
 #include <AutoItConstants.au3>
 #include <Misc.au3>
-#include "Includes\PathTools.au3"
 #include "Includes\Debug.au3"
-#include "Includes\WatchFolderForChangesBlocking.au3"
-#include "Includes\Process8xpppFile.au3"
+#include "Includes\PathTools.au3"
 #include "Includes\ConsoleWriteUnicode.au3"
 
 ; Force this script to only run when it's compiled as an EXE.
@@ -48,7 +46,7 @@ If Not @Compiled Then
 
 	; Run the EXE version and exit this script
 	Debug("Compilation succeeded. Now running EXE...")
-	Run($exeFilename & " .", "../temp")  ; Tell it to watch the parent folder
+	Run($exeFilename & " .", "..")  ; Tell it to watch the parent folder
 	Exit
 
 	; OLD METHOD: Otherwise warn user and exit
@@ -71,7 +69,7 @@ $WatchOptions.runWabbitAtStartUp = false
 ; $WatchOptions.folder = @ScriptDir & "\.."
 $WatchOptions.sendChangesToWabbit = true
 $WatchOptions.sendEnterKeyToWabbit = true
-$WatchOptions.pathToWabbitEmu = @ScriptDir & "\..\..\Emulators\Wabbitemu.exe"
+$WatchOptions.pathToWabbitEmu = @ScriptDir & "\..\..\Emulators\Wabbitemu.exe"  ; TO BE UPDATED!!
 $WatchOptions.sourceCodeIntoSubfolder = "Source Code as Text"		; NOTE: also hard-coded into Process8xpppFile.au3
 $WatchOptions.compiledCodeIntoSubfolder = "Compiled Programs"
 ; Local $alwaysProcessScriptAtStartUp = ["SVTOOLS.8xp"]
@@ -92,6 +90,13 @@ _ConsoleWriteUnicode("│                                         |_|           
 _ConsoleWriteUnicode("└─────────────────────────────────────────────────────────────────┘")
 _ConsoleWriteUnicode("  v" & $VERSION)
 _ConsoleWriteUnicode("")
+
+; Include additional libraries, needed for logic below.
+; We'll include them here rather than in the header in case
+; the tokens take a bit of time to load and be sorted
+#include "Includes\WatchFolderForChangesBlocking.au3"
+#include "Includes\Process8xpppFile.au3"
+
 
 ; WabbitEmu is a bit slow, so we need to increase the delay on keystrokes here:
 AutoItSetOption("SendKeyDelay", 100)
@@ -124,9 +129,9 @@ For $i = 1 To $CmdLine[0]
 	OptimizeScriptWhenSaved($file, false) ; don't send ENTER key for these initial files
 Next
 
-; No files/folders specified? Watch the folder 1 above the folder containing this EXE
+; No files/folders specified? Watch the current working dir
 If $CmdLine[0] = 0 Then
-	$WatchFolder = Folder(@ScriptDir)
+	$WatchFolder = @WorkingDir
 	Debug('No files/folders specified on command line. Watching parent folder for file changes.')
 	Debug('')
 EndIf
@@ -174,16 +179,30 @@ Func OptimizeScriptWhenSaved($filename, $sendEnterKeyToWabbit = True)
 	; If the option is enabled, load the new file into WabbitEmu,
 	; ready for execution. Activate the WabbitEmu window too.
 	If $WatchOptions.sendChangesToWabbit Then
+
+		; Workaround for bug in WabbitEmu
+		; If you re-run the Wabbit EXE with an updated 8XP file *while* an 8XP program is currently executing
+		; something such as a "GetKey" loop, it will become super slow.
+		; To prevent this, we'll press the F12 key which will cause a "Break".
+		; It may prevent auto-run, unfortunately.
+		If WinExists("Wabbitemu") Then
+			WinActivate("Wabbitemu")
+			Send("{F12}{ENTER}")
+		EndIf
+
 		; Run WabbitEmu
 		; Send the optimized version to WabbitEmu
 		RunWabbit($newFilePath)
+
 		;MsgBox(0,"", $result & @CRLF & @error)
+
+		; Wait till Wabbit opens and window exists
 		WinWait("Wabbitemu", "", 5)
 
 		; Make Wabbit the active Window, ready to receive keypresses
 		WinActivate("Wabbitemu")
 
-		Debug("  - " & $newFilename & " sent to Wabbit and window activated")
+		Debug("  - " & $newFilePath & " sent to Wabbit and window activated")
 	EndIf
 
 	; BUG: Sometimes program hangs here for some reason. Not sure why.
@@ -218,9 +237,10 @@ Func RunWabbit($fileToLoad = "")
 	If $fileToLoad Then
 		; If it's a relative path, make it absolute
 		If Not StringInStr($fileToLoad, ":") Then
-			$fileToLoad = @ScriptDir & "\" & $fileToLoad
+			$fileToLoad = @WorkingDir & "\" & $fileToLoad
 		EndIf
 		$fileToLoad = """" & $fileToLoad & """"
+		Debug("  - File to be loaded: " & $fileToLoad)
 	EndIf
 
 	; Execute it

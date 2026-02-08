@@ -138,7 +138,7 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 		$isBinary = True
 
 	Else
-		
+
 		$fileContents = FileRead($inputFile)
 		If @error Then
 			Debug("  - ERROR: Could not read from file: " & $inputFile)
@@ -201,6 +201,8 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 		SetError(1)
 		Return
 	EndIf
+
+	; Debug("  - File read in: " & Round(TimerDiff($timer)/1000, 3) & " seconds")
 
 	; Perform parsing and optimization operations on body section
 	$data.body = ProcessBody($data.body, $isBinary, $inputFile, $outputFile, $performOptimization)
@@ -370,9 +372,6 @@ EndFunc
 Func BinaryCodeToTextCode($binaryCode)
 	Local $textCode = ""
 
-	; Since _ArrayBinarySearch requires a SORTED array, we'll sort the array by token
-	$8xpTokensSorted = $8xpTokens
-	_ArraySort($8xpTokensSorted)
 ;~ 	debugArray($8xpTokensSorted)
 
 	; Loop through every byte in file and replace with text representation
@@ -381,11 +380,13 @@ Func BinaryCodeToTextCode($binaryCode)
 		; Grab a single byte
 		Local $char = BinaryMid($binaryCode, $i, 1)
 
-		; TODO: Could potentially speed this up by not searching the array for
-		; known 2-byte prefixes.
-		; Could also potentially split the tokens into 2 arrays, single byte and double byte
-		; so we're not searching the list unnecessarily
-		; Anyway, seems fast enough for now...?
+		; TODO:
+		; - Could potentially speed this up by not searching the array for
+		;   known 2-byte prefixes.
+		; - Could also potentially split the tokens into 2 arrays, single byte and double byte
+		;   so we're not searching the list unnecessarily
+		; - Or maybe use a `Map` object instead, like we do in TextCodeToBinaryCode()
+		; Anyway, seems fast enough, kinda, except large apps can take >3 seconds to decompile.
 
 		; Does this byte exist in our list?
 		; If so, output the relevant text representation and continue onto next byte

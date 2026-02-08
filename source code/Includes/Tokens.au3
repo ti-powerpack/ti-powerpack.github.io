@@ -828,3 +828,7 @@ Global $8xpTokens[][] = [ _
 	_
 	_ ;EF99 considered "bad token" by TI Connect
 ]
+
+; Since _ArrayBinarySearch requires a SORTED array, we'll sort the array by token
+Global $8xpTokensSorted = $8xpTokens
+_ArraySort($8xpTokensSorted)
