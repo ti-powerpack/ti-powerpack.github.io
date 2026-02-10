@@ -72,7 +72,7 @@ Global $8xpTokens[][] = [ _
 	["3B", "", "ᴇ"], _
 	["3C", " or "], _
 	["3D", " xor "], _
-	["3E", ":"], _
+	["3E", ":"], _			; Colons are treated similar to a line return in TI-BASIC, allowing multiple statements on the same line. But colons can also appear inside a string.
 	["3F", @CRLF], _ 		; Line return. Or should this be @LF? @CRLF seems to be working well on Windows so far.
 	["40", " and "], _
 	["41", "A"], _
@@ -760,7 +760,7 @@ Global $8xpTokens[][] = [ _
 	["EF3D", "FRAC", "[FRAC]"], _   ; WARNING
 	["EF3F", "STATWIZARD ON"], _
 	["EF40", "STATWIZARD OFF"], _
-	["EF41", "[BLUE]"], _
+	["EF41", "[BLUE]"], _			; Color tokens MUST be wrapped in brackets to prevent them from being accidentally injected into a list name like ⌊RED
 	["EF42", "[RED]"], _
 	["EF43", "[BLACK]"], _
 	["EF44", "[MAGENTA]"], _
@@ -775,22 +775,22 @@ Global $8xpTokens[][] = [ _
 	["EF4D", "[MEDGREY]"], _
 	["EF4E", "[GREY]"], _
 	["EF4F", "[DARKGREY]"], _
-	_ ; some tokens missing here (50-59)
+	_ ; some tokens missing here (EF50-EF59)
 	["EF5A", "GridLine"], _
 	["EF5B", "BackgroundOn"], _
-	_ ; some tokens missing here (5C-63)
+	_ ; some tokens missing here (EF5C-EF63)
 	["EF64", "BackgroundOff"], _
 	["EF65", "GraphColor("], _
-	_ ; 66 missing
+	_ ; EF66 missing
 	["EF67", "TextColor("], _
 	["EF68", "Asm84CPrgm"], _
-	_ ; 69 missing
+	_ ; EF69 missing
 	["EF6A", "DetectAsymOn"], _
 	["EF6B", "DetectAsymOff"], _
 	["EF6C", "BorderColor"], _
-	_ ; some tokens missing here (6D-72)
+	_ ; some tokens missing here (EF6D-EF72)
 	["EF73", "·", "tinydotplot"], _		; Duplicates 0x81 I think?
-	["EF74", "Thin"], _
+	["EF74", "Thin"], _ ; Does this work OK when used inside a string?
 	["EF75", "Dot-Thin"], _
 	_
 	_ ;------------- Extras ---------------

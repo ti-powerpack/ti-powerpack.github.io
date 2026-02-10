@@ -205,7 +205,7 @@ Func Process8xpppFile($inputFile, $outputFile, $performOptimization = True)
 	; Debug("  - File read in: " & Round(TimerDiff($timer)/1000, 3) & " seconds")
 
 	; Perform parsing and optimization operations on body section
-	$data.body = ProcessBody($data.body, $isBinary, $inputFile, $outputFile, $performOptimization)
+	$data.body = ProcessBody($data.body, $isBinary, $inputFile, $outputFile, $performOptimization, $data.programName)
 
 	; Update length fields in header and meta sections to match new body length
 	Update8xpLengthFields($data)
@@ -296,7 +296,7 @@ EndFunc
 ;
 ; During this process we also save a text copy of the original code and the optimized code
 ; (for use with source control and also for debugging issues with this script)
-Func ProcessBody($code, $isBinary, $inputFile, $outputFile, $performOptimization = True)
+Func ProcessBody($code, $isBinary, $inputFile, $outputFile, $performOptimization = True, $programName = "")
 
 ;~ 	Debug("Output file: " & $outputFile)
 ;~ 	Debug("Output file 2: " & FileAppendPath($outputFile, "Source Code as Text"))
@@ -327,14 +327,48 @@ Func ProcessBody($code, $isBinary, $inputFile, $outputFile, $performOptimization
 	If Not FileFlush($file) Then Debug("  ERROR: Could not flush output source file.")
 	If Not FileClose($file) Then Debug("  ERROR: Could not close output source file.")
 
-	$timer = TimerInit()
-
 	; Recompile back to binary format
+	$timer = TimerInit()
 	Local $binaryCode = TextCodeToBinaryCode($textCode)
-
 	ShowTimeTaken($timer, "  - Code compiled in")
 
+	; Produce another text file that shows each line of the optimized text code alongside the number of bytes it compiles to, for debugging purposes
+	$timer = TimerInit()
+	Local $textCodeWithByteCounts = GenerateByteCounts($textCode, $programName)
+	$file = FileOpen(FileAppendPath($outputFile, "..\Source Code as Text") & "-byte-counts", $FO_OVERWRITE)
+	If Not FileWrite($file, $textCodeWithByteCounts) Then Debug("  ERROR: Could not write byte count file.")
+	If Not FileFlush($file) Then Debug("  ERROR: Could not flush byte count file.")
+	If Not FileClose($file) Then Debug("  ERROR: Could not close byte count file.")
+	ShowTimeTaken($timer, "  - Byte-count file written in")
+
 	Return $binaryCode
+EndFunc
+
+; This function generates a string that shows each line of the
+; optimized text code alongside the number of bytes it compiles to,
+; for debugging & optimization purposes
+Func GenerateByteCounts($textCode, $programName = "")
+	Local $output = ""
+	Local $lines = StringSplit($textCode, @CRLF, 1)
+	Local $totalBytes = 0
+
+	For $i = 1 To $lines[0]
+		Local $line = $lines[$i]
+		Local $binary = TextCodeToBinaryCode($line)
+		; add 1 byte for the newline, on all except the last line
+		Local $byteCount = BinaryLen($binary) + ($i < $lines[0] ? 1 : 0)
+		$totalBytes += $byteCount
+		$output &= StringFormat("%4d", $byteCount) & " bytes: " & $line & @CRLF
+	Next
+
+	; Display total byte count at the end, and also total byte count including header and program name (for context)
+	$output &= "------------------" & @CRLF
+	$output &= StringFormat("%4d bytes total", $totalBytes) & @CRLF
+	; Not exactly sure why header is 9 bytes when loaded onto calc, but seems to be the case based on testing
+	; Probably internal metadata: potentially the checksum and type of program
+	$output &= StringFormat("%4d bytes total (including header and program name: %s)", $totalBytes + 9 + StringLen($programName), $programName)
+
+	Return $output
 EndFunc
 
 Func SaveSourceCodeToTextFile($originalFilename, $code)
@@ -380,12 +414,12 @@ Func BinaryCodeToTextCode($binaryCode)
 		; Grab a single byte
 		Local $char = BinaryMid($binaryCode, $i, 1)
 
-		; TODO:
-		; - Could potentially speed this up by not searching the array for
+		; TODO: Speed improvements
+		; - Should probably use a `Map` object instead, like we do in TextCodeToBinaryCode()
+		; - Or... could potentially speed this up by not searching the array for
 		;   known 2-byte prefixes.
 		; - Could also potentially split the tokens into 2 arrays, single byte and double byte
 		;   so we're not searching the list unnecessarily
-		; - Or maybe use a `Map` object instead, like we do in TextCodeToBinaryCode()
 		; Anyway, seems fast enough, kinda, except large apps can take >3 seconds to decompile.
 
 		; Does this byte exist in our list?
@@ -531,17 +565,43 @@ Func TokenIntToBinary($int)
 	Return $result
 EndFunc
 
+
+Global $tokenMap[]  ; Map object for looking up tokens, initialized on first use of function below
+
+; TextCodeToBinaryCode() debugging:
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("Thin")))
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("Think")))
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("AUTO")))
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("DEC")))
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("FRAC")))
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("LEFT")))
+;~ Debug("Testing TextCodeToBinaryCode with simple string: " & Hex(TextCodeToBinaryCode("RED")))
+
 ; Converts plain text TI-Basic code into binary tokens, suitable for calculator.
 ; Operates on the BODY of the program only.
 ;
+;------------------------------------------------------------------------------------------------
 ; Known bug:
-;   - When certain reserved words like "AUTO", "DEC", "RED", etc. are used in list names like ⌊REDLEVEL
-;     the special token is injected into the list name, rather than just the characters. This causes
-;     programs to fail. I either need to change the token conversion strings themselves
-;     (making them less compatible with TIConnect), or add more advanced search mechanisms here
-;     to replace tokens differently based on different contexts
-;     (such as if letters follow a ⌊ symbol). The latter is probably the best?
-;	  Any alphanumeric characters following ⌊ should
+; Certain reserved words like "AUTO", "DEC", "FRAC", etc. may fail when used in list names like ⌊DEC.
+; This is because the special token is injected into the list name, rather than just the characters. 
+; This causes programs to fail.
+; 
+; Solutions:
+;
+; 1. We either need to change the token strings themselves, perhaps by wrapping them in [BRACKETS] like with colour tokens
+;    to prevent them from being accidentally injected into variable names, list names, etc
+;    (making them less compatible with TIConnect)
+;
+;	or
+;
+; 2. Add more advanced search mechanisms here to replace tokens differently based on different contexts
+;    (such as if letters follow a ⌊ symbol). This second option is more accurate, but complex.
+;	 Via this method, any alphanumeric characters immediately following ⌊ should use the single letter tokens, 
+;    rather than the reserved word tokens. So for example:
+;     		"⌊DEC" should be tokenized as:
+;     		"⌊" + "D" + "E" + "C"
+;     		rather than using the "DEC" token.
+;------------------------------------------------------------------------------------------------
 Func TextCodeToBinaryCode($text)
 	Local $binary = Binary("")
 
@@ -552,21 +612,26 @@ Func TextCodeToBinaryCode($text)
 	;
 	; TODO: We are NOT currently handling the alternative text options that are provided in the tokens list.
 	;       These might be useful in some cases.
-	Local $tokens[]
-	For $i = UBound($8xpTokens) - 1 To 0 Step -1
-;~ 		ConsoleWrite($i & " " & VarGetType($8xpTokens[$i][1]) & " " & $8xpTokens[$i][0] & " " & $8xpTokens[$i][1] & @CRLF)
+	;~ Local $tokens[]
 
-		; Skip 0x00 as it breaks things (such as the square bracket character "["
-		; and I don't think we need it for compilation? Do we...?
-		If $8xpTokens[$i][0] == "00" Then ContinueLoop
+	; Token map created yet? Create if not.
+	If UBound(MapKeys($tokenMap)) = 0 Then
+		For $i = UBound($8xpTokens) - 1 To 0 Step -1
+	;~ 		ConsoleWrite($i & " " & VarGetType($8xpTokens[$i][1]) & " " & $8xpTokens[$i][0] & " " & $8xpTokens[$i][1] & @CRLF)
 
-		Local $tokenText = $8xpTokens[$i][1]
-		Local $tokenBinary = TokenIntToBinary($8xpTokens[$i][0])
-		$tokens[$tokenText] = $tokenBinary
-	Next
+			; Skip 0x00 as it breaks things (such as the square bracket character "["
+			; and I don't think we need it for compilation? Do we...?
+			If $8xpTokens[$i][0] == "00" Then ContinueLoop
 
-	;~ DebugMap($tokens)
-	;~ debug($tokens["["])
+			Local $tokenText = $8xpTokens[$i][1]
+			Local $tokenBinary = TokenIntToBinary($8xpTokens[$i][0])
+			$tokenMap[$tokenText] = $tokenBinary
+		Next
+		Debug("  - Token map created with " & UBound(MapKeys($tokenMap)) & " entries")
+	EndIf
+
+	;~ DebugMap($tokenMap)
+	;~ debug($tokenMap["["])
 
 	; debug("Tokens have been indexed")
 
@@ -576,15 +641,16 @@ Func TextCodeToBinaryCode($text)
 	For $i = 1 to $textLength
 		; Start with grabbing the next 14 chars (the length of the longest token)
 		; and keep removing characters until we find a matching token
+		; TODO: Check for the size of the longest token, rather than hardcoding 14 here
 		For $j = _Min(14, $textLength - $i + 1) to 1 Step -1
 			Local $portion = StringMid($text, $i, $j)
 
-			If MapExists($tokens, $portion) Then
+			If MapExists($tokenMap, $portion) Then
 				; Great, we've found a match
 				; Put the token into our binary result
 ;~ 				debug($portion)
-;~ 				debug("Found match: " & $tokens[$portion])
-				$binary = $binary & Binary("0x" & $tokens[$portion])
+;~ 				debug("Found match: " & $tokenMap[$portion])
+				$binary = $binary & Binary("0x" & $tokenMap[$portion])
 ;~ 				debug($binary)
 				; Increment $i to not re-search for any of those same chars
 				$i += $j-1
