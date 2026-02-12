@@ -14,12 +14,12 @@ And here is a multi-line comment
 
 This allows you to use comments generously and not be afraid of increasing file size. Comments are invaluable when disabling certain sections of code, or when coming back to your program at later time and being able to determine why you coded something the way you did!
 
-## Placing strings into Ans
+## Edge case: placing strings into `Ans`
 
 There might be certain times that you want to place a string into Ans or another variable and not have it stripped out:
 
 ```
-"Line 1			  // ❌ Will be removed
+"Line 1			  // ❌ This line will be removed by Powerpack
 "Line 2"		  // Will be kept
 "Line 3→Str1	  // Will be kept
 "Line 4"→Str1	  // Will be kept

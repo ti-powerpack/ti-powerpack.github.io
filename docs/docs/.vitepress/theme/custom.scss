@@ -29,6 +29,42 @@ $brand-color: rgb(214, 64, 14);
   --vp-local-search-highlight-bg: #{color.adjust($brand-color, $lightness: 22%)};
 }
 
+/**
+ * Component: Home
+ * -------------------------------------------------------------------------- */
+
+:root {
+  
+  // Hero Text
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    -60deg,
+    #{color.adjust($brand-color, $lightness: -18%, $hue: 0)},
+    var(--vp-c-brand-1) 30%,
+    #{color.adjust($brand-color, $lightness: 18%, $hue: 20)}
+  );
+
+  // Hero image blurred background
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    var(--vp-c-brand-4) 50%,
+    #{color.adjust($brand-color, $lightness: -20%, $hue: 30)} 50%
+  );
+  --vp-home-hero-image-filter: blur(44px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
 // Homepage heading
 .VPHero .name {
   @include font-size(3.5rem);
@@ -37,6 +73,32 @@ $brand-color: rgb(214, 64, 14);
 .VPHero .text {
   @include font-size(2.6rem);
 }
+
+// Subtle image animation on homepage hero
+.VPHomeHero .image {
+  .image-bg, img {
+    // Make the image swing up-right and left-down repeatedly, animated
+    @keyframes swing {
+      0% { translate: 4% -4%; }
+      40% { translate: -4% 4%; }
+      100% { translate: 4% -4%; }
+    }
+    // position: relative;
+    animation: swing 3s ease-in-out infinite;
+  }
+  .image-bg {
+    animation-delay: 0.7s;
+  }
+}
+
+
+// Homepage features: max 3 columns, not 4
+@media (min-width: 960px) {
+    .VPFeatures .item.grid-4 {
+        width: calc(100% / 3);
+    }
+}
+
 
 .dark {
   // --vp-c-brand: orange;

@@ -12,7 +12,7 @@ Powerpack is designed for writing TI Basic 8XP programs which run on the followi
 * TI-84 Plus CSE (colour screen)
 * TI-84 Plus CE (colour screen)
 
-It may *not* work for 68k TI Basic or TI-Nspire Basic, which runs on the TI-89, TI-92, Voyage 200, TI-Nspire.
+It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on the TI-89, TI-92, Voyage 200, and TI-Nspire.
 
 
 ## Requirements

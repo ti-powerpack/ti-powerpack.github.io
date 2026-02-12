@@ -3,7 +3,7 @@
 // refer https://vitepress.vuejs.org/config/introduction for details
 export default {
   lang: 'en-US',
-  title: '🚀 TI Basic Powerpack',
+  title: 'TI Basic Powerpack',
   description: 'Vite & Vue powered static site generator.',
   cleanUrls: true,
   markdown: {
@@ -12,6 +12,7 @@ export default {
   appearance: { initialValue: 'dark' },
   lastUpdated: true,
   themeConfig: {
+    logo: '/favicon-96x96.png',
     nav: [
       { text: 'Download', link: '/download' },
       { text: 'Guide', link: '/what-is-powerpack' },
@@ -29,6 +30,7 @@ export default {
       // ...
     ],
 
+    sidebarMenuLabel: 'Guide Menu',
     sidebar: [
       { text: 'What is Powerpack?', link: '/what-is-powerpack' },
       { text: 'Download', link: '/download' },
@@ -53,7 +55,7 @@ export default {
     ],
 
     footer: {
-      message: 'Released under the MIT License. <br> Powerpack is not affiliated with Texas Instruments. <br> This software enhances the functionality of TI’s existing tools.',
+      message: 'Released under the MIT License. <br> Powerpack is not affiliated with Texas Instruments.', //<br> This software enhances the functionality of TI’s existing tools.',
       copyright: '',
     },
 

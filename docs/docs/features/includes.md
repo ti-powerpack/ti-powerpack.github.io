@@ -51,4 +51,6 @@ Disp "Hello "+Str1
 
 ----
 
-All `#include` directives are performed prior to other features and optimizations (except for stripping of comments, which is performed first), so you can otherwise treat the included file as if it were part of the main file.
+All `#include` statements are performed prior to other features and optimizations. Powerpack then treats the included file as if it were part of the main file.
+
+<!-- (except for stripping of comments, which is performed first) -- not actually true --> 
