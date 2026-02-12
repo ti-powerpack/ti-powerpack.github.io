@@ -28,6 +28,26 @@ It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on t
 
 You may like to place it in the same folder as your 8XP programs, which can make using it easier, but this is optional.
 
+## Quickstart tutorial
+
+...
+
+``` [HELLO.8xp]
+#define @Name John
+
+// Say hello, 3 times
+For(I,1,3)
+  Disp "Hello @Name"
+End
+```
+
+```
+For(I,1,3)
+Disp "Hello John
+End
+```
+
+
 ## Ways of using Powerpack
 
 Depending on your preferred workflow, there are several ways you can use Powerpack:

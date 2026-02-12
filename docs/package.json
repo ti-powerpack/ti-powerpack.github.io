@@ -10,5 +10,9 @@
     "sass-embedded": "^1.97.3",
     "unplugin-vue-components": "^31.0.0",
     "vitepress": "^1.6.4"
-  }
+  },
+  "dependencies": {
+    "vitepress-plugin-group-icons": "^1.7.1"
+  },
+  "type": "module"
 }
