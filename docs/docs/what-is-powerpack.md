@@ -27,16 +27,22 @@ The main goal is to make TI Basic programming more enjoyable by:
 
 ## How it works
 
-Powerpack:
+When you run `Powerpack.exe`, here's what it does:
 
-1. Decompiles your 8XP code, either when you run it on a specific file, or by watching for changes in a specific folder
+1. It [decompiles](/features/decompile-8xp) your 8XP code, either when you run it on a specific file, or by watching for changes in a specific folder
 
-2. Saves a copy of the original source code in plain text format
+2. Saves a copy of the original source code in plain text format (useful for version control)
 
 3. Converts any Powerpack-specific syntax into standard TI-Basic syntax which your calculator understands
 
-4. Optimizes the program by removing unnecessary characters, spaces and line returns
+4. [Optimizes](/features/ti-basic-optimization) the program by removing comments, unnecessary characters, spaces and line returns
 
-5. Saves a copy of this optimized program in text format
+5. Saves a copy of this optimized program in text format (again, useful for version control)
 
-6. Recompiles into 8XP format, ready for loading onto your calculator, WabbitEmu, or other emulator
+6. [Recompiles](/features/compile-to-8xp) into 8XP format
+
+7. [Auto-run](/features/autorun): If WabbitEmu is detected, it will attempt to load the 8XP into the emulator and press the <kbd>ENTER</kbd> key in the emulator to re-run it.
+
+8. Generates a report on the file size, including the number of bytes used on each line of the file
+
+The resulting 8XP file is also ready for loading onto your calculator.
