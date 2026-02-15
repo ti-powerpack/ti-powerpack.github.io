@@ -1,4 +1,4 @@
-# Aliases
+# Aliases & Descriptive Names
 
 With Powerpack you can give your variables, [lists](#lists),  "[goto labels](#goto-labels)", [functions](#functions) and [other snippets](#other-code-snippets) a more descriptive name, which helps make your code clearer and more maintainable. 
 
@@ -13,7 +13,7 @@ Here are some examples:
 
 Everywhere your alias is used, it will be replaced with the text you define. This will be compiled to:
 
-```java
+```
 123→H
 H+1→H
 ```
@@ -76,7 +76,7 @@ Aliases are useful not only for simple variables, but other things too:
 
 ## Lists
 
-```java
+```
 // Give my list a better name
 #define @HighScores ⌊H
 {1,2,3}→@HighScores
@@ -85,7 +85,7 @@ Disp @HighScores(1)
 
 This will be compiled to:
 
-```java
+```
 {1,2,3}→H
 Disp ⌊H(1)
 ```
@@ -95,7 +95,7 @@ Disp ⌊H(1)
 
 ## Goto labels
 
-```java
+```
 // Give my labels a better name
 #define @_Menu M
 ...
@@ -106,7 +106,7 @@ Goto @_Menu
 
 This will be compiled to:
 
-```java
+```
 Lbl M
 Goto M
 ```

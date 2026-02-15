@@ -17,7 +17,8 @@ It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on t
 
 ## Requirements
 
-* Computer with Microsoft Windows 7 or above — Powerpack is only tested on Microsoft Windows at the current time
+* Computer with Microsoft Windows 7 or above --- Powerpack is primarily tested on Microsoft Windows  
+  (although it is possible to run Powerpack on Mac using [Wine](https://www.winehq.org/))
 * For writing code you'll need either [TI Connect CE](https://education.ti.com/en/software/details/en/CA9C74CAD02440A69FDC7189D7E1B6C2/swticonnectcesoftware) (Texas' recommended editor) or any plain text editor
 * <Badge type="info" text="Optional" /> [WabbitEmu](http://wabbitemu.org/) is the recommended emulator for testing your 8XP programs on your computer, before transferring them to your calculator. You'll also need a [ROM image](https://web.archive.org/web/20240409191813/http://tiroms.weebly.com/) for your particular calculator.
 * [TI Connect CE](https://education.ti.com/en/software/details/en/CA9C74CAD02440A69FDC7189D7E1B6C2/swticonnectcesoftware) for transferring your programs to the calculator

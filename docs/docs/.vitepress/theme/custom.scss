@@ -52,13 +52,11 @@ $brand-color: rgb(214, 64, 14);
   );
   --vp-home-hero-image-filter: blur(44px);
 }
-
 @media (min-width: 640px) {
   :root {
     --vp-home-hero-image-filter: blur(56px);
   }
 }
-
 @media (min-width: 960px) {
   :root {
     --vp-home-hero-image-filter: blur(68px);
@@ -113,4 +111,9 @@ $brand-color: rgb(214, 64, 14);
   max-width: 1152px;
   padding: 0 24px;
   margin: 0 auto;
+}
+
+// Code blocks with title
+.vp-code-block-title-bar {
+  border-bottom: 1px solid #{color.adjust($brand-color, $lightness: 0%, $hue: 0, $saturation: 0%, $alpha: -0.3)};
 }
