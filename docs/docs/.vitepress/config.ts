@@ -15,6 +15,9 @@ export default {
     },
     languages: [JSON.parse(fs.readFileSync('docs/.vitepress/ti-basic.tmLanguage2.json', 'utf-8'))],
     defaultHighlightLang: '8xp',
+    /* shikiSetup(shiki) {
+
+    } */
     // theme: 'github-dark',
   },
 
@@ -54,25 +57,30 @@ export default {
       { text: 'What is Powerpack?', link: '/what-is-powerpack' },
       { text: 'Download', link: '/download' },
       { text: 'Getting Started', link: '/getting-started' },
+      { text: 'Powerpack Outputs', link: '/outputs' },
       {
         text: 'Powerpack Features',
         items: [
           // { text: 'Example', link: '/example' },
-          { text: 'Strip comments & whitespace', link: '/features/strip-comments' },
-          { text: 'Auto-run your programs', link: '/features/autorun' },
-          { text: 'Aliases & descriptive names', link: '/features/aliases' },
+          { text: 'Strip Comments & Whitespace', link: '/features/strip-comments' },
+          { text: 'Auto-Run Your Programs', link: '/features/autorun' },
+          { text: 'Aliases & Descriptive Names', link: '/features/aliases' },
           { text: 'Includes', link: '/features/includes' },
-          { text: 'Compile plain text to 8XP', link: '/features/compile-to-8xp' },
-          { text: 'Decompile 8XP to plain text', link: '/features/decompile-8xp' },
+          { text: 'Compile Plain Text To 8xp', link: '/features/compile-to-8xp' },
+          { text: 'Decompile 8XP To Plain Text', link: '/features/decompile-8xp' },
           { text: 'Optimization', link: '/features/ti-basic-optimization' },
           { text: 'Subroutines', link: '/features/subroutines' },
-          { text: 'File size reports', link: '/features/file-size-reports' },
+          { text: 'File Size Reports', link: '/features/file-size-reports' },
+          { text: 'Creating a Backup Copy', link: '/features/theta-backup' },
           // ...
         ],
       },
-      { text: 'Command line options', link: '/command-line-options' },
-      { text: 'Keyboard shortcuts', link: '/keyboard-shortcuts' },
-      { text: 'Source code on Github', link: '' },
+      { items: [
+        { text: 'Command Line Options', link: '/command-line-options' },
+        { text: 'Keyboard Shortcuts', link: '/keyboard-shortcuts' },
+      ]},
+      { text: 'Bugs & Feature Requests', link: 'xxxxxxxxx' },
+      { text: 'Source Code On Github', link: 'xxxxxxxxxx' },
     ],
 
     footer: {

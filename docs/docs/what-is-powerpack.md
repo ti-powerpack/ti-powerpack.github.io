@@ -4,11 +4,11 @@ layout: doc
 
 # What is TI Basic Powerpack?
 
-Powerpack is a Windows program that assists with writing TI-Basic 8XP programs for Texas TI-83 or TI-84 Plus calculators — compiling and compressing them to provide new features, trim file size, and make coding a more enjoyable experience.
+**Powerpack** is a Windows program that assists with writing TI-Basic 8XP programs for Texas TI-83 or TI-84 Plus calculators — compiling and compressing them to provide new features, trim file size, and make coding a more enjoyable experience.
 
-You will want to get familiar with the basics of TI Basic before diving into Powerpack as it's designed for more advanced users.
+You will want to get familiar with the basics of [TI Basic](http://tibasicdev.wikidot.com/starter-kit) before diving into Powerpack as it's designed for more advanced users.
 
-Then simply write your TI Basic code in TI Connect CE (or your favourite code editor), run Powerpack.exe, and have the resulting file ready for loading onto your calculator or emulator:
+Write your TI Basic code in [TI Connect CE](https://education.ti.com/en/products/computer-software/ti-connect-ce-sw) (or your favourite code editor), run `Powerpack.exe`, and have the resulting file ready for loading onto your calculator or emulator:
 
 ![](images/screenshot2.jpg)
 
@@ -24,6 +24,15 @@ The main goal is to make TI Basic programming more enjoyable by:
 * Automatically transferring your program to WabbitEmu and running it, every time you save the file — allowing you to test and iterate faster
 * Store a copy of your code in text format, for better tracking of history with git
 * Keeping your program file size as small as possible
+
+---- {style="margin-bottom:32px"}
+
+<p style="xpadding-bottom:16px">
+	<VPButton size="big" text="Download" href="/download"/>
+	<VPButton size="big" text="Get Started" href="/getting-started"/>
+</p>
+
+
 
 ## How it works
 

@@ -29,9 +29,7 @@ $brand-color: rgb(214, 64, 14);
   --vp-local-search-highlight-bg: #{color.adjust($brand-color, $lightness: 22%)};
 }
 
-/**
- * Component: Home
- * -------------------------------------------------------------------------- */
+//-------------------------- HOMEPAGE ----------------------------------------------
 
 :root {
   
@@ -74,21 +72,30 @@ $brand-color: rgb(214, 64, 14);
 
 // Subtle image animation on homepage hero
 .VPHomeHero .image {
-  .image-bg, img {
+  // perspective: 1px;
+  img {
     // Make the image swing up-right and left-down repeatedly, animated
+    --amount: 4%;
     @keyframes swing {
-      0% { translate: 4% -4%; }
-      40% { translate: -4% 4%; }
-      100% { translate: 4% -4%; }
+      0% { translate: var(--amount) calc(-1 * var(--amount)); }
+      40% { translate: calc(-1 * var(--amount)) var(--amount); }
+      100% { translate: var(--amount) calc(-1 * var(--amount)); }
     }
     // position: relative;
     animation: swing 3s ease-in-out infinite;
   }
   .image-bg {
-    animation-delay: 0.7s;
+    // animation-delay: 0.7s;
+    --amount: 18%;
+    @keyframes swingMore {
+      0% { translate: var(--amount) calc(-1 * var(--amount)); }
+      40% { translate: calc(-1 * var(--amount)) var(--amount); }
+      100% { translate: var(--amount) calc(-1 * var(--amount)); }
+    }
+    // position: relative;
+    animation: swingMore 3s ease-in-out infinite;
   }
 }
-
 
 // Homepage features: max 3 columns, not 4
 @media (min-width: 960px) {
@@ -98,22 +105,57 @@ $brand-color: rgb(214, 64, 14);
 }
 
 
-.dark {
+/* .dark {
   // --vp-c-brand: orange;
 }
 
 .dark body {
   // background-color: $brand-color;
   // background-color: black;
-}
+} */
 
-.custom-container {
+// What is this for??
+/* .custom-container {
   max-width: 1152px;
   padding: 0 24px;
   margin: 0 auto;
+} */
+
+//---------------- CODE BLOCKS ---------------------------------
+
+// Code block titles
+.dark .vp-code-block-title-bar {
+  // border-bottom: 1px solid #{color.adjust($brand-color, $lightness: 0%, $hue: 0, $saturation: 0%, $alpha: -0.3)};
+  // border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  background-color: var(--vp-code-copy-code-bg);
+}
+.vp-code-block-title-bar {
+  // background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--vp-c-gray-3);
+}
+// Fade out icon
+.vp-code-block-title .vp-code-block-title-text::before {
+  // color: rgba(255, 255, 255, 0.5);
+  opacity: 0.3;
 }
 
-// Code blocks with title
-.vp-code-block-title-bar {
-  border-bottom: 1px solid #{color.adjust($brand-color, $lightness: 0%, $hue: 0, $saturation: 0%, $alpha: -0.3)};
+// Change orange to red in code blocks
+/* .shiki span[style*="--shiki-light:#E36209"] {
+  color: var(--vp-c-brand-3) !important;   /* your new colour * /
+} */
+
+
+//---------------- UTILS ---------------------------------
+// Bullet list with green ticks
+ul.green-ticks {
+  padding-left: 2em;
+  li {
+    padding-left: 0.5em;
+  }
+  li::marker {
+    content: '✔';
+    color: rgb(69, 145, 3);
+    margin-right: 10px;
+
+  }
 }

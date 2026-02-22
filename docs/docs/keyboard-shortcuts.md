@@ -18,7 +18,10 @@ You can fully customize the shortcuts and commands that you'd like to use.
 
 ## Sample Espanso configuration
 
-After installing Espanso, you need to define the shortcuts that you'd like to use by editing `C:\Users\[USERNAME]\AppData\Roaming\espanso\match\base.yml`. You can use this example file to get started:
+After installing [Espanso](http://espanso.org/), you need to define the shortcuts that you'd like to use by editing  
+`C:\Users\[USERNAME]\AppData\Roaming\espanso\match\base.yml`
+
+You can use this example file to get started:
 
 ```yml [base.yml]
 # espanso match file
@@ -30,11 +33,11 @@ After installing Espanso, you need to define the shortcuts that you'd like to us
 
 # To position the cursor, use "$|$" in the replacement
 
-# Matches are substitution rules: when you type the "trigger" string
-# it gets replaced by the "replace" string.
+# Matches are substitution rules: when you type the "trigger" 
+# string it gets replaced by the "replace" string.
 matches:
 
- #---------------------- MATH SYMBOLS ------------------------------
+ #----------- COMMON MATH SYMBOLS -----------------
   - trigger: ";deg"
     replace: "°"
   - trigger: ";pi"
@@ -48,8 +51,8 @@ matches:
   - trigger: ";gte"
     replace: "≥"
 
-# ----------- TI CALC ------------------------------
-  - triggers: [";sto", ";26"]
+# ----------- TI CALC SPECIFIC --------------------
+  - triggers: [";;", ";sto"]
     replace: "→"
   - trigger: ";neg"
     replace: "­"
@@ -97,9 +100,9 @@ matches:
 
 ----
 
-By default, the shortcuts will apply across *ALL* applications. 
+By default, the keyboard shortcuts will be available in *ALL* applications. 
 
-You can limit some or all of them to a specific application (such as TI Connect CE) by creating two additional files:
+If this becomes annoying, you can limit some or all of them to a specific application (such as TI Connect CE) by creating two additional files:
 
 ```yaml [espanso/config/TI Basic.yml]
 # Regex that defines the executables for which the shortcuts will enabled in

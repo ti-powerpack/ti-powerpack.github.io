@@ -2,45 +2,19 @@
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "8xp",
 	"patterns": [
-		{
-			"XXinclude": "#functions"
-		},
-		{
-			"XXinclude": "#special-chars"
-		},
-		{
-			"XXinclude": "#control"
-		},
-		{
-			"include": "#comment"
-		},
-		{
-			"XXinclude": "#operators"
-		},
-		{
-			"include": "#numbers"
-		},
-		{
-			"include": "#snippets"
-		},
-		{
-			"XXinclude": "#strings"
-		},
-		{
-			"include": "#constants"
-		},
-		{
-			"include": "#headers"
-		},
-		{
-			"include": "#powerpack"
-		},
-		{
-			"XXinclude": "#variables"
-		},
-		{
-			"XXinclude": "#reals"
-		}
+		{ "XXinclude": "#functions" },
+		{ "XXinclude": "#special-chars" },
+		{ "XXinclude": "#control" },
+		{ "include": "#comment" },
+		{ "XXinclude": "#operators" },
+		{ "include": "#numbers" },
+		{ "include": "#snippets" },
+		{ "XXinclude": "#strings" },
+		{ "include": "#constants" },
+		{ "include": "#headers" },
+		{ "include": "#powerpack" },
+		{ "XXinclude": "#variables" },
+		{ "XXinclude": "#reals" }
 	],
 	"repository": {
 		"functions": {
@@ -138,6 +112,10 @@
 		},
 		"powerpack": {
 			"patterns": [
+				{
+					"name": "variable.parameter",
+					"match": "^Call [^/]+"
+				},
 				{
 					"name": "variable.parameter",
 					"match": "@[\\w_]+"
