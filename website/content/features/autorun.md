@@ -10,4 +10,4 @@ As long are you're running Powerpack in "[watch mode](/getting-started#ways-of-u
 
 ## Other Emulators
 
-Other emulators are not yet supported out-of-the box, but post a message on [Github](#xxxxxxxxxxx) if you have one that should be supported.
+Other emulators are not yet supported out-of-the box, but post a message on [Github](https://github.com/ti-powerpack/ti-powerpack.github.io/discussions/categories/ideas-suggestions) if you have one that should be supported.

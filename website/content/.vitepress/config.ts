@@ -88,7 +88,7 @@ export default {
         { text: 'Command Line Options', link: '/command-line-options' },
         { text: 'Keyboard Shortcuts', link: '/keyboard-shortcuts' },
       ]},
-      { text: 'Bugs & Feature Requests', link: 'xxxxxxxxx' },
+      { text: 'Bugs & Feature Requests', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io/issues?q=is%3Aissue' },
       { text: 'Source Code On Github', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io' },
     ],
 

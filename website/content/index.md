@@ -1,6 +1,5 @@
 ---
 layout: home
-bodyClass: xxxxx
 
 hero:
   name: TI Basic Powerpack

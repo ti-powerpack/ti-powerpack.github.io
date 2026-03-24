@@ -25,7 +25,7 @@ It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on t
 
 ## Installing
 
-[Download Powerpack.exe](#xxxxxxxxxxxx) and place it in a folder of your choice. 
+[Download Powerpack.exe](https://github.com/ti-powerpack/ti-powerpack.github.io/releases) and place it in a folder of your choice. 
 
 You may like to place it in the same folder as your 8XP programs, which can make using it easier, but this is optional.
 
@@ -33,7 +33,7 @@ You may like to place it in the same folder as your 8XP programs, which can make
 
 1. Ensure you have the necessary applications installed, as listed above
 
-1. **[Download Powerpack](#xxxxxxxxxx)** and place it in the same folder as your 8XP program
+1. **[Download Powerpack](https://github.com/ti-powerpack/ti-powerpack.github.io/releases)** and place it in the same folder as your 8XP program
 
 2. In **TI Connect CE**, copy and paste the following code into a new program, set the "Var Name" to `HELLO`, and save it as `HELLO.8xp`
 
@@ -67,11 +67,13 @@ You may like to place it in the same folder as your 8XP programs, which can make
 
    ![](/images/wabbitemu-drag.gif)
 
+----
+
 You can use Powerpack just like we have done above, but to avoid the dragging and dropping steps, we can let Powerpack detect any changes to the file and load it into WabbitEmu automatically. Here's how:
 
-5. Double click `Powerpack.exe`. It will open and pause, waiting for any changes to occur in 8XP files in the current folder.
+1. Double click `Powerpack.exe`. It will open and pause, waiting for any changes to occur in 8XP files in the current folder.
 
-6. Make a change to the original source code file. Perhaps change the name "John" to something else. Save the file.
+2. Make a change to the original source code file. Perhaps change the name "John" to something else. Save the file.
 
    Powerpack should detect the changed file, recompile it, and since WabbitEmu is currently running, it will load the updated file into WabbitEmu and even press the <kbd>ENTER</kbd> key to re-run it.
 
