@@ -5,8 +5,17 @@ import fs from 'fs';
 // refer https://vitepress.vuejs.org/config/introduction for details
 export default {
   title: 'TI Basic Powerpack',
-  description: 'Vite & Vue powered static site generator.',
+  description: 'Create TI Basic 8XP programs with powerful new features — compiling and compressing them to provide new features, trim file size, and make coding a more enjoyable experience.',
   cleanUrls: true,
+
+  head: [
+    // Social meta tags for better sharing on social media platforms
+    ['meta', { property: 'og:image', content: 'https://ti-powerpack.github.io/social.jpg' }],
+    ['meta', { property: 'og:image:width', content: '1586' }],
+    ['meta', { property: 'og:image:height', content: '784' }],
+    ['meta', { property: 'og:site_name', content: 'TI Basic Powerpack' }],
+    ['meta', { name: 'twitter:image', content: 'https://ti-powerpack.github.io/social.jpg' }],
+  ],
 
   markdown: {
     typographer: true,	// enables curly quotes, ndashes, mdashes, (c) symbol

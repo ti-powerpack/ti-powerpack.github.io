@@ -19,7 +19,7 @@ export default {
   	  ],
 	  */
   	  include: [/\.(vue|md)($|\?)/],
-      dumpComponentsInfo: true, // only for debug
+    //   dumpComponentsInfo: true, // only for debug
     }),
   ]
 }
