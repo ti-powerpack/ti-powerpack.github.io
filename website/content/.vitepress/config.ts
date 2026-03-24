@@ -13,7 +13,7 @@ export default {
     config(md) {
       md.use(groupIconMdPlugin)
     },
-    languages: [JSON.parse(fs.readFileSync('docs/.vitepress/ti-basic.tmLanguage2.json', 'utf-8'))],
+    languages: [JSON.parse(fs.readFileSync('content/.vitepress/ti-basic.tmLanguage2.json', 'utf-8'))],
     defaultHighlightLang: '8xp',
     /* shikiSetup(shiki) {
 
@@ -38,7 +38,7 @@ export default {
     nav: [
       { text: 'Download', link: '/download' },
       { text: 'Guide', link: '/what-is-powerpack' },
-      { text: 'Github', link: 'https://github.com/...' },
+      { text: 'Github', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io' },
 
       // {
       //   text: 'Dropdown Menu',
@@ -80,7 +80,7 @@ export default {
         { text: 'Keyboard Shortcuts', link: '/keyboard-shortcuts' },
       ]},
       { text: 'Bugs & Feature Requests', link: 'xxxxxxxxx' },
-      { text: 'Source Code On Github', link: 'xxxxxxxxxx' },
+      { text: 'Source Code On Github', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io' },
     ],
 
     footer: {

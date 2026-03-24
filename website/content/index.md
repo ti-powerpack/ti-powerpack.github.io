@@ -18,7 +18,7 @@ hero:
       link: /what-is-powerpack
     - theme: alt
       text: View on GitHub
-      link: 
+      link: https://github.com/ti-powerpack/ti-powerpack.github.io
 
 # Icons are from https://lucide.dev/icons/
 features:
@@ -31,7 +31,7 @@ features:
     linkText: More
   - icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-ccw-icon lucide-refresh-ccw"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
     title: Auto-execute your program after every change
-    details: Write some code, hit save, and watch the changes automatically execute inside WabbitEmu or your emulator of choice.
+    details: Write some code, hit save, and watch the changes automatically execute inside WabbitEmu.
     link: /features/autorun
     linkText: More
   - icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-whole-word-icon lucide-whole-word"><circle cx="7" cy="12" r="3"/><path d="M10 9v6"/><circle cx="17" cy="12" r="3"/><path d="M14 7v8"/><path d="M22 17v1c0 .5-.5 1-1 1H3c-.5 0-1-.5-1-1v-1"/></svg>
@@ -78,8 +78,8 @@ features:
   - icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code-xml-icon lucide-code-xml"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
     title: Open source
     details: Powerpack is open source, written in AutoIt3, a simple, free language similar to Visual Basic.
-    #link: /features/
-    #linkText: More
+    link: https://github.com/ti-powerpack/ti-powerpack.github.io
+    linkText: More
 
   
 ---

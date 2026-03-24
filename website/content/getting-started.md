@@ -25,7 +25,7 @@ It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on t
 
 ## Installing
 
-[Download Powerpack.exe](xxxxxxxxxxxx) and place it in a folder of your choice. 
+[Download Powerpack.exe](#xxxxxxxxxxxx) and place it in a folder of your choice. 
 
 You may like to place it in the same folder as your 8XP programs, which can make using it easier, but this is optional.
 
@@ -33,7 +33,7 @@ You may like to place it in the same folder as your 8XP programs, which can make
 
 1. Ensure you have the necessary applications installed, as listed above
 
-1. **[Download Powerpack](xxxxxxx)** and place it in the same folder as your 8XP program
+1. **[Download Powerpack](#xxxxxxxxxx)** and place it in the same folder as your 8XP program
 
 2. In **TI Connect CE**, copy and paste the following code into a new program, set the "Var Name" to `HELLO`, and save it as `HELLO.8xp`
 

@@ -33,7 +33,7 @@ $brand-color: rgb(214, 64, 14);
 
 :root {
   
-  // Hero Text
+  // Homepage Hero Text Gradient
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(
     -60deg,
@@ -42,23 +42,15 @@ $brand-color: rgb(214, 64, 14);
     #{color.adjust($brand-color, $lightness: 18%, $hue: 20)}
   );
 
-  // Hero image blurred background
+  // Homepage Rocket Flare Background (red, orange gradient)
   --vp-home-hero-image-background-image: linear-gradient(
     -45deg,
-    var(--vp-c-brand-4) 50%,
-    #{color.adjust($brand-color, $lightness: -20%, $hue: 30)} 50%
+    #{color.adjust($brand-color, $alpha: -0.50)} 50%,                                            
+    #{color.adjust($brand-color, $hue: 30, $alpha: -0.50)} 50%       
   );
-  --vp-home-hero-image-filter: blur(44px);
-}
-@media (min-width: 640px) {
-  :root {
-    --vp-home-hero-image-filter: blur(56px);
-  }
-}
-@media (min-width: 960px) {
-  :root {
-    --vp-home-hero-image-filter: blur(68px);
-  }
+  --vp-home-hero-image-filter: blur(44px);                                  // Mobile
+  @media (min-width: 640px) { --vp-home-hero-image-filter: blur(56px); }    // Tablet
+  @media (min-width: 960px) { --vp-home-hero-image-filter: blur(68px); }    // Desktop
 }
 
 // Homepage heading
@@ -74,6 +66,7 @@ $brand-color: rgb(214, 64, 14);
 .VPHomeHero .image {
   // perspective: 1px;
   img {
+    // ROCKET MAIN IMAGE
     // Make the image swing up-right and left-down repeatedly, animated
     --amount: 4%;
     @keyframes swing {
@@ -83,14 +76,15 @@ $brand-color: rgb(214, 64, 14);
     }
     // position: relative;
     animation: swing 3s ease-in-out infinite;
+    animation-delay: -0.42s;    // Start the rocket slightly before the background flare
   }
+  // ROCKET BACKGROUND FLARE
   .image-bg {
-    // animation-delay: 0.7s;
-    --amount: 18%;
+    --amount: 9%;
     @keyframes swingMore {
-      0% { translate: var(--amount) calc(-1 * var(--amount)); }
-      40% { translate: calc(-1 * var(--amount)) var(--amount); }
-      100% { translate: var(--amount) calc(-1 * var(--amount)); }
+      0% { translate: calc(1 * var(--amount)) calc(-1 * var(--amount)); }     // Upper right
+      40% { translate: calc(-3.5 * var(--amount)) calc(3.5 * var(--amount)); }    // Lower left
+      100% { translate: calc(1 * var(--amount)) calc(-1 * var(--amount)); }   // Upper right
     }
     // position: relative;
     animation: swingMore 3s ease-in-out infinite;
