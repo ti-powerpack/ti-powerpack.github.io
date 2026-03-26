@@ -1,6 +1,6 @@
 # <img src="website/content/public/rocket.png" width="80" align="right"> TI Basic Powerpack <br> Create TI Basic programs with powerful new features
 
-Version 1.0.0-beta
+[![Version](https://img.shields.io/badge/Version-v1.0.0--beta-red)](https://github.com/ti-powerpack/ti-powerpack.github.io/releases) [![License](https://img.shields.io/badge/License-Apache_2.0-dimgray.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## [Website & User Guide](https://ti-powerpack.github.io)
 
