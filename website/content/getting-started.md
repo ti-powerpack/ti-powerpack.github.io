@@ -13,7 +13,8 @@ Powerpack is designed for writing TI Basic 8XP programs which run on the followi
 * TI-84 Plus CE (colour screen)
 {class="green-ticks"}
 
-It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on the TI-89, TI-92, Voyage 200, and TI-Nspire.
+It will probably *NOT* work for:  
+68k TI Basic, TI-Nspire Basic, TI-89, TI-92, TI-Nspire, Voyage 200 calculators
 
 
 ## Requirements
@@ -25,7 +26,7 @@ It will probably *not* work for 68k TI Basic or TI-Nspire Basic, which runs on t
 
 ## Installing
 
-[Download Powerpack.exe](https://github.com/ti-powerpack/ti-powerpack.github.io/releases) and place it in a folder of your choice. 
+<a :href="downloadUrl">Download Powerpack.exe</a> and place it in a folder of your choice. 
 
 You may like to place it in the same folder as your 8XP programs, which can make using it easier, but this is optional.
 
@@ -33,7 +34,7 @@ You may like to place it in the same folder as your 8XP programs, which can make
 
 1. Ensure you have the necessary applications installed, as listed above
 
-1. **[Download Powerpack](https://github.com/ti-powerpack/ti-powerpack.github.io/releases)** and place it in the same folder as your 8XP program
+1. **<a :href="downloadUrl">Download Powerpack.exe</a>** and place it in the same folder as your 8XP program
 
 2. In **TI Connect CE**, copy and paste the following code into a new program, set the "Var Name" to `HELLO`, and save it as `HELLO.8xp`
 

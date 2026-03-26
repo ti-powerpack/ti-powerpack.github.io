@@ -1,5 +1,6 @@
 // import { defineConfig } from 'vitepress';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
+import AutoImport from 'unplugin-auto-import/vite'
 import fs from 'fs';
 
 // refer https://vitepress.vuejs.org/config/introduction for details
@@ -93,7 +94,7 @@ export default {
     ],
 
     footer: {
-      message: 'Released under the MIT License. <br> Powerpack is not affiliated with Texas Instruments.', //<br> This software enhances the functionality of TI’s existing tools.',
+      message: 'Released under the Apache 2.0 License. <br> Powerpack is not affiliated with Texas Instruments.', //<br> This software enhances the functionality of TI’s existing tools.',
       copyright: '',
     },
 
@@ -110,6 +111,15 @@ export default {
       }
     }, */
     plugins: [
+      AutoImport({
+        imports: [ 'vitepress' ],
+          /* {
+            'vitepress': ['useData', 'useRouter', 'useRoute']
+          }
+        ], */
+        vueTemplate: true,
+        include: [/\.vue$/, /\.vue\?vue/, /\.md$/], // Auto-import in Vue and Markdown files
+      }),
       groupIconVitePlugin({
         customIcon: {
           '.8xp': {

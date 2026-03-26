@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "vitepress dev content",
     "build": "vitepress build content",
-    "serve": "vitepress serve content"
+    "serve": "vitepress serve content",
+    "build-and-serve": "vitepress build content && vitepress serve content"
   },
   "devDependencies": {
     "rfs": "^10.0.0",
@@ -12,6 +13,7 @@
     "vitepress": "^1.6.4"
   },
   "dependencies": {
+    "unplugin-auto-import": "^21.0.0",
     "vitepress-plugin-group-icons": "^1.7.1"
   },
   "type": "module"

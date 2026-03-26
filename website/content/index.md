@@ -13,7 +13,7 @@ hero:
       icon: vpi-arrow-down
       link: /download
     - theme: brand
-      text: Read the guide
+      text: How it works
       link: /what-is-powerpack
     - theme: alt
       text: View on GitHub
@@ -83,13 +83,23 @@ features:
   
 ---
 
-<style>
+<style lang="scss">
   /* body h1 + .text[class] {
     font-size: 2rem;
     line-height: 1.15;
   } */
   p.tagline[class] {
     line-height: 1.25;
+  }
+  // Float the icons to the right on mobile:
+  @media (max-width: 639px) {
+    .VPHomeFeatures .box {
+      display: block;  // not flex
+    }
+    .VPHomeFeatures .icon {
+      float: right;
+      margin-left: 16px;
+    }
   }
 </style>
 

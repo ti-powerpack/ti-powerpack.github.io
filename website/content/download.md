@@ -5,7 +5,7 @@ layout: doc
 
 # Download TI Basic Powerpack
 
-1. Download the latest `Powerpack.exe` from the [Github Release Page](https://github.com/ti-powerpack/ti-powerpack.github.io/releases)
+1. Download the latest <a :href="downloadUrl">`Powerpack.exe`</a>
 
 2. Place it in the same folder as your 8XP source files, for easiest use
 

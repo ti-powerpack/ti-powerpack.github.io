@@ -56,6 +56,10 @@ $brand-color: rgb(214, 64, 14);
 // Homepage heading
 .VPHero .name {
   @include font-size(3.5rem);
+  filter: drop-shadow(0 0 9px #ffffff);
+  .dark & {
+    filter: drop-shadow(0 0 6px var(--vp-c-bg));
+  }
 }
 // Secondary heading
 .VPHero .text {
@@ -67,12 +71,16 @@ $brand-color: rgb(214, 64, 14);
   // perspective: 1px;
   img {
     // ROCKET MAIN IMAGE
+    // Specify size, to hopefully fix weird Safari bug
+    width: 320px;
+    height: 320px;
+
     // Make the image swing up-right and left-down repeatedly, animated
-    --amount: 4%;
+    $amount: 4%;
     @keyframes swing {
-      0% { translate: var(--amount) calc(-1 * var(--amount)); }
-      40% { translate: calc(-1 * var(--amount)) var(--amount); }
-      100% { translate: var(--amount) calc(-1 * var(--amount)); }
+      0% { translate: $amount calc(-1 * $amount); }
+      40% { translate: calc(-1 * $amount) $amount; }
+      100% { translate: $amount calc(-1 * $amount); }
     }
     // position: relative;
     animation: swing 3s ease-in-out infinite;
@@ -80,11 +88,11 @@ $brand-color: rgb(214, 64, 14);
   }
   // ROCKET BACKGROUND FLARE
   .image-bg {
-    --amount: 9%;
+    $amount: 9%;
     @keyframes swingMore {
-      0% { translate: calc(1 * var(--amount)) calc(-1 * var(--amount)); }     // Upper right
-      40% { translate: calc(-3.5 * var(--amount)) calc(3.5 * var(--amount)); }    // Lower left
-      100% { translate: calc(1 * var(--amount)) calc(-1 * var(--amount)); }   // Upper right
+      0% { translate: calc(1 * $amount) calc(-1 * $amount); }     // Upper right
+      40% { translate: calc(-3.5 * $amount) calc(3.5 * $amount); }    // Lower left
+      100% { translate: calc(1 * $amount) calc(-1 * $amount); }   // Upper right
     }
     // position: relative;
     animation: swingMore 3s ease-in-out infinite;
@@ -152,4 +160,8 @@ ul.green-ticks {
     margin-right: 10px;
 
   }
+}
+
+.VPFooter .message {
+  font-size: 70%;
 }
