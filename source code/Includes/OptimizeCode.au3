@@ -513,7 +513,7 @@ Func ParseAndReplaceDefinedVars($code)
 		EndIf
 	Next
 
-	; Erase definitions from code
+	; Erase all #define statements from the code
 	$code = StringRegExpReplace($code, $regexToMatchDefines, "")
 
 	; Replace all vars with their contents

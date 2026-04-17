@@ -11,13 +11,22 @@
 ; Powerpack Version
 ; For beta versioning, use this format: 1.1.1-beta.1
 $VERSION = "1.0.0-beta"
+#pragma compile(ProductVersion, 1.0.0-beta)
 
 ; Tell compiler to make a console application, not a GUI one
 #pragma compile(Console, true)
 
+; Specify icon for the compiled EXE
+; (make sure to include the .ico file in the same folder as this AU3 file)
+#pragma compile(Icon, "Powerpack.ico")
+
+; Other metadata for the EXE
+#pragma compile(ProductName, TI Basic Powerpack)
+
 ; Include necessary libraries
 #include <AutoItConstants.au3>
 #include <Misc.au3>
+#include <WinAPIProc.au3>
 #include "Includes\Debug.au3"
 #include "Includes\PathTools.au3"
 #include "Includes\ConsoleWriteUnicode.au3"
@@ -65,11 +74,11 @@ EndIf
 ;---------- Default Options --------------
 ; TODO: Allow defining options via command line parameters
 Global $WatchOptions[]
-$WatchOptions.runWabbitAtStartUp = false
+;~ $WatchOptions.runWabbitAtStartUp = false ; not supported yet, as we would need to know the location of the EXE
 ; $WatchOptions.folder = @ScriptDir & "\.."
 $WatchOptions.sendChangesToWabbit = true
 $WatchOptions.sendEnterKeyToWabbit = true
-$WatchOptions.pathToWabbitEmu = @ScriptDir & "\..\..\Emulators\Wabbitemu.exe"  ; TO BE UPDATED!!
+;~ $WatchOptions.pathToWabbitEmu = @ScriptDir & "\..\..\Emulators\Wabbitemu.exe"  ; now detected dynamically at runtime, so that we can support users having it in different locations
 $WatchOptions.sourceCodeIntoSubfolder = "Source Code as Text"		; NOTE: also hard-coded into Process8xpppFile.au3
 $WatchOptions.compiledCodeIntoSubfolder = "Compiled Programs"
 ; Local $alwaysProcessScriptAtStartUp = ["SVTOOLS.8xp"]
@@ -103,9 +112,9 @@ AutoItSetOption("SendKeyDelay", 100)
 AutoItSetOption("SendKeyDownDelay", 100)
 
 ; Run Wabbit
-If $WatchOptions.runWabbitAtStartUp Then
-	RunWabbit()
-EndIf
+;~ If $WatchOptions.runWabbitAtStartUp Then
+	;~ RunWabbit()
+;~ EndIf
 
 Local $WatchFolder
 
@@ -187,22 +196,33 @@ Func OptimizeScriptWhenSaved($filename, $sendEnterKeyToWabbit = True)
 		; It may prevent auto-run, unfortunately.
 		If WinExists("Wabbitemu") Then
 			WinActivate("Wabbitemu")
-			Send("{F12}{ENTER}")
+
+			; Send a "BREAK" keystroke (F12) to WabbitEmu to stop any currently running program,
+			; which prevents the "GetKey" bug
+			; 1 confirms the "Break" option in the menu
+			; But sometimes if the app is NOT running, it will inject a "1" keystroke into
+			; the calculator, which is annoying. So we also press the "CLEAR" button (RSHIFT)
+			; to remove the "1" if it gets injected.
+			Send("{F12}1{RSHIFT}")
+
+			; Run WabbitEmu
+			; Send the optimized version to WabbitEmu
+			RunWabbit($newFilePath)
+
+			;MsgBox(0,"", $result & @CRLF & @error)
+
+			; Wait till Wabbit opens and window exists
+			WinWait("Wabbitemu", "", 5)
+
+			; Make Wabbit the active Window, ready to receive keypresses
+			WinActivate("Wabbitemu")
+
+			Debug("  - " & $newFilePath & " sent to Wabbit and window activated")
+
+		Else
+			Debug("  - WabbitEmu not running")
 		EndIf
 
-		; Run WabbitEmu
-		; Send the optimized version to WabbitEmu
-		RunWabbit($newFilePath)
-
-		;MsgBox(0,"", $result & @CRLF & @error)
-
-		; Wait till Wabbit opens and window exists
-		WinWait("Wabbitemu", "", 5)
-
-		; Make Wabbit the active Window, ready to receive keypresses
-		WinActivate("Wabbitemu")
-
-		Debug("  - " & $newFilePath & " sent to Wabbit and window activated")
 	EndIf
 
 	; BUG: Sometimes program hangs here for some reason. Not sure why.
@@ -212,7 +232,7 @@ Func OptimizeScriptWhenSaved($filename, $sendEnterKeyToWabbit = True)
 	; otherwise, we might execute a different app to the one we were expecting
 	If $sendEnterKeyToWabbit And $WatchOptions.sendEnterKeyToWabbit Then
 		;Debug("  - sendEnterKeyToWabbit 1")
-		If Not WinActive("Wabbitemu") Then
+		If WinExists("Wabbitemu") And Not WinActive("Wabbitemu") Then
 			;Debug("  - sendEnterKeyToWabbit 2")
 			WinWaitActive("Wabbitemu", "", 10)
 			;Debug("  - sendEnterKeyToWabbit 3")
@@ -245,7 +265,7 @@ Func RunWabbit($fileToLoad = "")
 
 	; Execute it
 	$result = ShellExecute( _
-		$WatchOptions.pathToWabbitEmu, _
+		GetRunningProcessPath("Wabbitemu.exe"), _
 		$fileToLoad _
 	)
 	If Not $result Then
@@ -283,9 +303,28 @@ Func RunAndPipeOutput($command)
 EndFunc
 
 Func KillProcessesByName($processName)
-	Local $existingPIDs = ProcessList(FileName($exeFilename))
+	Local $existingPIDs = ProcessList(FileName($processName))
 	For $i = 1 To $existingPIDs[0][0]
-		Debug("Killing existing process PID " & $existingPIDs[$i][1] & " for " & $exeFilename)
+		Debug("  - Killing existing process PID " & $existingPIDs[$i][1] & " for " & $processName)
 		ProcessClose($existingPIDs[$i][1])
 	Next
+EndFunc
+
+; This function finds a running process by name, and returns the full path to the EXE that's running.
+; Useful for finding the path to a running WabbitEmu.exe process
+Func GetRunningProcessPath($processName)
+	Local $existingPIDs = ProcessList($processName)
+	If $existingPIDs[0][0] > 0 Then
+		; Get the first matching process (there should only be one)
+		Local $pid = $existingPIDs[1][1]
+		Debug("  - Found running process " & $processName & " with PID " & $pid)
+
+		; Get the full path to the EXE for this process
+		Local $exePath = _WinAPI_GetProcessFileName($pid)
+		Debug("  - Full path to running process: " & $exePath)
+		Return $exePath
+	Else
+		Debug("  - No running process found for " & $processName)
+		Return ""
+	EndIf
 EndFunc
