@@ -1,12 +1,15 @@
 {
   "private": true,
+  "version": "1.0.0-beta",
   "scripts": {
     "dev": "vitepress dev content",
     "build": "vitepress build content",
     "serve": "vitepress serve content",
-    "build-and-serve": "vitepress build content && vitepress serve content"
+    "build-and-serve": "vitepress build content && vitepress serve content",
+    "increment-version-and-changelog": "commit-and-tag-version"
   },
   "devDependencies": {
+    "commit-and-tag-version": "^12.7.3",
     "rfs": "^10.0.0",
     "sass-embedded": "^1.97.3",
     "unplugin-vue-components": "^31.0.0",
