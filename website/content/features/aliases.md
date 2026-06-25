@@ -86,11 +86,11 @@ Disp @HighScores(1)
 This will be compiled to:
 
 ```
-{1,2,3}→H
-Disp ⌊H(1)
+{1,2,3→H
+Disp ⌊H(1
 ```
 
-(You'll notice that the optimizer removed the `⌊` character from the first line, as in this situation the calculator knows it's a list, and the character is unnecessary.)
+(You'll notice that [the optimizer](ti-basic-optimization) removed unnecessary characters including the `⌊` character from the first line, as in this situation the calculator knows it's a list, and the character is unnecessary.)
 
 
 ## Goto labels
@@ -111,7 +111,7 @@ Lbl M
 Goto M
 ```
 
-Giving labels a name starting with an underscore can be a helpful way to differentiate them from other things, but this is completely optional.
+Giving labels an alias starting with `@_` can be a helpful convention which differentiates them from other variables, but this is completely optional.
 
 ## Functions
 
@@ -135,7 +135,7 @@ Disp Y₁(1.12345
 
 And should display the result as `1.123`
 
-The closing quotes and brackets will be stripped by the optimizer since they're optional.
+The closing quotes and brackets will be stripped by [the optimizer](ti-basic-optimization) since they're optional.
 
 ## Other code snippets
 

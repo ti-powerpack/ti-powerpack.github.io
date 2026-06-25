@@ -47,7 +47,8 @@ export default {
 
     nav: [
       { text: 'Download', link: '/download' },
-      { text: 'Guide', link: '/what-is-powerpack' },
+      // Highlight the "Guide" menu item as active for all pages except the download page
+      { text: 'Guide', link: '/what-is-powerpack', activeMatch: '/(?!download$)' },
       { text: 'Github', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io' },
 
       // {
