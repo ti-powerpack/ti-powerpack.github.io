@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Version-v1.0.0--beta-red)](https://github.com/ti-powerpack/ti-powerpack.github.io/releases) [![License](https://img.shields.io/badge/License-Apache_2.0-dimgray.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## [Website & User Guide](https://ti-powerpack.github.io)
+## [Download Powerpack](https://github.com/ti-powerpack/ti-powerpack.github.io/releases/latest/download/Powerpack.exe) | [Website & User Guide](https://ti-powerpack.github.io)
 
 Powerpack assists with coding TI‑Basic 8XP programs for TI‑84+ calculators — compiling and compressing them to provide new features, trim file size, and make coding a more enjoyable experience.
 
