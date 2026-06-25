@@ -18,5 +18,13 @@
     "unplugin-auto-import": "^21.0.0",
     "vitepress-plugin-group-icons": "^1.7.1"
   },
-  "type": "module"
+  "type": "module",
+  "commit-and-tag-version": {
+    "bumpFiles": [
+      {
+        "filename": "../source code/Powerpack.au3",
+        "updater": "utils/generic-version-bump.js"
+      }
+    ]
+  }
 }

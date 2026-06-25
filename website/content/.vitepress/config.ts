@@ -77,8 +77,8 @@ export default {
           { text: 'Auto-Run Your Programs', link: '/features/autorun' },
           { text: 'Aliases & Descriptive Names', link: '/features/aliases' },
           { text: 'Includes', link: '/features/includes' },
-          { text: 'Compile Plain Text To 8xp', link: '/features/compile-to-8xp' },
-          { text: 'Decompile 8XP To Plain Text', link: '/features/decompile-8xp' },
+          { text: 'Compile Plain Text to 8xp', link: '/features/compile-to-8xp' },
+          { text: 'Decompile 8XP to Plain Text', link: '/features/decompile-8xp' },
           { text: 'Optimization', link: '/features/ti-basic-optimization' },
           { text: 'Subroutines', link: '/features/subroutines' },
           { text: 'File Size Reports', link: '/features/file-size-reports' },
@@ -91,7 +91,7 @@ export default {
         { text: 'Keyboard Shortcuts', link: '/keyboard-shortcuts' },
       ]},
       { text: 'Bugs & Feature Requests', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io/issues?q=is%3Aissue' },
-      { text: 'Source Code On Github', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io' },
+      { text: 'Source Code on Github', link: 'https://github.com/ti-powerpack/ti-powerpack.github.io' },
     ],
 
     footer: {

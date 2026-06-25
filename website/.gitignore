@@ -1,3 +1,4 @@
 node_modules
 .temp
 cache
+content/.vitepress/config.ts.timestamp*
