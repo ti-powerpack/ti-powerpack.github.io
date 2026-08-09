@@ -18,12 +18,11 @@ Write your TI Basic code in [TI Connect CE](https://education.ti.com/en/products
 
 The main goal is to make TI Basic programming more enjoyable by:
 
-* Letting you use unlimited comments (without increasing file size)
-* Letting you add blank line returns and indent your code (without increasing file size)
-* Allow you to give variables and "Goto" labels more descriptive names - more than just 1 or 2 characters
-* Automatically transferring your program to WabbitEmu and running it, every time you save the file — allowing you to test and iterate faster
-* Store a copy of your code in text format, for better tracking of history with git
-* Keeping your program file size as small as possible
+* Stripping all comments, blank lines, spaces and tabs from your code. This allows you to use these without increasing file size.
+* Allowing variables and "Goto" labels to have descriptive names — not just 1 or 2 characters
+* Automatically transferring your program to WabbitEmu and running it every time you save, so you can test and iterate faster
+* Storing a copy of your code in text format, for better history tracking with git
+* Keeping your program's file size as small as possible
 
 ---- {style="margin-bottom:32px"}
 
