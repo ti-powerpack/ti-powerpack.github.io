@@ -1,0 +1,15 @@
+{
+  "name": "powerpack",
+  "version": "1.0.0",
+  "description": "",
+  "license": "Apache-2.0",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "edit-test-files": "\"\"C:\\Program Files (x86)\\WinMerge\\WinMergeU.exe\" \"Tests/transformations.input.txt\" \"Tests/transformations.expected.txt\"\""
+  },
+  "devDependencies": {
+    "vitest": "^4.1.10"
+  }
+}

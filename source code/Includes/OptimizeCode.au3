@@ -91,15 +91,21 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Perform regex to clean up script
 	; Use (?m) at start to enable multiline mode where ^ matches the start of a line
 	; (?!...) is a negative look-ahead
+	;
 	; NOTE: You CANNOT do positive look-behinds that are variable length in AutoIt3. Instead:
 	; 			- use \K to ignore preceding match.
 	;        	- use submatches and replace with $1, $2, etc.
 	;			- see RegexExceptWhen.au3
+	;
+	; \K Resets start of match at the current point in subject string.
+	; This is a workaround for being unable to replace only a subgroup of a match
+	; From DOC: Note that groups already captured are left alone and still populate the returned array;
+	;           it is therefore always possible to backreference to them later on.
 
 	; TODO: Convert all colons NOT inside a string into line returns. That way the following
-	;       optimizations will apply to those cases too. Currently they do not.
-	; 		For example "If X=(3+2):Then" will not have trailing bracket stripped.
+	;       optimizations will apply to those cases too.
 	;		Partly done, for many common commands/functions.
+	; 		For example "If X=(3+2):Then" has trailing bracket stripped, but other combinations do not.
 
 	; TODO: Strip trailing spaces which can cause programs to crash. SOME tokens require it,
 	;		however, so needs to be done carefully.
@@ -121,15 +127,14 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = ParseAndPerformIncludeStatements($code, $pathToSourceFile)
 
 	; REMOVE LEADING WHITE-SPACE
-	$code = StringRegExpReplace($code, "(?m)^[ \t]+", "")				; remove tabs/spaces at start of a line (although tabs cannot be inserted by TI-Connect)
-	$code = StringRegExpReplace($code, "(?m)^:+", "")  					; Remove colons at start of a line
+	$code = StringRegExpReplace($code, "(?m)^[ \t:]+", "")	; remove tabs/spaces/colons at start of a line (although tabs cannot be inserted by TI-Connect)
 
 	; COMMENTS
 	; We need to also remove the trailing whitespace from comments, otherwise we might retain some blank lines in final script
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?sm)^/\*.*?\*/\s*", "")		; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
 	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ... (we also strip leading space here, between any prior characters and start of the comment)
-	$code = StringRegExpReplace($code, "(?m)^""[^""→\r]*\r\n", "")		; remove string comments (strings where there is NOT a store command or closing quotes) - won't remove comment on FINAL line of program, just in case this is desired
+	$code = StringRegExpReplace($code, "(?m)^""[^""→\r\n]*\r?\n", "")		; remove string comments (strings where there is NOT a store command or closing quotes) - won't remove comment on FINAL line of program, just in case this is desired
 																		; Note that it will remove strings that are intended to be placed in Ans! Workaround: Put a closing quote (which will later be stripped), or a "(" bracket at the start to prevent this.
 
 	; Process #ifDefined and #ifNotDefined directives
@@ -147,10 +152,11 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m):(Then$|Disp |Goto |Pause |Input |Prompt |Menu\(|Return|Stop|Output\(|Get\(|Send\(|ClrHome)", @CRLF & "$1")
 
 	; REMOVE EXTRANEOUS LINE RETURNS
-	$code = StringRegExpReplace($code, "(\r\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
-	$code = StringRegExpReplace($code, "^(\r\n)+", "")					; Remove blank line(s) at start of file
-	$code = StringRegExpReplace($code, @CRLF & "$", "")			  	 	; remove trailing line return / blank line at end of script
+	$code = StringRegExpReplace($code, "(\r?\n){2,}", @CRLF)  			; Remove a run of multiple line returns (blank lines)
+	$code = StringRegExpReplace($code, "^(\r?\n)+", "")					; Remove blank line(s) at start of file
+	$code = StringRegExpReplace($code, "\r?\n$", "")			  	 	; remove trailing line return / blank line at end of script
 
+	; DELVAR
 	; Remove line returns between consecutive DelVar statements
 	; To do: remove other line returns following DelVars (but not in ALL cases, beware)
 	; Can remove line return after a DelVar in 70% of other cases, but NOT preceding:
@@ -162,9 +168,9 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	;  - A line starting with a a digit, as it could be confused as part of a variable name (unless the deleted var is a String var)
 	; The "(?=" means if the line return is followed by any of these strings, we can strip the line-return.
 	; CAREFUL THOUGH: Will removing line returns break the compilation of any TI tokens? To be tested.
-	$code = StringRegExpReplace($code, "(DelVar ([⌊A-Zθ0-9]+|Str[0-9]))\r\n(?=(DelVar|Goto|Return|Stop|Float|Str|Pause |If |Disp |prgm|Input |Prompt |""|⌊|[a-z]|\.|While |Repeat |Output\(|Menu\(|For\())", "$1")
-	$code = StringRegExpReplace($code, "(DelVar ⌊[A-Z\d]+)\r\n(?=(ClrHome|ClrDraw|ClrTable))", "$1")  ; ClrHome only works if the ⌊ char is included
-	$code = StringRegExpReplace($code, "(DelVar Str[0-9])\r\n(?=\d)", "$1")
+	$code = StringRegExpReplace($code, "(DelVar ([⌊A-Zθ0-9]+|Str[0-9]))\r?\n(?=(DelVar|Goto|Return|Stop|Float|Str|Pause |If |Disp |prgm|Input |Prompt |""|⌊|[a-z]|\.|While |Repeat |Output\(|Menu\(|For\())", "$1")
+	$code = StringRegExpReplace($code, "(DelVar ⌊[A-Z\d]+)\r?\n(?=(ClrHome|ClrDraw|ClrTable))", "$1")  ; ClrHome only works if the ⌊ char is included
+	$code = StringRegExpReplace($code, "(DelVar Str[0-9])\r?\n(?=\d)", "$1")
 
 	; Subroutines
 	; IMPORTANT: SciTE does NOT show the negative sign prior to the 1 in the For() loops below, but it's there
@@ -177,11 +183,12 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m) ([A-Zθ])=0$", " not($1)")
 	$code = StringRegExpReplace($code, "(?m) 0=([A-Zθ])$", " not($1)")
 
-	; Strip unnecessary closing brackets
+	; BRACKETS: Strip unnecessary closing brackets
 	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
 	$code = StringRegExpReplace($code, "[)}]+→", "→")					; remove closing brackets ")" and "}" when storing a number
+	$code = StringRegExpReplace($code, "[)}]+DMS", "DMS")				; remove closing brackets ")" and "}" before a >DMS token
 
-	; Strip unnecessary closing quotes
+	; QUOTES: Strip unnecessary closing quotes
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
 	$code = StringRegExpReplace($code, """→", "→")						; remove closing " when storing a string
 	$code = StringRegExpReplace($code, "(?m)→Ans$", "")					; remove →Ans, which is only for forcing a string to be placed in ans rather than being treated as a comment
@@ -190,10 +197,7 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 																		; However this broke `InString() or InString()`
 																		; Might still break string output that has a quote and string at end?
 
-	; \K Resets start of match at the current point in subject string.
-	; This is a workaround for being unable to replace only a subgroup of a match
-	; From DOC: Note that groups already captured are left alone and still populate the returned array;
-	;           it is therefore always possible to backreference to them later on.
+
 
 	; Remove trailing brackets (curved and curly), EXCEPT when For is start of line, or there's quotes (string) in the line
 	; Will miss a few, such as:
@@ -281,7 +285,7 @@ Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
 	;    Between zero and unlimited times, as many times as possible, giving back as needed (greedy) «*»
 	;    The character " " « »
 	;    A tab character «\t»
-	; Match the characters "#include """ literally «#include ""»
+	; Match the characters "#include """ literally «#include ""
 	; Match the regular expression below and capture its match into backreference number 1 «([^""]*)»
 	;    Match any character that is not a """ «[^""]*»
 	;       Between zero and unlimited times, as many times as possible, giving back as needed (greedy) «*»
@@ -294,7 +298,7 @@ Func ParseAndPerformIncludeStatements($code, $pathToSourceFile = "", $depth = 0)
 
 	; Debug($includeStatements, 1)
 
-	; No matches? Return code unchanged.
+	; No matches? Return code unchanged
 	If $includeStatements == 1 Then Return $code
 
 	For $include In $includeStatements
@@ -537,6 +541,6 @@ EndFunc
 
 
 ; OLD VERSION. Now see "RegexExceptWhen.au3"
-Func RegExpReplaceExceptWhenPrecededBy($avoidThisAtStartOfLine, $avoidThisMidLine, $find, $replace)
+; Func RegExpReplaceExceptWhenPrecededBy($avoidThisAtStartOfLine, $avoidThisMidLine, $find, $replace)
 	; $prefix = "(?m)" & $prefix & "\K"
-EndFunc
+; EndFunc

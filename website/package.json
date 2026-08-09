@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-beta",
+  "version": "1.0.4",
   "scripts": {
     "dev": "vitepress dev content",
     "build": "vitepress build content",
@@ -21,10 +21,9 @@
   "type": "module",
   "commit-and-tag-version": {
     "bumpFiles": [
-      {
-        "filename": "../source code/Powerpack.au3",
-        "updater": "utils/generic-version-bump.js"
-      }
+      {"filename": "package.json", "type": "json"},
+      {"filename": "package-lock.json", "type": "json"},
+      {"filename": "../source code/Powerpack.au3", "updater": "utils/generic-version-bump.js"}
     ]
   }
 }

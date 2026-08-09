@@ -69,7 +69,7 @@ Global $8xpTokens[][] = [ _
 	["38", "8"], _
 	["39", "9"], _
 	["3A", "."], _
-	["3B", "", "ᴇ"], _
+	["3B", "", "ᴇ"], _		; First symbol is what TI Connect CE uses
 	["3C", " or "], _
 	["3D", " xor "], _
 	["3E", ":"], _			; Colons are treated similar to a line return in TI-BASIC, allowing multiple statements on the same line. But colons can also appear inside a string.
@@ -438,13 +438,15 @@ Global $8xpTokens[][] = [ _
 	["6328", "XFact"], _
 	["6329", "YFact"], _
 	["632A", "TblInput"], _
-	["632B", "Ś", "N"], _
+	_ ; Finance variables:
+	["632B", "Ɲ"], _    ; The "N" finance var
 	["632C", "I%"], _
-	["632D", "PV"], _
-	["632E", "PMT"], _
-	["632F", "FV"], _
+	["632D", "PV"], _   ; Warning: this could conflict with P*V
+	["632E", "PMT"], _  ; Warning: this could conflict with P*M*T
+	["632F", "FV"], _   ; Warning: this could conflict with F*V
 	["6330", "P/Y", "|P/Y"], _
 	["6331", "C/Y", "|C/Y"], _
+	_
 	["6332", "w(Min)", "w(nMin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
 	["6333", "Zw(Min)", "Zw(nMin)"], _		; Note: this currently gets broken during optimization phase due to trailing bracket
 	["6334", "PlotStep"], _

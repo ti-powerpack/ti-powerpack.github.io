@@ -10,7 +10,7 @@
 
 ; Powerpack Version
 ; For beta versioning, use this format: 1.1.1-beta.1
-$VERSION = "1.0.0-beta"
+$VERSION = "1.0.4"
 #pragma compile(ProductVersion, 1.0.0-beta)
 
 ; Tell compiler to make a console application, not a GUI one

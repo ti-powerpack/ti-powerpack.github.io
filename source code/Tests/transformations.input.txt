@@ -1,0 +1,88 @@
+	"---- Comments ----"
+	"Test string that gets removed
+	// Comment goes here → X
+	/*
+	Multi-line comment here
+	*/
+
+	"---- Strings + trailing quotes ----"
+	"Test string that remains"
+	"Test string"+"that remains
+	"Test string"+"that remains"
+
+	"---- Trailing brackets and quotes ----"
+	mean({1,2,3)))})}))}
+	(mean({1,2,3}))
+	If Str1="X":Then
+	If ((Str1=")":Then
+	(((X)))DMS
+	Disp (((X)))DMS,(((Y)))DMS
+
+	"-- not yet optimized --"
+	If ((Str1="X")):Then
+
+	"---- Strip list ⌊ character when unnecessary ----"
+	SetUpEditor L₁,⌊A,⌊BB,⌊CCC
+	SetUpEditor L₁,⌊AA,⌊BBB,⌊CCC
+	{0,0}→⌊COORD
+	L₁→⌊COORD
+	⌊REDLEVEL→X
+	X→⌊REDLEVEL2
+	X→⌊REDLEVEL(2)
+
+	"---- Include directives ----"
+	#include "Include Directive\test include.8xp.inc"
+	#include "Include Directive\test include 2.8xp.inc"
+	#include "Include Directive\test include 3.inc"
+
+	"---- Aliases ----"
+	#define @Label_Exit X
+	#define @Mod360 r₃
+	Disp @Mod360(B+180)
+	#define @LabelHome HX
+	Lbl {{@Label_Exit}}
+	Lbl {{@Label_Exit}}
+	Lbl @LabelHome // comment
+	Lbl @Label_Exit // comment
+	@Label_Exit→A
+	Goto @LabelHome
+	If (X):Goto X
+	If (X):Disp Y
+	
+	"---- IfDefined / IfNotDefined ----"
+	#define @SomeVar
+	#define @TestVar 1
+	#IfDefined @TestVar
+		CORRECT. TestVar is defined: @TestVar
+		#ifDefined @MissingVar
+		INCORRECT. MissingVar should be hidden.
+		#Else
+		CORRECT. MissingVar is not defined. @MissingVar
+		#EndIfDefined
+	#Else
+		INCORRECT. TestVar is defined, so this section should be hidden.
+	#EndIfDefined
+	#IfNotDefined @MissingVar
+		CORRECT. MissingVar is not defined.
+	#Else
+		INCORRECT. MissingVar is not defined. @MissingVar
+	#EndIfDefined
+	
+	"---- DelVar ----"
+	DelVar X
+	DelVar ⌊ABC
+	DelVar Str1
+	2+2
+	DelVar AAADelVar BBBDelVar CCCDelVar DDD
+	dim(3
+	DelVar ⌊YYY
+	Pause 
+	
+	"---- If statements ----"
+	If X=0:Then
+	If Y=0
+	If Z=0 and X
+	If T=0 or X
+
+	"---- Final double-quote should be preserved (helps prevent 'Done' message') ----"
+	"

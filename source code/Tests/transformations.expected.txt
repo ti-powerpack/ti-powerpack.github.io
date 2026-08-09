@@ -1,0 +1,58 @@
+"---- Comments ----
+"---- Strings + trailing quotes ----
+"Test string that remains
+"Test string"+"that remains
+"Test string"+"that remains
+"---- Trailing brackets and quotes ----
+mean({1,2,3
+(mean({1,2,3
+If Str1="X
+Then
+If ((Str1=")
+Then
+(((XDMS
+Disp (((XDMS,(((YDMS
+"-- not yet optimized --
+If ((Str1="X"))
+Then
+"---- Strip list ⌊ character when unnecessary ----
+SetUpEditor L₁,A,BB,CCC
+SetUpEditor L₁,AA,BBB,CCC
+{0,0→COORD
+L₁→COORD
+⌊REDLEVEL→X
+X→REDLEVEL2
+X→⌊REDLEVEL(2
+"---- Include directives ----
+Disp "This comes from included file 1.
+Disp "This comes from included file 2.
+Disp "This comes from included file 2.
+Disp "This comes from included file 3.
+"---- Aliases ----
+Disp r₃(B+180
+Lbl X
+Lbl X
+Lbl HX
+Lbl X
+X→A
+Goto HX
+If (X
+Goto X
+If (X
+Disp Y
+"---- IfDefined / IfNotDefined ----
+CORRECT. TestVar is defined: 1
+CORRECT. MissingVar is not defined. @MissingVar
+CORRECT. MissingVar is not defined.
+"---- DelVar ----
+DelVar XDelVar ⌊ABCDelVar Str12+2
+DelVar AAADelVar BBBDelVar CCCDelVar DDDdim(3
+DelVar ⌊YYYPause 
+"---- If statements ----
+If not(X
+Then
+If not(Y
+If Z=0 and X
+If T=0 or X
+"---- Final double-quote should be preserved (helps prevent 'Done' message') ----
+"
