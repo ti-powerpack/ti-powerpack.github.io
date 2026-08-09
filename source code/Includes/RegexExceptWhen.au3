@@ -1,7 +1,10 @@
 #include <Array.au3>
 #include "Debug.au3"
 
+; Test cases:
+; Output the following ONLY when this file is run directly, not when included in another script
 If @ScriptName = 'RegexExceptWhen.au3' Then
+
 	$source = "--- ALL COLONS REMOVED IN THESE LINES ---" & @CRLF & _
 		  "Here is a colon:" & @CRLF & _
 		  ":this one" & @CRLF & _
@@ -24,19 +27,21 @@ If @ScriptName = 'RegexExceptWhen.au3' Then
 				"DoNotRemoveTrailingBracket(""Something 1()" & @CRLF & _
 				"RemoveTrailingBracket(""a"")"
 
+	Debug("")
 	Debug("Example 2 Result:")
 	; Remove trailing brackets EXCEPT inside a string or an unclosed string
 	Debug(RegexReplaceExceptInsideString($example2, "\)$", ""))
 	
+	Debug("")
 	Debug("Example 3 Result:")
 	; All X to Y, except inside strings
-	Debug(RegexReplaceExceptInsideString("XX(""X"","""",X,""X""""X""),", "X", "Y"))
+	Debug(RegexReplaceExceptInsideString("XX(""X"","""",X,""X""""X"")", "X", "Y"))
 
 EndIf
 
 Func RegexReplaceExceptInsideString($text, $matchRegex, $replace)
 	; Matches strings like "..." or """" (escaped quotes)
-	Return RegexReplaceExceptWhen($text, """([^""]|"""")*""", $matchRegex, $replace)
+	Return RegexReplaceExceptWhen($text, """[^""]*?(""|→|$)", $matchRegex, $replace)
 EndFunc
 
 ; This function performs a global regex replace, EXCEPT
@@ -46,7 +51,11 @@ EndFunc
 ;
 ; ✔ Appears to be working from the test above
 #include <StringConstants.au3>
-Func RegexReplaceExceptWhen($text, $exceptWhenRegex, $matchRegex, $replace)
+Func RegexReplaceExceptWhen($text, $exceptWhenRegex, $matchRegex, $replace, $debug = False)
+
+	If $debug Then
+		Debug(StringRegExpReplace($text, "(?m)(?:" & $exceptWhenRegex & ")", "#"))
+	EndIf
 	
 	; Uses this special technique provided by PCRE: (?:avoid1|avoid2)(*SKIP)(*FAIL)|What_I_want_to_match
 	Return StringRegExpReplace($text, "(?m)(?:" & $exceptWhenRegex & ")(*SKIP)(*FAIL)|" & $matchRegex, $replace)
