@@ -2,6 +2,7 @@
 #include "Debug.au3"
 #include <Array.au3>
 #include "Process8xpppFile.au3"
+#include "RegexExceptWhen.au3"
 
 ;----- We run the following tests when this script is executed directly, but NOT when included from a parent script ----------
 ; PRESS F5 to run this test case
@@ -180,13 +181,17 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2})", "For(Y,­1,0):If Y:Goto \1:End")
 
 	; Replace "If X=0" and "0=X" with "If not(X)", but only at end of a line. Earlier in line it doesn't save any bytes, so no use.
-	$code = StringRegExpReplace($code, "(?m) ([A-Zθ])=0$", " not($1)")
-	$code = StringRegExpReplace($code, "(?m) 0=([A-Zθ])$", " not($1)")
+	$code = StringRegExpReplace($code, "(?m) ([A-Zθ]|Ans)=0$", " not($1)")
+	$code = StringRegExpReplace($code, "(?m) 0=([A-Zθ]|Ans)$", " not($1)")
 
 	; BRACKETS: Strip unnecessary closing brackets
-	$code = StringRegExpReplace($code, "(?m)^{.*\K}", "")				; if line starts with { remove the closing }
-	$code = StringRegExpReplace($code, "[)}]+→", "→")					; remove closing brackets ")" and "}" when storing a number
-	$code = StringRegExpReplace($code, "[)}]+DMS", "DMS")				; remove closing brackets ")" and "}" before a >DMS token
+	;~ $code = StringRegExpReplace($code, "(?m)^{.*\K}", "")			; if line starts with { remove the closing }
+	$code = RegexReplaceExceptInsideString($code, "[)}]+→", "→")					; remove closing brackets ")" and "}" when storing a number
+	$code = StringRegExpReplace($code, "(?m)[)}]+DMS$", "DMS")		; Remove brackets before DMS, but only when DMS is the last item on a line
+																		; Otherwise this will break statements like "Disp (X)DMS,(Y)DMS"
+	$code = StringRegExpReplace($code, "(?m)^(For\(.*\))$", "$1<<<")	; protect For() loops from the following rule
+	$code = RegexReplaceExceptInsideString($code, "[)}]+$", "")			; remove closing brackets ")" and "}" at end of a line, except inside a string
+	$code = StringRegExpReplace($code, "(?m)^(For\(.*\))<<<$", "$1")	; reset For() loops back to original
 
 	; QUOTES: Strip unnecessary closing quotes
 	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
@@ -197,28 +202,10 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 																		; However this broke `InString() or InString()`
 																		; Might still break string output that has a quote and string at end?
 
-
-
-	; Remove trailing brackets (curved and curly), EXCEPT when For is start of line, or there's quotes (string) in the line
-	; Will miss a few, such as:
-	;   - Menu("Abc", A)
-	;   - If X and (Str1="." or Str1="x")
-	;   - If (X):Disp "Something...
-	; ...but will prevent stripping bracket from: Disp "This (Example)"
-	; Could probably strip when "Then" is on the next line... although then it would break: If Str1=")":Then
-	$code = StringRegExpReplace($code, "(?m)^(?!For)[^""\r\n]*?\K[)}]+$", "")
-
-	; There's a couple of special cases where we can definitely remove trailing brackets.
-	$code = StringRegExpReplace($code, "(?m)^Menu\(.*\K\)$", "")
-	$code = StringRegExpReplace($code, "(?m)^StringEqu\(.*\K\)$", "")
-
 	$code = StringRegExpReplace($code, "(?m)^.*[^, ]\K""$", "")			; remove trailing double-quotes, except directly after comma or space
 
-	; Remove brackets before DMS, but only when DMS is the last item on a line
-	; Otherwise this will break statements like "Disp (X)DMS,(Y)DMS"
-	$code = StringRegExpReplace($code, "(?m)\)+DMS$", "DMS")
 
-	; Strip "⌊" when assigning a value to a list. Doesn't appear to be needed.
+	; LIST CHARACTER: Strip "⌊" when assigning a value to a list. Doesn't appear to be needed.
 	; But DON'T strip it when assigning to a specific list item.
 	;  e.g.  {1,2,3}→⌊MYLIST      - OK to strip
 	;        234→⌊MYLIST(1)		  - Not OK to strip. Needs to be included.
@@ -226,9 +213,6 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	; Also strip it when using in SetUpEditor
 	$code = NestedRegExpReplace($code, "(?m)SetUpEditor .*?(:|$)", "⌊")
 
-	; A few other special cases
-
-	;--------------------------------------------------------------
 
 	Return $code
 

@@ -13,13 +13,39 @@
 	"---- Trailing brackets and quotes ----"
 	mean({1,2,3)))})}))}
 	(mean({1,2,3}))
+	{1,2,3}→ABC
+	{1,2,(3)}→ABC
 	If Str1="X":Then
 	If ((Str1=")":Then
 	(((X)))DMS
 	Disp (((X)))DMS,(((Y)))DMS
-
-	"-- not yet optimized --"
 	If ((Str1="X")):Then
+	Menu("Abc", A)
+	If X and (Str1="." or Str1="x")
+	If (X):Disp "Something..."
+	""→Str1
+	"→Str1
+	"x"→Str1
+	"x→Str1
+	":"→Str1
+	":→Str1
+	")"→Str1
+	")→Str1
+	"x)"→Str1
+	"x)→Str1
+	"}"→Str1
+	"}→Str1
+
+
+	"...but not inside strings"
+	Disp "String ending with )))"
+	Disp "String ending with )))
+	Disp "String ending with }}}"
+	Disp "String ending with }}}
+
+	"...or after a For() loop"
+	For(I,1,10)
+	For(I,1,10
 
 	"---- Strip list ⌊ character when unnecessary ----"
 	SetUpEditor L₁,⌊A,⌊BB,⌊CCC
@@ -27,8 +53,8 @@
 	{0,0}→⌊COORD
 	L₁→⌊COORD
 	⌊REDLEVEL→X
-	X→⌊REDLEVEL2
-	X→⌊REDLEVEL(2)
+	⌊X→⌊REDLEVEL2
+	⌊X→⌊REDLEVEL(2)
 
 	"---- Include directives ----"
 	#include "Include Directive\test include.8xp.inc"
@@ -83,6 +109,10 @@
 	If Y=0
 	If Z=0 and X
 	If T=0 or X
+	If Ans=0:Then
+	If Ans=0
+	If Ans=0 and X
+	If Ans=0 or X
 
 	"---- Final double-quote should be preserved (helps prevent 'Done' message') ----"
 	"
