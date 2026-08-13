@@ -15,6 +15,12 @@
 	(mean({1,2,3}))
 	{1,2,3}→ABC
 	{1,2,(3)}→ABC
+	Disp "
+	Disp ""
+	Disp "","
+	Disp "",""
+	"A"+" 
+	"A"+" "
 	If Str1="X":Then
 	If ((Str1=")":Then
 	(((X)))DMS
@@ -22,6 +28,11 @@
 	If ((Str1="X")):Then
 	Menu("Abc", A)
 	If X and (Str1="." or Str1="x")
+	If inString(Str2,","
+	If inString(Str2,",")
+	If inString(Str2,")
+	If inString(Str2,")")
+	If inString(Str2,",") and (Str1="." or Str1="x")
 	If (X):Disp "Something..."
 	""→Str1
 	"→Str1

@@ -31,7 +31,7 @@ If @ScriptName = 'RegexExceptWhen.au3' Then
 	Debug("Example 2 Result:")
 	; Remove trailing brackets EXCEPT inside a string or an unclosed string
 	Debug(RegexReplaceExceptInsideString($example2, "\)$", ""))
-	
+
 	Debug("")
 	Debug("Example 3 Result:")
 	; All X to Y, except inside strings
@@ -56,7 +56,7 @@ Func RegexReplaceExceptWhen($text, $exceptWhenRegex, $matchRegex, $replace, $deb
 	If $debug Then
 		Debug(StringRegExpReplace($text, "(?m)(?:" & $exceptWhenRegex & ")", "#"))
 	EndIf
-	
+
 	; Uses this special technique provided by PCRE: (?:avoid1|avoid2)(*SKIP)(*FAIL)|What_I_want_to_match
 	Return StringRegExpReplace($text, "(?m)(?:" & $exceptWhenRegex & ")(*SKIP)(*FAIL)|" & $matchRegex, $replace)
 

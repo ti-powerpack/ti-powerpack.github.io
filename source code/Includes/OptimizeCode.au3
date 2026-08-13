@@ -128,15 +128,16 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = ParseAndPerformIncludeStatements($code, $pathToSourceFile)
 
 	; REMOVE LEADING WHITE-SPACE
-	$code = StringRegExpReplace($code, "(?m)^[ \t:]+", "")	; remove tabs/spaces/colons at start of a line (although tabs cannot be inserted by TI-Connect)
+	; remove tabs/spaces/colons at start of a line (although tabs cannot be inserted by TI-Connect)
+	$code = StringRegExpReplace($code, "(?m)^[ \t:]+", "")
 
 	; COMMENTS
 	; We need to also remove the trailing whitespace from comments, otherwise we might retain some blank lines in final script
 	; Note: if a double slash appears inside a string, it will strip everything after it. Might not always be what we want.
 	$code = StringRegExpReplace($code, "(?sm)^/\*.*?\*/\s*", "")		; Multi-line comments with /* ... */ - (?s) enables dot to match ANY char, including line returns
 	$code = StringRegExpReplace($code, "(?m)[ \t]*//.*", "")			; Single-line comments with // ... (we also strip leading space here, between any prior characters and start of the comment)
-	$code = StringRegExpReplace($code, "(?m)^""[^""→\r\n]*\r?\n", "")		; remove string comments (strings where there is NOT a store command or closing quotes) - won't remove comment on FINAL line of program, just in case this is desired
-																		; Note that it will remove strings that are intended to be placed in Ans! Workaround: Put a closing quote (which will later be stripped), or a "(" bracket at the start to prevent this.
+	$code = StringRegExpReplace($code, '(?m)^"[^"→\r\n]*\r?\n', '')		; Remove string comments (strings where there is NOT a store command or closing quotes) - won't remove comment on FINAL line of program, just in case this is desired
+																		; Note that it may remove strings that are intended to be placed in Ans! Workaround: Put a closing quote (which will later be stripped), or a "(" bracket at the start to prevent this.
 
 	; Process #ifDefined and #ifNotDefined directives
 	$code = ParseAndPerformConditionalStatements($code)
@@ -173,37 +174,45 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(DelVar ⌊[A-Z\d]+)\r?\n(?=(ClrHome|ClrDraw|ClrTable))", "$1")  ; ClrHome only works if the ⌊ char is included
 	$code = StringRegExpReplace($code, "(DelVar Str[0-9])\r?\n(?=\d)", "$1")
 
-	; Subroutines
+	; SUBROUTINES
 	; IMPORTANT: SciTE does NOT show the negative sign prior to the 1 in the For() loops below, but it's there
 	; "Call SA using X" becomes "For(X,-1,0):If X:Goto SA:End"
 	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2}) using (\w)", "For(\2,­1,0):If \2:Goto \1:End")
 	; "Call SA" becomes "For(Y,-1,0):If Y:Goto SA:End"
 	$code = StringRegExpReplace($code, "(?m)^Call (\w{1,2})", "For(Y,­1,0):If Y:Goto \1:End")
 
+	; NOT() SHORTCUT
 	; Replace "If X=0" and "0=X" with "If not(X)", but only at end of a line. Earlier in line it doesn't save any bytes, so no use.
 	$code = StringRegExpReplace($code, "(?m) ([A-Zθ]|Ans)=0$", " not($1)")
 	$code = StringRegExpReplace($code, "(?m) 0=([A-Zθ]|Ans)$", " not($1)")
 
 	; BRACKETS: Strip unnecessary closing brackets
 	;~ $code = StringRegExpReplace($code, "(?m)^{.*\K}", "")			; if line starts with { remove the closing }
-	$code = RegexReplaceExceptInsideString($code, "[)}]+→", "→")					; remove closing brackets ")" and "}" when storing a number
+	$code = RegexReplaceExceptInsideString($code, "[)}]+→", "→")		; remove closing brackets ")" and "}" when storing a number
 	$code = StringRegExpReplace($code, "(?m)[)}]+DMS$", "DMS")		; Remove brackets before DMS, but only when DMS is the last item on a line
 																		; Otherwise this will break statements like "Disp (X)DMS,(Y)DMS"
 	$code = StringRegExpReplace($code, "(?m)^(For\(.*\))$", "$1<<<")	; protect For() loops from the following rule
 	$code = RegexReplaceExceptInsideString($code, "[)}]+$", "")			; remove closing brackets ")" and "}" at end of a line, except inside a string
 	$code = StringRegExpReplace($code, "(?m)^(For\(.*\))<<<$", "$1")	; reset For() loops back to original
 
-	; QUOTES: Strip unnecessary closing quotes
-	$code = StringRegExpReplace($code, "(?m)^""→", """""→")				; fix special case: storing an empty string, with only one set of quotes
-	$code = StringRegExpReplace($code, """→", "→")						; remove closing " when storing a string
-	$code = StringRegExpReplace($code, "(?m)→Ans$", "")					; remove →Ans, which is only for forcing a string to be placed in ans rather than being treated as a comment
-	$code = StringRegExpReplace($code, "(?m)""\)$", "")					; Remove all quotes followed by closing bracket, when at end of a line.
+	; CLOSING QUOTES with →
+	$code = StringRegExpReplace($code, '(?m)^"→', '""→')				; fix special case: storing an empty string, with only one set of quotes
+	$code = StringRegExpReplace($code, '"→', '→')						; remove closing " when storing a string
+	$code = StringRegExpReplace($code, '(?m)→Ans$', '')					; remove →Ans, which is only for forcing a string to be placed in ans rather than being treated as a comment
+;~ 	$code = StringRegExpReplace($code, "(?m)""\)$", "")					; Remove all quotes followed by closing bracket, when at end of a line.
 																		; Previously this was all matches, not just those at end of a line,
 																		; However this broke `InString() or InString()`
 																		; Might still break string output that has a quote and string at end?
 
-	$code = StringRegExpReplace($code, "(?m)^.*[^, ]\K""$", "")			; remove trailing double-quotes, except directly after comma or space
+	; CLOSING QUOTES at end of line
+	; This strips all closing quotes at end of line, but ONLY when there's an even number of them.
+	; If there's an odd number, it keeps it in. This fixes edge cases like:
+	;   - If inString(Str2,")
+	$code = StringRegExpReplace($code, '(?m)^(?:[^\r\n"]*"[^\r\n"]*")*[^\r\n"]*"[^\r\n"]*\K"$', '')
 
+	;~ 	The following line breaks code like: `If inString(Str2,")`
+	;~ 	$code = StringRegExpReplace($code, "(?m)^.*[^, ]\K""$", "")		; remove all double-quotes at the end of a line, except directly after a space
+																		; also previously kept quotes following a comma. Not sure why!
 
 	; LIST CHARACTER: Strip "⌊" when assigning a value to a list. Doesn't appear to be needed.
 	; But DON'T strip it when assigning to a specific list item.
@@ -212,7 +221,6 @@ Func OptimizeCode($code, $pathToSourceFile = "")
 	$code = StringRegExpReplace($code, "(?m)→⌊([A-Z0-9]+)$", "→$1")
 	; Also strip it when using in SetUpEditor
 	$code = NestedRegExpReplace($code, "(?m)SetUpEditor .*?(:|$)", "⌊")
-
 
 	Return $code
 
